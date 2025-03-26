@@ -52,21 +52,26 @@ function Qualification() {
   const handleSaveTeam = async () => {
     try {
       if (selectedTeam) {
-        const conf = confederations[activeTab];
-        const currentQualifiedCount = teams[activeTab].filter(t => t.qualified).length;
-        
-        // Check if we're trying to qualify a team when all slots are filled
-        if (selectedTeam.qualified && !teams[activeTab].find(t => t.id === selectedTeam.id)?.qualified) {
-          if (currentQualifiedCount >= conf.slots) {
-            setError(`Cannot qualify more teams. ${conf.name} has reached its maximum of ${conf.slots} slots.`);
-            return;
-          }
+        // Find the team's original confederation
+        const originalConf = Object.entries(teams).find(([_, confTeams]) => 
+          confTeams.some(t => t.id === selectedTeam.id)
+        )?.[0];
+
+        if (!originalConf) {
+          setError('Team not found in any confederation');
+          return;
+        }
+
+        const conf = confederations[originalConf];
+        if (!conf) {
+          setError('Invalid confederation selected');
+          return;
         }
 
         await teamService.updateTeamQualification(selectedTeam.id, selectedTeam.qualified);
         // Refresh teams after update
         const updatedTeams = await teamService.getTeamsByConfederation(conf.code);
-        setTeams(prev => ({ ...prev, [activeTab]: updatedTeams }));
+        setTeams(prev => ({ ...prev, [originalConf]: updatedTeams }));
       }
       setIsEditing(false);
       setSelectedTeam(null);
@@ -101,44 +106,73 @@ function Qualification() {
   };
 
   const handleQualifyTeam = (team) => {
-    const conf = confederations[activeTab];
-    const currentQualifiedCount = teams[activeTab]?.filter(t => t.qualified).length || 0;
-    
-    if (currentQualifiedCount >= conf.slots) {
-      setError(`Cannot qualify more teams. ${conf.name} has reached its maximum of ${conf.slots} slots.`);
+    // Find the team's original confederation
+    const originalConf = Object.entries(teams).find(([_, confTeams]) => 
+      confTeams.some(t => t.id === team.id)
+    )?.[0];
+
+    if (!originalConf) {
+      setError('Team not found in any confederation');
+      return;
+    }
+
+    const conf = confederations[originalConf];
+    if (!conf) {
+      setError('Invalid confederation selected');
       return;
     }
 
     // Update local state immediately
-    if (activeTab === 'playoff') {
-      // For playoff, update the team in its original confederation
-      const originalConf = Object.entries(teams).find(([_, confTeams]) => 
-        confTeams.some(t => t.id === team.id)
-      )?.[0];
-      
-      if (originalConf) {
-        setTeams(prev => ({
-          ...prev,
-          [originalConf]: prev[originalConf].map(t => 
-            t.id === team.id ? { ...t, qualified: true } : t
-          )
-        }));
+    setTeams(prev => {
+      const updatedTeams = { ...prev };
+      if (!updatedTeams[originalConf]) {
+        updatedTeams[originalConf] = [];
       }
-    } else {
-      setTeams(prev => ({
-        ...prev,
-        [activeTab]: prev[activeTab].map(t => 
-          t.id === team.id ? { ...t, qualified: true } : t
-        )
-      }));
-    }
+      updatedTeams[originalConf] = updatedTeams[originalConf].map(t => 
+        t.id === team.id ? { ...t, qualified: true } : t
+      );
+      return updatedTeams;
+    });
 
-    // Add to pending changes for current confederation
+    // Add to pending changes for the team's original confederation
     setPendingChanges(prev => ({
       ...prev,
-      [activeTab]: {
-        ...(prev[activeTab] || {}),
+      [originalConf]: {
+        ...(prev[originalConf] || {}),
         [team.id]: true
+      }
+    }));
+  };
+
+  const handleUnqualifyTeam = (team) => {
+    // Find the team's original confederation
+    const originalConf = Object.entries(teams).find(([_, confTeams]) => 
+      confTeams.some(t => t.id === team.id)
+    )?.[0];
+
+    if (!originalConf) {
+      setError('Team not found in any confederation');
+      return;
+    }
+
+    // Update local state immediately
+    setTeams(prev => {
+      const updatedTeams = { ...prev };
+      if (!updatedTeams[originalConf]) {
+        updatedTeams[originalConf] = [];
+      }
+      updatedTeams[originalConf] = updatedTeams[originalConf].map(t => 
+        t.id === team.id ? { ...t, qualified: false } : t
+      );
+      return updatedTeams;
+    });
+
+    // Add to pending changes for the team's original confederation
+    setPendingChanges(prev => ({
+      ...prev,
+      [originalConf]: {
+        ...(prev[originalConf] || {}),
+        [team.id]: false
       }
     }));
   };
@@ -146,27 +180,31 @@ function Qualification() {
   const handleSaveChanges = async () => {
     try {
       setLoading(true);
-      const conf = confederations[activeTab];
-      const currentConfChanges = pendingChanges[activeTab] || {};
       
-      // Save all pending changes for current confederation
+      // Save all pending changes for all confederations
       await Promise.all(
-        Object.entries(currentConfChanges).map(([teamId, qualified]) =>
-          teamService.updateTeamQualification(teamId, qualified)
-        )
-      );
+        Object.entries(pendingChanges).map(async ([confKey, changes]) => {
+          const conf = confederations[confKey];
+          if (!conf) return;
 
-      // Refresh teams after update
-      const updatedTeams = await teamService.getTeamsByConfederation(conf.code);
-      setTeams(prev => ({ ...prev, [activeTab]: updatedTeams }));
+          // Save changes for this confederation
+          await Promise.all(
+            Object.entries(changes).map(([teamId, qualified]) =>
+              teamService.updateTeamQualification(teamId, qualified)
+            )
+          );
+
+          // Refresh teams for this confederation
+          const updatedTeams = await teamService.getTeamsByConfederation(conf.code);
+          setTeams(prev => ({
+            ...prev,
+            [confKey]: updatedTeams
+          }));
+        })
+      );
       
-      // Clear pending changes for current confederation
-      setPendingChanges(prev => {
-        const newChanges = { ...prev };
-        delete newChanges[activeTab];
-        return newChanges;
-      });
-      
+      // Clear all pending changes
+      setPendingChanges({});
       setError(null);
     } catch (err) {
       console.error('Error saving changes:', err);
@@ -177,26 +215,14 @@ function Qualification() {
   };
 
   const hasPendingChanges = (confKey) => {
-    return Object.keys(pendingChanges[confKey] || {}).length > 0;
-  };
-
-  const handleUnqualifyTeam = (team) => {
-    // Update local state immediately
-    setTeams(prev => ({
-      ...prev,
-      [activeTab]: prev[activeTab].map(t => 
-        t.id === team.id ? { ...t, qualified: false } : t
-      )
-    }));
-
-    // Add to pending changes for current confederation
-    setPendingChanges(prev => ({
-      ...prev,
-      [activeTab]: {
-        ...(prev[activeTab] || {}),
-        [team.id]: false
-      }
-    }));
+    // For playoff tab, check if there are any pending changes in any confederation
+    if (confKey === 'playoff') {
+      return Object.values(pendingChanges).some(changes => 
+        Object.keys(changes).length > 0
+      );
+    }
+    // For other tabs, check only their own pending changes
+    return pendingChanges[confKey] && Object.keys(pendingChanges[confKey]).length > 0;
   };
 
   return (
@@ -293,9 +319,9 @@ function Qualification() {
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">Available Slots</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {Array.from({ length: Math.min(getRemainingSpots(key), 12) }).map((_, index) => (
+                      {Array.from({ length: getRemainingSpots(key) }).map((_, index) => (
                         <div key={index} className="p-4 border-2 border-dashed border-gray-300 rounded-lg">
-                          <div className="text-sm text-gray-500 mb-2">Group {String.fromCharCode(65 + index)}</div>
+                          <div className="text-sm text-gray-500 mb-2">Slot {index + 1}</div>
                           <Select
                             onChange={(e) => {
                               const team = getUnqualifiedTeams(key).find(t => t.id === e.target.value);

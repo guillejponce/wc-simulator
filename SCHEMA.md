@@ -328,3 +328,71 @@ erDiagram
         float possession_avg
         float pass_accuracy_avg
     }
+
+    -- Migration to add team position columns to the group table
+-- This will let us store specific team positions within each group
+
+-- First, add columns for the 4 team positions to the group table
+ALTER TABLE "group" 
+ADD COLUMN team1_id UUID REFERENCES team(id),
+ADD COLUMN team2_id UUID REFERENCES team(id),
+ADD COLUMN team3_id UUID REFERENCES team(id),
+ADD COLUMN team4_id UUID REFERENCES team(id);
+
+-- Now let's create groups A through L with placeholders for team positions
+-- We'll update existing groups or create new ones if needed
+
+-- Function to create or update groups
+CREATE OR REPLACE FUNCTION create_or_update_groups() RETURNS VOID AS $$
+DECLARE
+    group_letter CHAR(1);
+    group_id UUID;
+BEGIN
+    -- For each letter A through L
+    FOR i IN 0..11 LOOP
+        group_letter := CHR(65 + i); -- ASCII: A=65, B=66, etc.
+        
+        -- Check if the group already exists
+        SELECT id INTO group_id FROM "group" WHERE name = group_letter;
+        
+        IF group_id IS NULL THEN
+            -- Create the group if it doesn't exist
+            INSERT INTO "group" (name) VALUES (group_letter);
+        END IF;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Execute the function
+SELECT create_or_update_groups();
+
+-- Drop the function as it's no longer needed
+DROP FUNCTION create_or_update_groups();
+
+-- Optional: Create a view for easier access to group data with team info
+CREATE OR REPLACE VIEW group_teams_view AS
+SELECT 
+    g.id AS group_id,
+    g.name AS group_name,
+    t1.id AS team1_id,
+    t1.name AS team1_name,
+    t1.code AS team1_code,
+    t1.flag_url AS team1_flag,
+    t2.id AS team2_id,
+    t2.name AS team2_name,
+    t2.code AS team2_code,
+    t2.flag_url AS team2_flag,
+    t3.id AS team3_id,
+    t3.name AS team3_name,
+    t3.code AS team3_code,
+    t3.flag_url AS team3_flag,
+    t4.id AS team4_id,
+    t4.name AS team4_name,
+    t4.code AS team4_code,
+    t4.flag_url AS team4_flag
+FROM "group" g
+LEFT JOIN team t1 ON g.team1_id = t1.id
+LEFT JOIN team t2 ON g.team2_id = t2.id
+LEFT JOIN team t3 ON g.team3_id = t3.id
+LEFT JOIN team t4 ON g.team4_id = t4.id
+ORDER BY g.name;
