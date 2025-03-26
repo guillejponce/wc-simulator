@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button, Card, CardHeader, CardTitle, CardContent, CardFooter, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Input, Select, Label, Form, FormField, FormItem, FormLabel, FormDescription } from '../components/ui';
 import { Globe, Users, Target, Award, Flag, Loader2 } from 'lucide-react';
 import { teamService } from '../services/teamService';
+import '../assets/styles/theme.css';
 
 function Qualification() {
   const [activeTab, setActiveTab] = useState('uefa');
@@ -227,197 +228,140 @@ function Qualification() {
 
   return (
     <div className="space-y-6">
-      {/* Header Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="w-5 h-5" />
-            Team Qualification
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Total Teams</div>
-              <div className="text-2xl font-bold">
-                {Object.values(teams).reduce((total, confTeams) => total + confTeams.length, 0)}
-              </div>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Qualified Teams</div>
-              <div className="text-2xl font-bold">{getQualifiedCount()}</div>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Total Spots</div>
-              <div className="text-2xl font-bold">
-                {Object.values(confederations).reduce((total, conf) => total + conf.slots, 0)}
-              </div>
-            </div>
+      {/* Header */}
+      <div className="header-gradient">
+        <h1 className="text-4xl font-bold flex items-center gap-3">
+          <Globe className="w-8 h-8" />
+          Team Qualification
+        </h1>
+        <p className="text-xl opacity-90 mt-2">Qualify teams for the FIFA World Cup 2026™</p>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="card p-6">
+          <div className="text-sm text-[var(--text-primary)]">Total Teams</div>
+          <div className="text-2xl font-bold bg-gradient-to-r from-[var(--wc-red)] to-[var(--wc-blue)] text-transparent bg-clip-text">
+            {Object.values(teams).reduce((total, confTeams) => total + confTeams.length, 0)}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="card p-6">
+          <div className="text-sm text-[var(--text-primary)]">Qualified Teams</div>
+          <div className="text-2xl font-bold bg-gradient-to-r from-[var(--wc-purple)] to-[var(--wc-blue)] text-transparent bg-clip-text">
+            {getQualifiedCount()}
+          </div>
+        </div>
+        <div className="card p-6">
+          <div className="text-sm text-[var(--text-primary)]">Total Spots</div>
+          <div className="text-2xl font-bold bg-gradient-to-r from-[var(--wc-blue)] to-[var(--wc-mint)] text-transparent bg-clip-text">
+            {Object.values(confederations).reduce((total, conf) => total + conf.slots, 0)}
+          </div>
+        </div>
+      </div>
 
       {/* Confederation Tabs */}
-      <Tabs value={activeTab} onChange={setActiveTab} className="space-y-4">
-        <TabsList>
+      <div className="card">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full p-0 bg-[var(--background-secondary)] rounded-t-[var(--card-radius)]">
+            {Object.entries(confederations).map(([key, conf]) => (
+              <TabsTrigger
+                key={key}
+                value={key}
+                className="flex-1 py-4 border-b-2 border-transparent data-[state=active]:border-[var(--wc-blue)] data-[state=active]:bg-white data-[state=active]:text-[var(--text-primary)] transition-colors"
+              >
+                {conf.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
           {Object.entries(confederations).map(([key, conf]) => (
-            <TabsTrigger key={key} value={key}>
-              {conf.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+            <TabsContent key={key} value={key} className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-[var(--text-primary)]">{conf.name} Teams</h2>
+                <Button
+                  onClick={handleSaveChanges}
+                  disabled={loading || !hasPendingChanges(key)}
+                  className="button-primary"
+                >
+                  {loading ? (
+                    <div className="loader w-4 h-4" />
+                  ) : (
+                    <>
+                      <Award className="w-4 h-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
 
-        {Object.entries(confederations).map(([key, conf]) => (
-          <TabsContent key={key} value={key}>
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Flag className="w-5 h-5" />
-                    {conf.name} Teams
-                  </CardTitle>
-                  <Button 
-                    onClick={handleSaveChanges}
-                    disabled={loading || !hasPendingChanges(key)}
-                    className={`flex items-center gap-2 ${hasPendingChanges(key) ? 'bg-green-600 hover:bg-green-700' : 'opacity-50'}`}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Award className="w-4 h-4" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
+              {/* Qualification Status */}
+              <div className="card p-6 mb-6 bg-[var(--background-secondary)]">
+                <div className="text-lg font-semibold text-[var(--text-primary)]">
+                  {teams[key]?.filter(team => team.qualified).length || 0} / {conf.slots} spots filled
                 </div>
-              </CardHeader>
-              <CardContent>
-                {hasPendingChanges(key) && (
-                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <div className="text-sm text-yellow-800">
-                      You have {Object.keys(pendingChanges[key] || {}).length} unsaved changes. Click "Save Changes" to apply them.
-                    </div>
-                  </div>
-                )}
-
-                <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm text-gray-500">Qualification Status</div>
-                  <div className="text-lg font-semibold">
-                    {teams[key]?.filter(team => team.qualified).length || 0} / {conf.slots} spots filled
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {getRemainingSpots(key)} spots remaining
-                  </div>
+                <div className="text-sm text-[var(--text-primary)] opacity-80 mt-1">
+                  {getRemainingSpots(key)} spots remaining
                 </div>
+              </div>
 
-                {/* Empty Slots Section */}
-                {getRemainingSpots(key) > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">Available Slots</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {Array.from({ length: getRemainingSpots(key) }).map((_, index) => (
-                        <div key={index} className="p-4 border-2 border-dashed border-gray-300 rounded-lg">
-                          <div className="text-sm text-gray-500 mb-2">Slot {index + 1}</div>
-                          <Select
-                            onChange={(e) => {
-                              const team = getUnqualifiedTeams(key).find(t => t.id === e.target.value);
-                              if (team) {
-                                handleQualifyTeam(team);
-                              }
-                            }}
-                          >
-                            <option value="">Select a team</option>
-                            {getUnqualifiedTeams(key).map(team => (
-                              <option key={team.id} value={team.id}>
-                                {team.name} (Rank: {team.fifa_ranking})
-                              </option>
-                            ))}
-                          </Select>
+              {/* Teams Table */}
+              <Table>
+                <TableHeader>
+                  <TableRow className="table-header">
+                    <TableHead className="text-[var(--text-primary)]">Team</TableHead>
+                    <TableHead className="text-[var(--text-primary)]">FIFA Ranking</TableHead>
+                    <TableHead className="text-[var(--text-primary)]">Status</TableHead>
+                    <TableHead className="text-[var(--text-primary)]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {teams[key]?.map((team) => (
+                    <TableRow key={team.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
+                            alt={`${team.name} flag`}
+                            className="w-6 h-4 object-cover rounded shadow-sm"
+                          />
+                          <span className="font-medium text-[var(--text-primary)]">{team.name}</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {loading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  </div>
-                ) : error ? (
-                  <div className="text-center text-red-500 py-8">
-                    {error}
-                  </div>
-                ) : teams[key]?.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">
-                    No teams found for this confederation.
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">All Teams</h3>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Team</TableHead>
-                          <TableHead>FIFA Ranking</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {teams[key]?.map((team) => (
-                          <TableRow key={team.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center gap-2">
-                                <img
-                                  src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
-                                  alt={`${team.name} flag`}
-                                  className="w-6 h-4 object-cover rounded"
-                                />
-                                {team.name}
-                              </div>
-                            </TableCell>
-                            <TableCell>{team.fifa_ranking}</TableCell>
-                            <TableCell>
-                              <Badge variant={team.qualified ? "success" : "secondary"}>
-                                {team.qualified ? "Qualified" : "Not Qualified"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                {team.qualified ? (
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => handleUnqualifyTeam(team)}
-                                  >
-                                    Remove
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleEditTeam(team)}
-                                  >
-                                    Edit
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+                      </TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team.fifa_ranking}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={team.qualified ? 'bg-[var(--wc-blue)] text-white' : 'bg-[var(--text-secondary)] text-white'}
+                        >
+                          {team.qualified ? "Qualified" : "Not Qualified"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          {team.qualified ? (
+                            <Button
+                              onClick={() => handleUnqualifyTeam(team)}
+                              className="bg-[var(--wc-red)] text-white hover:opacity-90"
+                            >
+                              Remove
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={() => handleQualifyTeam(team)}
+                              className="bg-[var(--wc-blue)] text-white hover:opacity-90"
+                            >
+                              Qualify
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
 
       {/* Edit Team Dialog */}
       {isEditing && selectedTeam && (

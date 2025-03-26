@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button, Card, CardHeader, CardTitle, CardContent, CardFooter, Badge, Progress, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Select } from '../components/ui';
 import { Trophy, Users, Target, Award, Flag, Shuffle } from 'lucide-react';
 import { teamService } from '../services/teamService';
+import '../assets/styles/theme.css';
 
 function Draw() {
   const [drawStatus, setDrawStatus] = useState('setup'); // setup, in_progress, completed
@@ -190,106 +191,99 @@ function Draw() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-blue-600" />
-              Group Draw
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Draw Progress</span>
-                <span className="font-medium">
-                  {drawnTeams.length}/48 Teams
-                </span>
-              </div>
-              <Progress value={(drawnTeams.length / 48) * 100} />
-              {error && (
-                <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
+      <div className="header-gradient">
+        <h1 className="text-4xl font-bold flex items-center gap-3">
+          <Trophy className="w-8 h-8" />
+          Group Draw
+        </h1>
+        <p className="text-xl opacity-90 mt-2">Draw teams into groups for the FIFA World Cup 2026™</p>
+      </div>
+
+      {/* Draw Progress */}
+      <div className="card p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-[var(--text-primary)]">Draw Progress</span>
+            <span className="font-medium text-[var(--text-primary)]">
+              {drawnTeams.length}/48 Teams
+            </span>
+          </div>
+          <div className="h-2 bg-[var(--background-secondary)] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[var(--wc-red)] to-[var(--wc-blue)]"
+              style={{ width: `${(drawnTeams.length / 48) * 100}%` }}
+            />
+          </div>
+          {error && (
+            <div className="p-3 bg-red-50 text-[var(--wc-red)] rounded-lg text-sm font-medium">
+              {error}
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handleStartDraw}
-              disabled={drawStatus === 'in_progress'}
-            >
-              <Shuffle className="w-4 h-4 mr-2" />
-              Start New Draw
-            </Button>
-          </CardFooter>
-        </Card>
-      </motion.div>
+          )}
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={handleStartDraw}
+            disabled={drawStatus === 'in_progress'}
+            className="button-primary flex items-center gap-2"
+          >
+            <Shuffle className="w-4 h-4" />
+            Start New Draw
+          </button>
+        </div>
+      </div>
 
       {/* Pots Display */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Draw Pots</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="card">
+        <div className="p-6 border-b border-[var(--border-color)]">
+          <h2 className="text-2xl font-bold text-[var(--text-primary)]">Draw Pots</h2>
+        </div>
+        <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.entries(pots).map(([potNumber, teams]) => (
-              <div key={potNumber} className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold mb-2">Pot {potNumber}</h3>
-                <div className="space-y-2">
-                  {teams.map((team) => (
-                    <div
-                      key={team.id}
-                      className={`flex items-center justify-between p-2 rounded ${
-                        drawnTeams.some(drawnTeam => drawnTeam.id === team.id)
-                          ? 'bg-gray-200'
-                          : 'bg-white'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
-                          alt={`${team.name} flag`}
-                          className="w-6 h-4 object-cover rounded"
-                        />
-                        <span className="font-medium">{team.name}</span>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={`border-${getConfederationColor(team.region)}-200 text-${getConfederationColor(team.region)}-800`}
+              <div key={potNumber} className="card bg-[var(--background-secondary)]">
+                <div className="p-4">
+                  <h3 className="font-semibold mb-2 text-[var(--text-primary)]">Pot {potNumber}</h3>
+                  <div className="space-y-2">
+                    {teams.map((team) => (
+                      <div
+                        key={team.id}
+                        className={`flex items-center justify-between p-2 rounded ${
+                          drawnTeams.some(drawnTeam => drawnTeam.id === team.id)
+                            ? 'opacity-50 bg-[var(--background-secondary)]'
+                            : 'bg-white'
+                        }`}
                       >
-                        {team.region}
-                      </Badge>
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
+                            alt={`${team.name} flag`}
+                            className="w-6 h-4 object-cover rounded shadow-sm"
+                          />
+                          <span className="font-medium text-[var(--text-primary)]">{team.name}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Groups Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {groups.map((group, groupIndex) => (
-          <Card key={groupIndex}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Flag className="w-5 h-5 text-blue-600" />
-                Group {String.fromCharCode(65 + groupIndex)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div key={groupIndex} className="group-card">
+            <div className="p-4 border-b border-[var(--border-color)]">
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Group {String.fromCharCode(65 + groupIndex)}</h2>
+            </div>
+            <div className="p-4">
               <div className="space-y-2">
                 {group.teams.map((team, positionIndex) => (
                   <div
                     key={positionIndex}
-                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                    className="flex items-center justify-between p-2 bg-[var(--background-secondary)] rounded"
                   >
                     {team ? (
                       <>
@@ -297,40 +291,32 @@ function Draw() {
                           <img
                             src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
                             alt={`${team.name} flag`}
-                            className="w-6 h-4 object-cover rounded"
+                            className="w-6 h-4 object-cover rounded shadow-sm"
                           />
-                          <span className="font-medium">{team.name}</span>
-                          <Badge
-                            variant="outline"
-                            className={`border-${getConfederationColor(team.region)}-200 text-${getConfederationColor(team.region)}-800`}
-                          >
-                            {team.region}
-                          </Badge>
+                          <span className="font-medium text-[var(--text-primary)]">{team.name}</span>
                         </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
+                        <button
                           onClick={() => handleRemoveTeam(groupIndex, positionIndex)}
+                          className="px-3 py-1 text-sm bg-[var(--wc-red)] text-white rounded hover:opacity-90 transition-opacity"
                         >
                           Remove
-                        </Button>
+                        </button>
                       </>
                     ) : (
                       <Select
                         onChange={(e) => handleAssignTeam(groupIndex, positionIndex, e.target.value)}
-                        className="w-full"
+                        className="w-full text-[var(--text-primary)]"
                       >
-                        <option value="">Select a team</option>
+                        <option value="" className="text-[var(--text-primary)]">Select a team</option>
                         {Object.values(pots)
                           .flat()
                           .filter(t => !drawnTeams.some(dt => dt.id === t.id))
                           .map(team => {
-                            // Find which pot this team belongs to
                             const potNumber = Object.entries(pots).find(([_, teams]) => 
                               teams.some(t => t.id === team.id)
                             )?.[0];
                             return (
-                              <option key={team.id} value={team.id}>
+                              <option key={team.id} value={team.id} className="text-[var(--text-primary)]">
                                 {team.name} (Pot {potNumber})
                               </option>
                             );
@@ -340,37 +326,37 @@ function Draw() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Draw Rules */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Draw Rules</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-gray-600">
-            <li className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+      <div className="card">
+        <div className="p-6 border-b border-[var(--border-color)]">
+          <h2 className="text-2xl font-bold text-[var(--text-primary)]">Draw Rules</h2>
+        </div>
+        <div className="p-6">
+          <ul className="space-y-2">
+            <li className="flex items-center gap-2 text-[var(--text-primary)]">
+              <span className="w-2 h-2 bg-[var(--wc-blue)] rounded-full"></span>
               Pot 1 contains the host nations (USA, Canada, Mexico) plus highest-ranked teams
             </li>
-            <li className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+            <li className="flex items-center gap-2 text-[var(--text-primary)]">
+              <span className="w-2 h-2 bg-[var(--wc-blue)] rounded-full"></span>
               Pots 2-4 are determined by FIFA rankings
             </li>
-            <li className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+            <li className="flex items-center gap-2 text-[var(--text-primary)]">
+              <span className="w-2 h-2 bg-[var(--wc-blue)] rounded-full"></span>
               Each group will contain 4 teams
             </li>
-            <li className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+            <li className="flex items-center gap-2 text-[var(--text-primary)]">
+              <span className="w-2 h-2 bg-[var(--wc-blue)] rounded-full"></span>
               Teams from the same confederation cannot be drawn into the same group
             </li>
           </ul>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

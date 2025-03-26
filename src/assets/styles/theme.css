@@ -1,0 +1,109 @@
+:root {
+  /* World Cup 2026 Colors */
+  --wc-red: #E31B23;
+  --wc-blue: #004FA3;
+  --wc-purple: #9747FF;
+  --wc-lime: #BFFF00;
+  --wc-mint: #7FFFD4;
+  --wc-orange: #FF6B35;
+  
+  /* Background gradients */
+  --gradient-primary: linear-gradient(135deg, var(--wc-red) 0%, var(--wc-purple) 50%, var(--wc-blue) 100%);
+  --gradient-secondary: linear-gradient(45deg, var(--wc-mint) 0%, var(--wc-lime) 50%, var(--wc-orange) 100%);
+  
+  /* Component Colors */
+  --background-primary: #FFFFFF;
+  --background-secondary: #F8F9FA;
+  --text-primary: #1A1A1A;
+  --text-secondary: #666666;
+  --border-color: #E5E7EB;
+  
+  /* Card Styles */
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --card-radius: 1rem;
+  
+  /* Animation */
+  --transition-speed: 0.2s;
+}
+
+/* Global Styles */
+body {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+/* Card Styles */
+.card {
+  background: var(--background-primary);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: transform var(--transition-speed);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Header Styles */
+.header-gradient {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 2rem;
+  border-radius: var(--card-radius);
+  margin-bottom: 2rem;
+}
+
+/* Table Styles */
+.table-header {
+  background: var(--gradient-secondary);
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+/* Badge Styles */
+.badge {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+/* Button Styles */
+.button-primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: opacity var(--transition-speed);
+}
+
+.button-primary:hover {
+  opacity: 0.9;
+}
+
+/* Group Card Styles */
+.group-card {
+  border: 2px solid transparent;
+  background: 
+    linear-gradient(var(--background-primary), var(--background-primary)) padding-box,
+    var(--gradient-primary) border-box;
+  border-radius: var(--card-radius);
+}
+
+/* Loading Animation */
+.loader {
+  border: 4px solid var(--background-secondary);
+  border-top: 4px solid var(--wc-blue);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

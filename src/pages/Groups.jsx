@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Badge } from '../components/ui';
 import { Flag, Loader2 } from 'lucide-react';
 import { teamService } from '../services/teamService';
+import '../assets/styles/theme.css';
 
 function Groups() {
   const [groups, setGroups] = useState([]);
@@ -73,14 +74,14 @@ function Groups() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <div className="loader" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 py-8">
+      <div className="text-center text-[var(--wc-red)] py-8 font-medium">
         {error}
       </div>
     );
@@ -88,74 +89,75 @@ function Groups() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Flag className="w-5 h-5" />
-            Group Stage
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {groups.map((group) => (
-              <Card key={group.name}>
-                <CardHeader>
-                  <CardTitle>Group {group.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[40px]">Pos</TableHead>
-                        <TableHead>Team</TableHead>
-                        <TableHead className="w-[40px]">P</TableHead>
-                        <TableHead className="w-[40px]">W</TableHead>
-                        <TableHead className="w-[40px]">D</TableHead>
-                        <TableHead className="w-[40px]">L</TableHead>
-                        <TableHead className="w-[40px]">GF</TableHead>
-                        <TableHead className="w-[40px]">GA</TableHead>
-                        <TableHead className="w-[40px]">GD</TableHead>
-                        <TableHead className="w-[40px]">Pts</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {group.teams.map((team, index) => (
-                        <TableRow key={team?.id || `empty-${index}`}>
-                          <TableCell className="font-medium">{index + 1}</TableCell>
-                          <TableCell>
-                            {team ? (
-                              <div className="flex items-center gap-2">
-                                <img
-                                  src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
-                                  alt={`${team.name} flag`}
-                                  className="w-6 h-4 object-cover rounded"
-                                />
-                                {team.name}
-                              </div>
-                            ) : (
-                              <span className="text-gray-400">TBD</span>
-                            )}
-                          </TableCell>
-                          <TableCell>{team?.played || 0}</TableCell>
-                          <TableCell>{team?.won || 0}</TableCell>
-                          <TableCell>{team?.drawn || 0}</TableCell>
-                          <TableCell>{team?.lost || 0}</TableCell>
-                          <TableCell>{team?.goalsFor || 0}</TableCell>
-                          <TableCell>{team?.goalsAgainst || 0}</TableCell>
-                          <TableCell>{team ? team.goalsFor - team.goalsAgainst : 0}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{team?.points || 0}</Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            ))}
+      <div className="header-gradient mb-8">
+        <h1 className="text-4xl font-bold flex items-center gap-3 text-[var(--text-primary)]">
+          <Flag className="w-8 h-8" />
+          FIFA World Cup 2026™
+        </h1>
+        <p className="text-xl opacity-90 mt-2 text-[var(--text-primary)]">Group Stage</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {groups.map((group) => (
+          <div key={group.name} className="group-card">
+            <div className="p-4 border-b border-[var(--border-color)]">
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Group {group.name}</h2>
+            </div>
+            <div className="p-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="table-header">
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">Pos</TableHead>
+                    <TableHead className="text-[var(--text-primary)]">Team</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">P</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">W</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">D</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">L</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">GF</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">GA</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">GD</TableHead>
+                    <TableHead className="w-[40px] text-[var(--text-primary)]">Pts</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {group.teams.map((team, index) => (
+                    <TableRow 
+                      key={team?.id || `empty-${index}`}
+                      className={index < 2 ? 'bg-gradient-secondary bg-opacity-10' : ''}
+                    >
+                      <TableCell className="font-medium text-[var(--text-primary)]">{index + 1}</TableCell>
+                      <TableCell>
+                        {team ? (
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
+                              alt={`${team.name} flag`}
+                              className="w-6 h-4 object-cover rounded shadow-sm"
+                            />
+                            <span className="font-medium text-[var(--text-primary)]">{team.name}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[var(--text-primary)] opacity-60">TBD</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team?.played || 0}</TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team?.won || 0}</TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team?.drawn || 0}</TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team?.lost || 0}</TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team?.goalsFor || 0}</TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team?.goalsAgainst || 0}</TableCell>
+                      <TableCell className="text-[var(--text-primary)]">{team ? team.goalsFor - team.goalsAgainst : 0}</TableCell>
+                      <TableCell>
+                        <span className="badge text-[var(--text-primary)] font-medium">{team?.points || 0}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     </div>
   );
 }
