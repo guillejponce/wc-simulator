@@ -426,9 +426,9 @@ function MatchDetail() {
   const canEditScores = !isEditing && match.status === 'in_progress';
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="header-gradient flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="header-gradient flex flex-col md:flex-row items-center justify-between mb-6 p-4 md:p-6">
+        <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-0 text-center md:text-left">
           {id === 'new' ? 'Create New Match' : `${homeName} vs ${awayName}`}
         </h1>
         <Button 
@@ -440,13 +440,13 @@ function MatchDetail() {
       </div>
 
       <Card className="match-card">
-        <CardHeader className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b">
-          <CardTitle className="text-xl font-semibold text-neutral-800">
+        <CardHeader className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl font-semibold text-neutral-800">
             {isEditing ? 'Edit Match Details' : 'Match Details'}
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="p-6">
+        <CardContent className="p-4 md:p-6">
           {isEditing ? (
             <Form className="space-y-6">
               <FormField>
@@ -575,19 +575,19 @@ function MatchDetail() {
               )}
             </Form>
           ) : (
-            <div className="space-y-8">
-              <div className="grid grid-cols-3 gap-8">
+            <div className="space-y-6 md:space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                 <div className="col-span-1 text-center p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow transition-all">
                   <div className="font-semibold text-lg mb-2">{homeName}</div>
                   {match.home_team?.flag_url && (
                     <img 
                       src={match.home_team.flag_url} 
                       alt={homeName}
-                      className="h-20 mx-auto my-3 rounded-md shadow-sm border border-neutral-200"
+                      className="h-16 md:h-20 mx-auto my-2 md:my-3 rounded-md shadow-sm border border-neutral-200"
                     />
                   )}
                   {match.status !== 'scheduled' && (
-                    <div className="flex items-center justify-center mt-5">
+                    <div className="flex items-center justify-center mt-3 md:mt-5">
                       {canEditScores ? (
                         <div className="match-score-controls">
                           <Button 
@@ -595,22 +595,22 @@ function MatchDetail() {
                             size="sm"
                             onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
                             disabled={match.home_score <= 0}
-                            className="px-4 py-2 h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
+                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
                           >
                             -
                           </Button>
-                          <div className="match-score-display">{match.home_score || 0}</div>
+                          <div className="match-score-display text-lg md:text-2xl py-1 px-3 md:px-4">{match.home_score || 0}</div>
                           <Button 
                             variant="default" 
                             size="sm"
                             onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
-                            className="px-4 py-2 h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
+                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
                           >
                             +
                           </Button>
                         </div>
                       ) : (
-                        <div className="text-4xl font-bold p-3 bg-neutral-100 rounded-md shadow-inner">{match.home_score || 0}</div>
+                        <div className="text-3xl md:text-4xl font-bold p-2 md:p-3 bg-neutral-100 rounded-md shadow-inner">{match.home_score || 0}</div>
                       )}
                     </div>
                   )}
@@ -654,11 +654,11 @@ function MatchDetail() {
                     <img 
                       src={match.away_team.flag_url} 
                       alt={awayName}
-                      className="h-20 mx-auto my-3 rounded-md shadow-sm border border-neutral-200"
+                      className="h-16 md:h-20 mx-auto my-2 md:my-3 rounded-md shadow-sm border border-neutral-200"
                     />
                   )}
                   {match.status !== 'scheduled' && (
-                    <div className="flex items-center justify-center mt-5">
+                    <div className="flex items-center justify-center mt-3 md:mt-5">
                       {canEditScores ? (
                         <div className="match-score-controls">
                           <Button 
@@ -666,30 +666,30 @@ function MatchDetail() {
                             size="sm"
                             onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
                             disabled={match.away_score <= 0}
-                            className="px-4 py-2 h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
+                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
                           >
                             -
                           </Button>
-                          <div className="match-score-display">{match.away_score || 0}</div>
+                          <div className="match-score-display text-lg md:text-2xl py-1 px-3 md:px-4">{match.away_score || 0}</div>
                           <Button 
                             variant="default" 
                             size="sm"
                             onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
-                            className="px-4 py-2 h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
+                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
                           >
                             +
                           </Button>
                         </div>
                       ) : (
-                        <div className="text-4xl font-bold p-3 bg-neutral-100 rounded-md shadow-inner">{match.away_score || 0}</div>
+                        <div className="text-3xl md:text-4xl font-bold p-2 md:p-3 bg-neutral-100 rounded-md shadow-inner">{match.away_score || 0}</div>
                       )}
                     </div>
                   )}
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-4 mt-8">
-                <div className="col-span-1 p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6 md:mt-8">
+                <div className="col-span-1 p-4 md:p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
                   <p className="text-sm font-semibold text-neutral-600 mb-2">Status</p>
                   {match.status === 'scheduled' ? (
                     <div className="status-indicator status-scheduled">Scheduled</div>
@@ -699,15 +699,15 @@ function MatchDetail() {
                     <div className="status-indicator status-completed">Completed</div>
                   )}
                 </div>
-                <div className="col-span-1 p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
+                <div className="col-span-1 p-4 md:p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
                   <p className="text-sm font-semibold text-neutral-600 mb-2">Date & Time</p>
-                  <p className="font-medium">
-                    <span className="inline-block bg-neutral-100 px-2 py-1 rounded mr-2">{formattedDate}</span>
+                  <p className="font-medium flex flex-wrap gap-2">
+                    <span className="inline-block bg-neutral-100 px-2 py-1 rounded">{formattedDate}</span>
                     <span className="inline-block bg-neutral-100 px-2 py-1 rounded">{formattedTime}</span>
                   </p>
                 </div>
                 {match.group_id && (
-                  <div className="col-span-1 p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
+                  <div className="col-span-1 p-4 md:p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
                     <p className="text-sm font-semibold text-neutral-600 mb-2">Group</p>
                     <p className="font-medium">
                       <span className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full">Group {groupName}</span>
@@ -719,9 +719,9 @@ function MatchDetail() {
           )}
         </CardContent>
         
-        <CardFooter className="flex justify-between bg-gradient-to-r from-neutral-50 to-neutral-100 border-t p-6">
+        <CardFooter className="flex flex-col md:flex-row md:justify-between gap-4 bg-gradient-to-r from-neutral-50 to-neutral-100 border-t p-4 md:p-6">
           {isEditing ? (
-            <>
+            <div className="flex w-full justify-between">
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditing(false)} 
@@ -735,10 +735,10 @@ function MatchDetail() {
               >
                 Save Changes
               </Button>
-            </>
+            </div>
           ) : (
             <>
-              <div className="space-x-3">
+              <div className="flex flex-wrap w-full md:w-auto gap-3 justify-center md:justify-start">
                 <Button 
                   variant="destructive" 
                   onClick={handleDelete} 
@@ -767,7 +767,7 @@ function MatchDetail() {
               </div>
               <Button 
                 onClick={handleEdit} 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-md"
+                className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-md"
               >
                 Edit Match
               </Button>

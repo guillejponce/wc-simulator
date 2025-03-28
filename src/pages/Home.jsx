@@ -7,23 +7,23 @@ import { Trophy, Users, Calendar, Flag } from 'lucide-react';
 
 function Home() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Hero Section */}
       <motion.section 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative text-center py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden"
+        className="relative text-center py-10 md:py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden"
       >
         <div className="absolute inset-0 bg-[url('/world-cup-pattern.png')] opacity-10"></div>
-        <div className="relative z-10">
-          <h1 className="text-5xl font-bold mb-4">FIFA World Cup 2026</h1>
-          <p className="text-xl mb-8">Experience the first-ever 48-team World Cup</p>
-          <div className="flex justify-center space-x-4">
-            <Button asChild size="lg">
+        <div className="relative z-10 px-4">
+          <h1 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4">FIFA World Cup 2026</h1>
+          <p className="text-lg md:text-xl mb-6 md:mb-8">Experience the first-ever 48-team World Cup</p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:space-x-4">
+            <Button asChild size="lg" className="w-full sm:w-auto">
               <Link to="/simulations">Start New Tournament</Link>
             </Button>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
               <Link to="/qualification">View Qualification</Link>
             </Button>
           </div>
@@ -31,13 +31,13 @@ function Home() {
       </motion.section>
 
       {/* Tournament Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-blue-600" />
@@ -76,7 +76,7 @@ function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Flag className="w-5 h-5 text-green-600" />
@@ -110,8 +110,9 @@ function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
+          className="md:col-span-2 lg:col-span-1"
         >
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-purple-600" />
@@ -119,32 +120,36 @@ function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-gray-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                  UEFA: 16 Teams
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                  CONMEBOL: 6 Teams
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                  CONCACAF: 6 Teams
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                  CAF: 9 Teams
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                  AFC: 8 Teams
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                  OFC: 1 Team
-                </li>
-              </ul>
+              <div className="grid grid-cols-2 gap-2">
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                    UEFA: 16 Teams
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                    CONMEBOL: 6 Teams
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                    CONCACAF: 6 Teams
+                  </li>
+                </ul>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                    CAF: 9 Teams
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                    AFC: 8 Teams
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                    OFC: 1 Team
+                  </li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -155,34 +160,34 @@ function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white p-6 rounded-lg shadow-md"
+        className="bg-white p-4 md:p-6 rounded-lg shadow-md"
       >
-        <h2 className="text-2xl font-semibold mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <Link
             to="/draw"
-            className="group p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            className="group p-3 md:p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
           >
             <h3 className="font-semibold text-blue-800 group-hover:text-blue-900">Group Draw</h3>
             <p className="text-sm text-gray-600">Simulate the official draw process</p>
           </Link>
           <Link
             to="/matches"
-            className="group p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            className="group p-3 md:p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
           >
             <h3 className="font-semibold text-green-800 group-hover:text-green-900">Match Schedule</h3>
             <p className="text-sm text-gray-600">View and manage match fixtures</p>
           </Link>
           <Link
             to="/teams"
-            className="group p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+            className="group p-3 md:p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
           >
             <h3 className="font-semibold text-red-800 group-hover:text-red-900">Team Management</h3>
             <p className="text-sm text-gray-600">Configure team rosters and lineups</p>
           </Link>
           <Link
             to="/statistics"
-            className="group p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+            className="group p-3 md:p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
           >
             <h3 className="font-semibold text-purple-800 group-hover:text-purple-900">Statistics</h3>
             <p className="text-sm text-gray-600">Track tournament statistics</p>
@@ -195,19 +200,19 @@ function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
-        className="bg-white p-6 rounded-lg shadow-md"
+        className="bg-white p-4 md:p-6 rounded-lg shadow-md"
       >
-        <h2 className="text-2xl font-semibold mb-4">Latest Updates</h2>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+        <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">Latest Updates</h2>
+        <div className="space-y-3 md:space-y-4">
+          <div className="flex items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg">
             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
             <p className="text-gray-600">Qualification process ongoing for all confederations</p>
           </div>
-          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg">
             <div className="w-2 h-2 bg-green-600 rounded-full"></div>
             <p className="text-gray-600">Venue preparations in progress across host nations</p>
           </div>
-          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg">
             <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
             <p className="text-gray-600">New tournament format details announced</p>
           </div>

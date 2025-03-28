@@ -223,4 +223,88 @@ body {
   0% { opacity: 0.8; }
   50% { opacity: 1; }
   100% { opacity: 0.8; }
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .header-gradient {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+  }
+  
+  .match-card, .group-card, .card {
+    border-radius: 0.5rem;
+  }
+  
+  .badge, .status-indicator {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+  }
+}
+
+/* Mobile optimizations for forms */
+@media (max-width: 640px) {
+  input, select, textarea, button {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+  
+  .form-field {
+    margin-bottom: 1rem;
+  }
+  
+  /* Stack buttons on mobile */
+  .button-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .button-stack > * {
+    width: 100%;
+  }
+}
+
+/* Responsive table fixes */
+.mobile-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+/* Card adaptations for mobile */
+@media (max-width: 640px) {
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .card-footer {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .card-footer > * {
+    width: 100%;
+  }
+}
+
+/* Improved touch targets for mobile */
+@media (max-width: 640px) {
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  button, .button, a.button, [role="button"] {
+    min-height: 44px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 } 

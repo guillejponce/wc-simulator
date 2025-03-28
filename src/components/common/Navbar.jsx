@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Badge } from '../ui';
@@ -7,6 +7,24 @@ import { Trophy, Menu, X, ChevronDown, Globe, Users, Calendar, Target, Award, Se
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+  
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const navigation = [
     { name: 'Tournaments', href: '/', icon: Trophy },
@@ -22,9 +40,9 @@ function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-gradient-to-r from-[#1a472a] via-[#2d5a3f] to-[#1a472a] border-b-4 border-[#ffd700]">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
-        <div className="flex items-center justify-between h-14">
+    <nav className="bg-gradient-to-r from-[#1a472a] via-[#2d5a3f] to-[#1a472a] border-b-4 border-[#ffd700] relative z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
@@ -79,17 +97,18 @@ function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="flex md:hidden">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
-              className="text-white hover:bg-[#2d5a3f] h-8 w-8"
+              className="text-white hover:bg-[#2d5a3f] h-10 w-10 p-2 rounded-full"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? (
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               ) : (
-                <Menu className="h-5 w-5" />
+                <Menu className="h-6 w-6" />
               )}
             </Button>
           </div>
@@ -99,30 +118,80 @@ function Navbar() {
       {/* Mobile menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#1a472a]"
-          >
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive(item.href)
-                      ? 'bg-[#2d5a3f] text-[#ffd700]'
-                      : 'text-white hover:bg-[#2d5a3f] hover:text-[#ffd700]'
-                  }`}
-                  onClick={() => setIsOpen(false)}
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black z-30 md:hidden"
+              onClick={() => setIsOpen(false)}
+            />
+            
+            {/* Menu panel */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed top-0 right-0 bottom-0 z-40 w-4/5 max-w-sm bg-[#1a472a] md:hidden overflow-y-auto shadow-xl"
+            >
+              <div className="px-4 py-4 border-b border-[#2d5a3f]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Globe className="h-6 w-6 text-[#ffd700]" />
+                    <div className="flex flex-col">
+                      <span className="text-white font-bold text-sm">FIFA World Cup 2026</span>
+                      <span className="text-[#ffd700] text-xs">Simulator</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsOpen(false)}
+                    className="text-white hover:bg-[#2d5a3f] h-10 w-10 p-2 rounded-full"
+                  >
+                    <X className="h-6 w-6" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="px-4 py-6 space-y-1.5">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center px-3 py-3 rounded-md text-base font-medium ${
+                      isActive(item.href)
+                        ? 'bg-[#2d5a3f] text-[#ffd700] shadow-inner shadow-[#1a472a]/50'
+                        : 'text-white hover:bg-[#2d5a3f] hover:text-[#ffd700]'
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+              
+              {/* Mobile Auth Buttons */}
+              <div className="px-4 py-6 border-t border-[#2d5a3f] space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full text-white border-[#ffd700] hover:bg-[#ffd700] hover:text-[#1a472a] justify-center"
                 >
-                  <item.icon className="h-4 w-4 mr-2" />
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+                <Button 
+                  className="w-full bg-[#ffd700] text-[#1a472a] hover:bg-[#ffd700]/90 justify-center font-semibold"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Create Account
+                </Button>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </nav>

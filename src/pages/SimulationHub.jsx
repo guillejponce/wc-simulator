@@ -7,7 +7,7 @@ function SimulationHub() {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="space-y-6">
+    <div className="px-4 py-6 md:py-8 space-y-6">
       {/* Tournament Status Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -16,12 +16,12 @@ function SimulationHub() {
       >
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <CardTitle className="flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-blue-600" />
                 FIFA World Cup 2026
               </CardTitle>
-              <Badge variant="success">In Progress</Badge>
+              <Badge variant="success" className="w-fit">In Progress</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -31,7 +31,7 @@ function SimulationHub() {
                 <span className="font-medium">0%</span>
               </div>
               <Progress value={0} />
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <div className="text-sm text-gray-500">Current Stage</div>
                   <div className="font-medium">Not Started</div>
@@ -51,12 +51,12 @@ function SimulationHub() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline">
+          <CardFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+            <Button variant="outline" className="w-full sm:w-auto">
               <Settings className="w-4 h-4 mr-2" />
               Tournament Settings
             </Button>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Target className="w-4 h-4 mr-2" />
               Start Tournament
             </Button>
@@ -66,11 +66,13 @@ function SimulationHub() {
 
       {/* Tabs Section */}
       <Tabs value={activeTab} onChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="matches">Matches</TabsTrigger>
-          <TabsTrigger value="teams">Teams</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4">
+          <TabsList className="w-full sm:w-auto mb-2 sm:mb-0">
+            <TabsTrigger value="overview" className="flex-1 sm:flex-initial">Overview</TabsTrigger>
+            <TabsTrigger value="matches" className="flex-1 sm:flex-initial">Matches</TabsTrigger>
+            <TabsTrigger value="teams" className="flex-1 sm:flex-initial">Teams</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="space-y-4">
           {/* Recent Matches */}
@@ -82,7 +84,7 @@ function SimulationHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 py-6 sm:py-8">
                 No matches have been played yet.
               </div>
             </CardContent>
@@ -97,7 +99,7 @@ function SimulationHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 py-6 sm:py-8">
                 No upcoming matches scheduled.
               </div>
             </CardContent>
@@ -113,7 +115,7 @@ function SimulationHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 py-6 sm:py-8">
                 No matches have been scheduled yet.
               </div>
             </CardContent>
@@ -129,7 +131,7 @@ function SimulationHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 py-6 sm:py-8">
                 No teams have been added yet.
               </div>
             </CardContent>

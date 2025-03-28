@@ -88,35 +88,35 @@ function Groups() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="header-gradient mb-8">
-        <h1 className="text-4xl font-bold flex items-center gap-3 text-[var(--text-primary)]">
-          <Flag className="w-8 h-8" />
-          FIFA World Cup 2026™
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="header-gradient mb-6 md:mb-8 p-4 md:p-6">
+        <h1 className="text-2xl md:text-4xl font-bold flex flex-col md:flex-row items-center gap-2 md:gap-3 text-[var(--text-primary)]">
+          <Flag className="w-6 h-6 md:w-8 md:h-8" />
+          <span>FIFA World Cup 2026™</span>
         </h1>
-        <p className="text-xl opacity-90 mt-2 text-[var(--text-primary)]">Group Stage</p>
+        <p className="text-lg md:text-xl opacity-90 mt-2 text-center md:text-left text-[var(--text-primary)]">Group Stage</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {groups.map((group) => (
           <div key={group.name} className="group-card">
-            <div className="p-4 border-b border-[var(--border-color)]">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Group {group.name}</h2>
+            <div className="p-3 md:p-4 border-b border-[var(--border-color)]">
+              <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">Group {group.name}</h2>
             </div>
-            <div className="p-4">
+            <div className="p-2 md:p-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="table-header">
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">Pos</TableHead>
+                    <TableHead className="w-[30px] md:w-[40px] text-[var(--text-primary)]">Pos</TableHead>
                     <TableHead className="text-[var(--text-primary)]">Team</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">P</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">W</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">D</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">L</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">GF</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">GA</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">GD</TableHead>
-                    <TableHead className="w-[40px] text-[var(--text-primary)]">Pts</TableHead>
+                    <TableHead className="w-[30px] md:w-[40px] text-[var(--text-primary)]">P</TableHead>
+                    <TableHead className="w-[30px] md:w-[40px] text-[var(--text-primary)]">Pts</TableHead>
+                    <TableHead className="hidden md:table-cell w-[40px] text-[var(--text-primary)]">W</TableHead>
+                    <TableHead className="hidden md:table-cell w-[40px] text-[var(--text-primary)]">D</TableHead>
+                    <TableHead className="hidden md:table-cell w-[40px] text-[var(--text-primary)]">L</TableHead>
+                    <TableHead className="hidden md:table-cell w-[40px] text-[var(--text-primary)]">GF</TableHead>
+                    <TableHead className="hidden md:table-cell w-[40px] text-[var(--text-primary)]">GA</TableHead>
+                    <TableHead className="hidden md:table-cell w-[40px] text-[var(--text-primary)]">GD</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -132,24 +132,24 @@ function Groups() {
                             <img
                               src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
                               alt={`${team.name} flag`}
-                              className="w-6 h-4 object-cover rounded shadow-sm"
+                              className="w-5 h-4 md:w-6 md:h-4 object-cover rounded shadow-sm"
                             />
-                            <span className="font-medium text-[var(--text-primary)]">{team.name}</span>
+                            <span className="font-medium text-[var(--text-primary)] text-sm md:text-base truncate">{team.name}</span>
                           </div>
                         ) : (
                           <span className="text-[var(--text-primary)] opacity-60">TBD</span>
                         )}
                       </TableCell>
                       <TableCell className="text-[var(--text-primary)]">{team?.played || 0}</TableCell>
-                      <TableCell className="text-[var(--text-primary)]">{team?.won || 0}</TableCell>
-                      <TableCell className="text-[var(--text-primary)]">{team?.drawn || 0}</TableCell>
-                      <TableCell className="text-[var(--text-primary)]">{team?.lost || 0}</TableCell>
-                      <TableCell className="text-[var(--text-primary)]">{team?.goalsFor || 0}</TableCell>
-                      <TableCell className="text-[var(--text-primary)]">{team?.goalsAgainst || 0}</TableCell>
-                      <TableCell className="text-[var(--text-primary)]">{team ? team.goalsFor - team.goalsAgainst : 0}</TableCell>
                       <TableCell>
-                        <span className="badge text-[var(--text-primary)] font-medium">{team?.points || 0}</span>
+                        <span className="badge text-[var(--text-primary)] font-medium text-sm md:text-base py-1 px-2 md:px-3">{team?.points || 0}</span>
                       </TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.won || 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.drawn || 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.lost || 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.goalsFor || 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.goalsAgainst || 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team ? team.goalsFor - team.goalsAgainst : 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
