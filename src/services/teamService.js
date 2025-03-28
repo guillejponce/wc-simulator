@@ -313,5 +313,439 @@ export const teamService = {
       console.error('Error initializing groups:', err);
       throw err;
     }
+  },
+
+  async getTeamGroupRecord(teamId, groupId) {
+    const { data, error } = await supabase
+      .from('team_group')
+      .select('*')
+      .eq('team_id', teamId)
+      .eq('group_id', groupId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 means no rows returned
+      console.error('Error fetching team group record:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  async createOrUpdateTeamGroupRecord(teamId, groupId, stats) {
+    try {
+      // First check if record exists
+      const existingRecord = await this.getTeamGroupRecord(teamId, groupId);
+      
+      if (existingRecord) {
+        // Update existing record
+        const { data, error } = await supabase
+          .from('team_group')
+          .update(stats)
+          .eq('team_id', teamId)
+          .eq('group_id', groupId)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error updating team group record:', error);
+          throw error;
+        }
+
+        return data;
+      } else {
+        // Create new record
+        const newRecord = {
+          team_id: teamId,
+          group_id: groupId,
+          ...stats
+        };
+
+        const { data, error } = await supabase
+          .from('team_group')
+          .insert([newRecord])
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error creating team group record:', error);
+          throw error;
+        }
+
+        return data;
+      }
+    } catch (err) {
+      console.error('Error in createOrUpdateTeamGroupRecord:', err);
+      throw err;
+    }
+  },
+
+  async updateTeamStatsForMatch(match) {
+    if (!match.group_id || !match.home_team_id || !match.away_team_id) {
+      console.log('Match is not a group match or missing team information');
+      return null;
+    }
+
+    try {
+      // Get current records for both teams
+      const homeTeamRecord = await this.getTeamGroupRecord(match.home_team_id, match.group_id) || {
+        points: 0,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        goals_for: 0,
+        goals_against: 0,
+        goal_difference: 0,
+        position: 0
+      };
+      
+      const awayTeamRecord = await this.getTeamGroupRecord(match.away_team_id, match.group_id) || {
+        points: 0,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        goals_for: 0,
+        goals_against: 0,
+        goal_difference: 0,
+        position: 0
+      };
+
+      // Get the match's current status to determine if this is a new match or an edit
+      const { data: existingMatch, error: matchError } = await supabase
+        .from('match')
+        .select('status, home_score, away_score')
+        .eq('id', match.id)
+        .single();
+
+      if (matchError && matchError.code !== 'PGRST116') { // PGRST116 means no row found
+        console.error('Error checking existing match:', matchError);
+        throw matchError;
+      }
+
+      // Calculate new stats based on match result
+      const homeScore = match.home_score || 0;
+      const awayScore = match.away_score || 0;
+      
+      // Determine if this is a new result or an edit of an existing result
+      const isNewCompletion = !existingMatch || existingMatch.status !== 'completed';
+      const isScoreChange = existingMatch && 
+        (existingMatch.home_score !== homeScore || existingMatch.away_score !== awayScore);
+
+      // If this is an edit of an already completed match, we need to adjust stats differently
+      // First, reverse the previous result's impact on team records
+      if (!isNewCompletion && match.status === 'completed') {
+        console.log('Updating existing completed match - adjusting stats');
+        // Reset stats for both teams to calculate them again with the new scores
+        await this.resetTeamStatsForGroup(match.group_id);
+        
+        // Recalculate all stats for the group
+        await this.recalculateGroupStats(match.group_id);
+        return true;
+      }
+
+      // This is either a new match being completed or a live match update
+      // Determine result (win/draw/loss)
+      let homePoints = 0;
+      let awayPoints = 0;
+      let homeWon = 0;
+      let homeLost = 0;
+      let homeDrawn = 0;
+      let awayWon = 0;
+      let awayLost = 0;
+      let awayDrawn = 0;
+      
+      if (homeScore > awayScore) {
+        homePoints = 3;
+        homeWon = 1;
+        awayLost = 1;
+      } else if (homeScore < awayScore) {
+        awayPoints = 3;
+        awayWon = 1;
+        homeLost = 1;
+      } else {
+        homePoints = 1;
+        awayPoints = 1;
+        homeDrawn = 1;
+        awayDrawn = 1;
+      }
+
+      // Update home team record
+      const updatedHomeTeam = {
+        played: homeTeamRecord.played + (isNewCompletion ? 1 : 0),
+        won: homeTeamRecord.won + homeWon,
+        drawn: homeTeamRecord.drawn + homeDrawn,
+        lost: homeTeamRecord.lost + homeLost,
+        goals_for: homeTeamRecord.goals_for + homeScore,
+        goals_against: homeTeamRecord.goals_against + awayScore,
+        points: homeTeamRecord.points + homePoints
+      };
+      
+      // If this is a live match or score change, don't increment played games
+      if (!isNewCompletion) {
+        updatedHomeTeam.played = homeTeamRecord.played;
+      }
+      
+      updatedHomeTeam.goal_difference = updatedHomeTeam.goals_for - updatedHomeTeam.goals_against;
+
+      // Update away team record
+      const updatedAwayTeam = {
+        played: awayTeamRecord.played + (isNewCompletion ? 1 : 0),
+        won: awayTeamRecord.won + awayWon,
+        drawn: awayTeamRecord.drawn + awayDrawn,
+        lost: awayTeamRecord.lost + awayLost,
+        goals_for: awayTeamRecord.goals_for + awayScore,
+        goals_against: awayTeamRecord.goals_against + homeScore,
+        points: awayTeamRecord.points + awayPoints
+      };
+      
+      // If this is a live match or score change, don't increment played games
+      if (!isNewCompletion) {
+        updatedAwayTeam.played = awayTeamRecord.played;
+      }
+      
+      updatedAwayTeam.goal_difference = updatedAwayTeam.goals_for - updatedAwayTeam.goals_against;
+
+      // Save both team records
+      await Promise.all([
+        this.createOrUpdateTeamGroupRecord(match.home_team_id, match.group_id, updatedHomeTeam),
+        this.createOrUpdateTeamGroupRecord(match.away_team_id, match.group_id, updatedAwayTeam)
+      ]);
+
+      // Update team positions within the group
+      await this.updateGroupPositions(match.group_id);
+
+      return true;
+    } catch (err) {
+      console.error('Error updating team stats for match:', err);
+      throw err;
+    }
+  },
+
+  async resetTeamStatsForGroup(groupId) {
+    try {
+      // Get all team records for this group
+      const { data: teamRecords, error } = await supabase
+        .from('team_group')
+        .select('team_id')
+        .eq('group_id', groupId);
+
+      if (error) {
+        console.error('Error fetching team records for reset:', error);
+        throw error;
+      }
+
+      // Reset all team stats to zero
+      const updates = teamRecords.map(record => {
+        return supabase
+          .from('team_group')
+          .update({
+            played: 0,
+            won: 0,
+            drawn: 0,
+            lost: 0,
+            goals_for: 0,
+            goals_against: 0,
+            goal_difference: 0,
+            points: 0
+          })
+          .eq('team_id', record.team_id)
+          .eq('group_id', groupId);
+      });
+
+      await Promise.all(updates);
+      return true;
+    } catch (err) {
+      console.error('Error resetting team stats:', err);
+      throw err;
+    }
+  },
+
+  async recalculateGroupStats(groupId) {
+    try {
+      // Fetch all completed matches for this group
+      const { data: matches, error } = await supabase
+        .from('match')
+        .select('*')
+        .eq('group_id', groupId)
+        .eq('status', 'completed');
+
+      if (error) {
+        console.error('Error fetching completed matches:', error);
+        throw error;
+      }
+
+      // Get all team IDs for this group to ensure we update all teams
+      // This is important when a match is deleted and we need to update stats
+      const { data: teamsInGroup, error: teamError } = await supabase
+        .from('team_group')
+        .select('team_id')
+        .eq('group_id', groupId);
+        
+      if (teamError) {
+        console.error('Error fetching teams in group:', teamError);
+        throw teamError;
+      }
+      
+      // Create a map to track team stats, initialized with all teams in the group
+      const teamStats = {};
+      
+      // Initialize all teams with zero stats
+      teamsInGroup?.forEach(record => {
+        teamStats[record.team_id] = {
+          team_id: record.team_id,
+          group_id: groupId,
+          played: 0,
+          won: 0,
+          drawn: 0,
+          lost: 0,
+          goals_for: 0,
+          goals_against: 0,
+          goal_difference: 0,
+          points: 0,
+          position: 0
+        };
+      });
+
+      // If there are no matches to calculate, just update with zeros
+      if (!matches || matches.length === 0) {
+        console.log('No completed matches to recalculate for group:', groupId);
+        
+        // Update all teams with zeroed stats
+        if (teamsInGroup && teamsInGroup.length > 0) {
+          const updates = teamsInGroup.map(team => 
+            this.createOrUpdateTeamGroupRecord(team.team_id, groupId, teamStats[team.team_id])
+          );
+          await Promise.all(updates);
+          await this.updateGroupPositions(groupId);
+        }
+        
+        return true;
+      }
+
+      // Process each match to calculate stats
+      for (const match of matches) {
+        // Skip invalid matches (missing team IDs)
+        if (!match.home_team_id || !match.away_team_id) {
+          console.warn('Skipping invalid match:', match.id);
+          continue;
+        }
+        
+        // Process home team
+        if (!teamStats[match.home_team_id]) {
+          teamStats[match.home_team_id] = {
+            team_id: match.home_team_id,
+            group_id: groupId,
+            played: 0,
+            won: 0,
+            drawn: 0,
+            lost: 0,
+            goals_for: 0,
+            goals_against: 0,
+            goal_difference: 0,
+            points: 0,
+            position: 0
+          };
+        }
+
+        // Process away team
+        if (!teamStats[match.away_team_id]) {
+          teamStats[match.away_team_id] = {
+            team_id: match.away_team_id,
+            group_id: groupId,
+            played: 0,
+            won: 0,
+            drawn: 0,
+            lost: 0,
+            goals_for: 0,
+            goals_against: 0,
+            goal_difference: 0,
+            points: 0,
+            position: 0
+          };
+        }
+
+        const homeScore = match.home_score || 0;
+        const awayScore = match.away_score || 0;
+        
+        // Update played games
+        teamStats[match.home_team_id].played += 1;
+        teamStats[match.away_team_id].played += 1;
+        
+        // Update goals
+        teamStats[match.home_team_id].goals_for += homeScore;
+        teamStats[match.home_team_id].goals_against += awayScore;
+        teamStats[match.away_team_id].goals_for += awayScore;
+        teamStats[match.away_team_id].goals_against += homeScore;
+        
+        // Update result (win/draw/loss)
+        if (homeScore > awayScore) {
+          // Home team wins
+          teamStats[match.home_team_id].won += 1;
+          teamStats[match.home_team_id].points += 3;
+          teamStats[match.away_team_id].lost += 1;
+        } else if (homeScore < awayScore) {
+          // Away team wins
+          teamStats[match.away_team_id].won += 1;
+          teamStats[match.away_team_id].points += 3;
+          teamStats[match.home_team_id].lost += 1;
+        } else {
+          // Draw
+          teamStats[match.home_team_id].drawn += 1;
+          teamStats[match.home_team_id].points += 1;
+          teamStats[match.away_team_id].drawn += 1;
+          teamStats[match.away_team_id].points += 1;
+        }
+      }
+
+      // Calculate goal differences and update team_group records
+      const updates = Object.values(teamStats).map(stats => {
+        stats.goal_difference = stats.goals_for - stats.goals_against;
+        return this.createOrUpdateTeamGroupRecord(stats.team_id, groupId, stats);
+      });
+
+      await Promise.all(updates);
+      
+      // Update positions
+      await this.updateGroupPositions(groupId);
+      
+      return true;
+    } catch (err) {
+      console.error('Error recalculating group stats:', err);
+      throw err;
+    }
+  },
+
+  async updateGroupPositions(groupId) {
+    try {
+      // Get all teams in the group with their stats
+      const { data: teamRecords, error } = await supabase
+        .from('team_group')
+        .select('*, team:team_id(name, flag_url)')
+        .eq('group_id', groupId)
+        .order('points', { ascending: false })
+        .order('goal_difference', { ascending: false })
+        .order('goals_for', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching team records for group:', error);
+        throw error;
+      }
+
+      // Update positions
+      const updates = teamRecords.map((record, index) => {
+        return supabase
+          .from('team_group')
+          .update({ position: index + 1 })
+          .eq('team_id', record.team_id)
+          .eq('group_id', groupId);
+      });
+
+      await Promise.all(updates);
+      return true;
+    } catch (err) {
+      console.error('Error updating group positions:', err);
+      throw err;
+    }
   }
 }; 

@@ -229,6 +229,17 @@ function MatchDetail() {
       
       console.log('Saved match:', savedMatch);
       
+      // If the match is marked as completed and is a group match, update group standings
+      if (savedMatch && savedMatch.status === 'completed' && savedMatch.group_id) {
+        try {
+          await teamService.updateTeamStatsForMatch(savedMatch);
+          console.log('Group standings updated successfully');
+        } catch (statsErr) {
+          console.error('Error updating group standings:', statsErr);
+          // Don't fail the whole operation if standings update fails
+        }
+      }
+      
       // Make sure the UI shows the updated data with the proper format for editing
       if (savedMatch && savedMatch.datetime) {
         const date = new Date(savedMatch.datetime);
@@ -278,7 +289,27 @@ function MatchDetail() {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this match?')) {
       try {
+        // Store group ID before deleting the match
+        const groupId = match.group_id;
+        
+        // Delete the match
         await matchService.deleteMatch(id);
+        
+        // If this was a group match and completed, recalculate the group standings
+        if (groupId && (match.status === 'completed' || match.status === 'in_progress')) {
+          try {
+            // Reset all team stats in the group
+            await teamService.resetTeamStatsForGroup(groupId);
+            
+            // Recalculate standings without the deleted match
+            await teamService.recalculateGroupStats(groupId);
+            console.log('Group standings recalculated after match deletion');
+          } catch (statsErr) {
+            console.error('Error updating group standings after match deletion:', statsErr);
+          }
+        }
+        
+        // Navigate back to matches list
         navigate('/matches');
       } catch (err) {
         console.error('Error deleting match:', err);
@@ -304,6 +335,17 @@ function MatchDetail() {
           date: match.date,
           time: match.time
         });
+        
+        // If this is a group match, ensure team_group records exist
+        if (updatedMatch.group_id) {
+          try {
+            // This will create team_group records if they don't exist or update them if they do
+            await teamService.updateTeamStatsForMatch(updatedMatch);
+            console.log('Group team records initialized');
+          } catch (statsErr) {
+            console.error('Error initializing group team records:', statsErr);
+          }
+        }
       }
     } catch (err) {
       console.error('Error starting match:', err);
@@ -326,6 +368,18 @@ function MatchDetail() {
           date: match.date,
           time: match.time
         });
+        
+        // Only update group stats if this is a group match
+        if (updatedMatch.group_id) {
+          try {
+            // Update team standings in the group
+            await teamService.updateTeamStatsForMatch(updatedMatch);
+            console.log('Group standings updated successfully');
+          } catch (statsErr) {
+            console.error('Error updating group standings:', statsErr);
+            // Don't fail the whole operation if standings update fails
+          }
+        }
       }
     } catch (err) {
       console.error('Error ending match:', err);
@@ -354,6 +408,16 @@ function MatchDetail() {
           date: match.date,
           time: match.time
         });
+        
+        // If this is a group match and it's in progress, update the group standings
+        if (updatedMatch.status === 'in_progress' && updatedMatch.group_id) {
+          try {
+            await teamService.updateTeamStatsForMatch(updatedMatch);
+            console.log('Live group standings updated');
+          } catch (statsErr) {
+            console.error('Error updating live group standings:', statsErr);
+          }
+        }
       }
     } catch (err) {
       console.error('Error updating score:', err);
@@ -635,7 +699,47 @@ function MatchDetail() {
                   <div className="text-2xl font-bold text-[var(--text-heading)]">
                     {match.status === 'completed' || match.status === 'in_progress' ? (
                       <>
-                        {match.home_score || 0} - {match.away_score || 0}
+                        {canEditScores ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center">
+                              <Button
+                                variant="outline"
+                                className="h-8 w-8 p-0 rounded-full"
+                                onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
+                              >
+                                -
+                              </Button>
+                              <span className="mx-2">{match.home_score || 0}</span>
+                              <Button
+                                variant="outline"
+                                className="h-8 w-8 p-0 rounded-full"
+                                onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
+                              >
+                                +
+                              </Button>
+                            </div>
+                            <span className="mx-2">-</span>
+                            <div className="flex items-center">
+                              <Button
+                                variant="outline"
+                                className="h-8 w-8 p-0 rounded-full"
+                                onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
+                              >
+                                -
+                              </Button>
+                              <span className="mx-2">{match.away_score || 0}</span>
+                              <Button
+                                variant="outline"
+                                className="h-8 w-8 p-0 rounded-full"
+                                onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <span>{match.home_score || 0} - {match.away_score || 0}</span>
+                        )}
                         
                         <div className="mt-2 text-sm font-normal text-[var(--wc-blue)]">
                           {match.status === 'in_progress' ? 'LIVE' : 'COMPLETED'}

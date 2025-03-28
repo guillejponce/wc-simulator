@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Badge } from '../components/ui';
 import { Flag, Loader2 } from 'lucide-react';
 import { teamService } from '../services/teamService';
+import { supabase } from '../supabase';
 import '../assets/styles/theme.css';
 
 function Groups() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(Date.now());
 
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         setLoading(true);
+        // Get group assignments first to create the group structure
         const assignments = await teamService.getGroupAssignments();
         
         // Transform assignments into groups structure
@@ -21,25 +24,87 @@ function Groups() {
           const groupLetter = assignment.group.letter;
           if (!groupsMap[groupLetter]) {
             groupsMap[groupLetter] = {
+              id: assignment.group.id,
               name: groupLetter,
               teams: Array(4).fill(null)
             };
           }
-          groupsMap[groupLetter].teams[assignment.position - 1] = {
-            id: assignment.team.id,
-            name: assignment.team.name,
-            code: assignment.team.code,
-            flag_url: assignment.team.flag_url,
-            region: assignment.team.region,
-            played: 0,
-            won: 0,
-            drawn: 0,
-            lost: 0,
-            goalsFor: 0,
-            goalsAgainst: 0,
-            points: 0
-          };
+          
+          // Create a basic team record at the appropriate position
+          const teamIndex = assignment.position - 1;
+          if (teamIndex >= 0 && teamIndex < 4) {
+            groupsMap[groupLetter].teams[teamIndex] = {
+              id: assignment.team.id,
+              name: assignment.team.name,
+              code: assignment.team.code,
+              flag_url: assignment.team.flag_url,
+              region: assignment.team.region,
+              // Default stats (will be updated later)
+              played: 0,
+              won: 0,
+              drawn: 0,
+              lost: 0,
+              goalsFor: 0,
+              goalsAgainst: 0,
+              points: 0,
+              position: assignment.position
+            };
+          }
         });
+
+        // Now fetch team_group records to get actual standings
+        const { data: teamGroupRecords, error: teamGroupError } = await supabase
+          .from('team_group')
+          .select('*, team:team_id(id, name, code, flag_url, region)');
+        
+        if (teamGroupError) {
+          console.error('Error fetching team group records:', teamGroupError);
+          throw teamGroupError;
+        }
+
+        // Update teams with standings data
+        if (teamGroupRecords?.length > 0) {
+          for (const record of teamGroupRecords) {
+            // Find the group this record belongs to
+            for (const groupKey in groupsMap) {
+              const group = groupsMap[groupKey];
+              if (group.id === record.group_id) {
+                // Find the team in this group
+                const teamIndex = group.teams.findIndex(team => 
+                  team && team.id === record.team_id
+                );
+                
+                if (teamIndex >= 0) {
+                  // Update team stats
+                  group.teams[teamIndex] = {
+                    ...group.teams[teamIndex],
+                    played: record.played || 0,
+                    won: record.won || 0,
+                    drawn: record.drawn || 0, 
+                    lost: record.lost || 0,
+                    goalsFor: record.goals_for || 0,
+                    goalsAgainst: record.goals_against || 0,
+                    goalDifference: record.goal_difference || 0,
+                    points: record.points || 0,
+                    position: record.position || teamIndex + 1
+                  };
+                }
+                break;
+              }
+            }
+          }
+        }
+
+        // Sort teams in each group by position
+        for (const groupKey in groupsMap) {
+          const group = groupsMap[groupKey];
+          // Sort by position (keeping null values at the end)
+          group.teams.sort((a, b) => {
+            if (!a) return 1;
+            if (!b) return -1;
+            return (a.position || 999) - (b.position || 999);
+          });
+        }
 
         // Convert to array and sort by group name
         const groupsArray = Object.values(groupsMap).sort((a, b) => 
@@ -56,7 +121,11 @@ function Groups() {
     };
 
     fetchGroups();
-  }, []);
+  }, [refreshKey]);
+
+  const refreshGroups = () => {
+    setRefreshKey(Date.now());
+  };
 
   const getConfederationColor = (confederation) => {
     const colors = {
@@ -149,7 +218,7 @@ function Groups() {
                       <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.lost || 0}</TableCell>
                       <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.goalsFor || 0}</TableCell>
                       <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.goalsAgainst || 0}</TableCell>
-                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team ? team.goalsFor - team.goalsAgainst : 0}</TableCell>
+                      <TableCell className="hidden md:table-cell text-[var(--text-primary)]">{team?.goalDifference || team ? (team.goalsFor || 0) - (team.goalsAgainst || 0) : 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
