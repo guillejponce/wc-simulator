@@ -35,7 +35,8 @@ export const matchService = {
         *,
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
-        group:group_id(id, name)
+        group:group_id(id, name),
+        venue:venue_id(id, name, city, country)
       `)
       .order('datetime', { ascending: true });
 
@@ -54,7 +55,8 @@ export const matchService = {
         *,
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
-        group:group_id(id, name)
+        group:group_id(id, name),
+        venue:venue_id(id, name, city, country)
       `)
       .eq('id', id)
       .single();
@@ -79,7 +81,8 @@ export const matchService = {
       datetime: matchData.datetime,
       group_id: matchData.group_id,
       stage_id: matchData.stage_id,
-      status: matchData.status
+      status: matchData.status,
+      venue_id: matchData.venue_id
     };
     
     const { data, error } = await supabase
@@ -89,7 +92,8 @@ export const matchService = {
         *,
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
-        group:group_id(id, name)
+        group:group_id(id, name),
+        venue:venue_id(id, name, city, country)
       `)
       .single();
 
@@ -113,7 +117,8 @@ export const matchService = {
       datetime: matchData.datetime,
       group_id: matchData.group_id,
       stage_id: matchData.stage_id,
-      status: matchData.status
+      status: matchData.status,
+      venue_id: matchData.venue_id
     };
     
     const { data, error } = await supabase
@@ -124,7 +129,8 @@ export const matchService = {
         *,
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
-        group:group_id(id, name)
+        group:group_id(id, name),
+        venue:venue_id(id, name, city, country)
       `)
       .single();
 
@@ -157,13 +163,28 @@ export const matchService = {
         *,
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
-        group:group_id(id, name)
+        group:group_id(id, name),
+        venue:venue_id(id, name, city, country)
       `)
       .eq('group_id', groupId)
       .order('datetime', { ascending: true });
 
     if (error) {
       console.error('Error fetching matches by group:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  async getVenues() {
+    const { data, error } = await supabase
+      .from('venue')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching venues:', error);
       throw error;
     }
 

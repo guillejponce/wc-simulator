@@ -1,13 +1,13 @@
 :root {
-  /* World Cup 2026 Colors - Refined Palette */
-  --wc-red: #e63946;
-  --wc-blue: #1d3557;
-  --wc-light-blue: #457b9d;
-  --wc-teal: #00b4d8;
-  --wc-mint: #8ecae6;
-  --wc-cream: #f1faee;
-  --wc-orange: #ffb703;
-  --wc-yellow: #ffd166;
+  /* World Cup 2026 Colors - Metallic Blue Palette */
+  --wc-dark-blue: #1a2f4b;
+  --wc-blue: #2c4c6e;
+  --wc-light-blue: #3b6491;
+  --wc-accent-blue: #4f85c2;
+  --wc-metallic-blue: #5b8ab6;
+  --wc-silver-blue: #a3b8cc;
+  --wc-warm-accent: #d9a566;
+  --wc-gold: #eabd45;
   
   /* Neutral Palette */
   --neutral-50: #f9fafb;
@@ -22,15 +22,18 @@
   --neutral-900: #111827;
   
   /* Background gradients */
-  --gradient-primary: linear-gradient(135deg, var(--wc-blue) 0%, var(--wc-light-blue) 100%);
-  --gradient-secondary: linear-gradient(45deg, var(--wc-mint) 0%, var(--wc-teal) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--wc-orange) 0%, var(--wc-yellow) 100%);
+  --gradient-primary: linear-gradient(135deg, var(--wc-dark-blue) 0%, var(--wc-blue) 100%);
+  --gradient-secondary: linear-gradient(45deg, var(--wc-metallic-blue) 0%, var(--wc-light-blue) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--wc-warm-accent) 0%, var(--wc-gold) 100%);
   
   /* Component Colors */
   --background-primary: #ffffff;
-  --background-secondary: var(--neutral-50);
-  --text-primary: var(--neutral-800);
-  --text-secondary: var(--neutral-600);
+  --background-secondary: #f7f9fc;
+  --text-primary: black;
+  --text-secondary: black;
+  --text-on-color: black;
+  --text-on-dark: white;
+  --text-heading: black;
   --border-color: var(--neutral-200);
   
   /* Card Styles */
@@ -41,7 +44,7 @@
   --transition-speed: 0.2s;
   
   /* Status Colors */
-  --status-scheduled: var(--wc-mint);
+  --status-scheduled: var(--wc-silver-blue);
   --status-live: #10b981;
   --status-completed: var(--neutral-300);
   
@@ -54,8 +57,39 @@
 /* Global Styles */
 body {
   background: var(--background-secondary);
-  color: var(--text-primary);
+  color: black;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: black;
+  font-weight: 600;
+}
+
+/* Form Elements */
+select, input, option, textarea {
+  color: black;
+  background-color: white;
+}
+
+select {
+  appearance: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+}
+
+select option {
+  color: black;
+  background-color: white;
+  padding: 8px;
+}
+
+.form-field label {
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: block;
 }
 
 /* Card Styles */
@@ -75,11 +109,25 @@ body {
 /* Header Styles */
 .header-gradient {
   background: var(--gradient-primary);
-  color: white;
+  color: var(--text-on-dark);
   padding: 2rem;
   border-radius: var(--card-radius);
   margin-bottom: 2rem;
   box-shadow: var(--card-shadow);
+}
+
+.header-gradient h1,
+.header-gradient h2,
+.header-gradient h3,
+.header-gradient p {
+  color: var(--text-on-dark);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Metallic Card Header */
+.card-header-metallic {
+  background: linear-gradient(to right, #f1f5f9, #e2e8f0);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* Table Styles */
@@ -90,7 +138,7 @@ body {
 }
 
 .table-row-hover:hover {
-  background-color: rgba(0, 180, 216, 0.05);
+  background-color: rgba(91, 138, 182, 0.1);
 }
 
 /* Badge Styles */
@@ -142,7 +190,7 @@ body {
 }
 
 .group-card:hover {
-  border-color: var(--wc-teal);
+  border-color: var(--wc-accent-blue);
   box-shadow: 0 8px 30px -5px rgba(0, 0, 0, 0.1);
 }
 
@@ -156,7 +204,7 @@ body {
 }
 
 .match-card:hover {
-  border-color: var(--wc-teal);
+  border-color: var(--wc-accent-blue);
   transform: translateY(-2px);
   box-shadow: var(--card-shadow);
 }
@@ -180,7 +228,7 @@ body {
 /* Loading Animation */
 .loader {
   border: 4px solid var(--neutral-200);
-  border-top: 4px solid var(--wc-teal);
+  border-top: 4px solid var(--wc-accent-blue);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -204,7 +252,7 @@ body {
 }
 
 .status-scheduled {
-  background-color: rgba(142, 202, 230, 0.2);
+  background-color: rgba(163, 184, 204, 0.2);
   color: var(--wc-blue);
 }
 
@@ -223,6 +271,24 @@ body {
   0% { opacity: 0.8; }
   50% { opacity: 1; }
   100% { opacity: 0.8; }
+}
+
+/* Team Card Styles */
+.team-card {
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+}
+
+.team-card-header {
+  background: linear-gradient(to right, #f1f5f9, #e2e8f0);
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.team-card-content {
+  padding: 1rem;
 }
 
 /* Responsive utilities */

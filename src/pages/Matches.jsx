@@ -13,7 +13,7 @@ import {
   TableHead,
   TableCell
 } from '../components/ui';
-import { Plus, Calendar } from 'lucide-react';
+import { Plus, Calendar, MapPin } from 'lucide-react';
 import { matchService, matchDateHelpers } from '../services/matchService';
 import '../assets/styles/theme.css';
 
@@ -51,11 +51,12 @@ function Matches() {
     const formattedDate = matchDateHelpers.formatDate(match.datetime);
     const formattedTime = matchDateHelpers.formatTime(match.datetime);
     const groupName = match.group?.name ? `Group ${match.group.name}` : '';
+    const venueName = match.venue?.name || 'TBD';
     
     return (
       <TableRow 
         key={match.id} 
-        className="hover:bg-neutral-50 cursor-pointer border-b border-neutral-200" 
+        className="hover:bg-[rgba(91,138,182,0.05)] cursor-pointer border-b border-neutral-200" 
         onClick={() => navigate(`/matches/${match.id}`)}
       >
         <TableCell>
@@ -67,14 +68,14 @@ function Matches() {
                 className="w-8 h-6 object-cover shadow-sm border border-neutral-200 rounded"
               />
             ) : (
-              <div className="w-8 h-6 bg-neutral-100 rounded flex items-center justify-center text-neutral-400">
+              <div className="w-8 h-6 black rounded flex items-center justify-center text-neutral-400">
                 <span className="text-xs">TBD</span>
               </div>
             )}
-            <span className="font-medium">{homeTeamName}</span>
+            <span className="font-medium text-black">{homeTeamName}</span>
           </div>
         </TableCell>
-        <TableCell className="text-center">
+        <TableCell className="text-center text-black">
           {match.status === 'completed' ? (
             <span className="font-bold text-lg">{match.home_score || 0} - {match.away_score || 0}</span>
           ) : match.status === 'in_progress' ? (
@@ -96,7 +97,7 @@ function Matches() {
                 <span className="text-xs">TBD</span>
               </div>
             )}
-            <span className="font-medium">{awayTeamName}</span>
+            <span className="font-medium text-black">{awayTeamName}</span>
           </div>
         </TableCell>
         <TableCell>
@@ -106,8 +107,14 @@ function Matches() {
           </div>
         </TableCell>
         <TableCell>
+          <div className="flex items-center gap-1 text-neutral-600">
+            <MapPin className="w-3 h-3 text-neutral-400" />
+            <span className="text-sm">{venueName}</span>
+          </div>
+        </TableCell>
+        <TableCell>
           {groupName ? (
-            <span className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium text-sm">
+            <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-3 py-1 rounded-full font-medium text-sm">
               {groupName}
             </span>
           ) : (
@@ -152,8 +159,8 @@ function Matches() {
       </div>
 
       <Card className="match-card">
-        <CardHeader className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b p-4 md:p-6">
-          <CardTitle className="text-lg md:text-xl font-semibold text-neutral-800">
+        <CardHeader className="card-header-metallic p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
             All Matches
           </CardTitle>
         </CardHeader>
@@ -175,7 +182,7 @@ function Matches() {
               <p className="text-neutral-600 mb-4 text-base md:text-lg">No matches found</p>
               <Button 
                 onClick={handleCreateMatch} 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md border-0"
+                className="bg-gradient-to-r from-[var(--wc-blue)] to-[var(--wc-light-blue)] hover:from-[var(--wc-light-blue)] hover:to-[var(--wc-blue)] text-white shadow-md border-0"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create your first match
@@ -185,14 +192,15 @@ function Matches() {
             <div className="overflow-x-auto">
               <div className="hidden md:block">
                 <Table>
-                  <TableHeader className="bg-neutral-50">
+                  <TableHeader className="bg-[#f7f9fc]">
                     <TableRow>
-                      <TableHead className="font-bold text-neutral-700">Home Team</TableHead>
-                      <TableHead className="font-bold text-neutral-700 text-center">Score</TableHead>
-                      <TableHead className="font-bold text-neutral-700">Away Team</TableHead>
-                      <TableHead className="font-bold text-neutral-700">Date</TableHead>
-                      <TableHead className="font-bold text-neutral-700">Group</TableHead>
-                      <TableHead className="font-bold text-neutral-700">Status</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)]">Home Team</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)] text-center">Score</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)]">Away Team</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)]">Date</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)]">Venue</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)]">Group</TableHead>
+                      <TableHead className="font-bold text-[var(--text-primary)]">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -209,6 +217,7 @@ function Matches() {
                   const formattedDate = matchDateHelpers.formatDate(match.datetime);
                   const formattedTime = matchDateHelpers.formatTime(match.datetime);
                   const groupName = match.group?.name ? `Group ${match.group.name}` : '';
+                  const venueName = match.venue?.name || 'TBD';
                   
                   return (
                     <div 
@@ -269,13 +278,18 @@ function Matches() {
                         </div>
                       </div>
                       
-                      {groupName && (
-                        <div className="text-right">
-                          <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                      <div className="flex items-center justify-between mt-3 text-xs">
+                        <div className="flex items-center gap-1 text-neutral-500">
+                          <MapPin className="w-3 h-3" />
+                          <span>{venueName}</span>
+                        </div>
+                        
+                        {groupName && (
+                          <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-2 py-1 rounded-full text-xs font-medium">
                             {groupName}
                           </span>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   );
                 })}

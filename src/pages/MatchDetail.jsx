@@ -15,6 +15,8 @@ import {
 } from '../components/ui';
 import { matchService, matchDateHelpers } from '../services/matchService';
 import { teamService } from '../services/teamService';
+import { Calendar, Flag, Clock, Timer, Play, Square, ArrowLeft, MapPin } from 'lucide-react';
+import '../assets/styles/theme.css';
 
 function MatchDetail() {
   const { id } = useParams();
@@ -22,52 +24,38 @@ function MatchDetail() {
   const [match, setMatch] = useState(null);
   const [teams, setTeams] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [groupTeams, setGroupTeams] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   
   // Load data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
+        // Fetch teams, groups, and venues data
+        const [teamsData, groupsData, venuesData] = await Promise.all([
+          teamService.getTeams(),
+          teamService.getGroups(),
+          matchService.getVenues()
+        ]);
         
-        // Get teams and groups first
-        const teamsData = await teamService.getTeams();
         setTeams(teamsData || []);
+        setGroups(groupsData || []);
+        setVenues(venuesData || []);
         
-        // Get group assignments to know which teams belong to which groups
-        const groupAssignments = await teamService.getGroupAssignments();
-        
-        // Create a map of group ID to team IDs
-        const teamsInGroups = {};
-        groupAssignments.forEach(assignment => {
-          const groupId = assignment.group.id;
-          const teamId = assignment.team_id;
-          
-          if (!teamsInGroups[groupId]) {
-            teamsInGroups[groupId] = [];
+        // Build a mapping of group to team IDs
+        const groupTeamsData = {};
+        if (groupsData) {
+          for (const group of groupsData) {
+            const teamsInGroup = await teamService.getTeamsByGroup(group.id);
+            groupTeamsData[group.id] = teamsInGroup.map(t => t.id);
           }
-          
-          teamsInGroups[groupId].push(teamId);
-        });
+          setGroupTeams(groupTeamsData);
+        }
         
-        setGroupTeams(teamsInGroups);
-        
-        // Create a list of unique groups
-        const uniqueGroups = Array.from(
-          new Set(groupAssignments.map(g => g.group.id))
-        ).map(id => {
-          const assignment = groupAssignments.find(g => g.group.id === id);
-          return {
-            id: id,
-            name: assignment?.group.letter || ''
-          };
-        });
-        setGroups(uniqueGroups);
-        
-        // If we have an ID, get the match details
         if (id && id !== 'new') {
           const matchData = await matchService.getMatchById(id);
           
@@ -115,7 +103,8 @@ function MatchDetail() {
             time: `${hours}:${minutes}`,
             group_id: '',
             stage_id: null,
-            status: 'scheduled'
+            status: 'scheduled',
+            venue_id: ''
           };
           
           // For new matches, automatically enter edit mode
@@ -223,7 +212,8 @@ function MatchDetail() {
         datetime: datetime,
         group_id: match.group_id || null,
         stage_id: match.stage_id || null,
-        status: match.status || 'scheduled'
+        status: match.status || 'scheduled',
+        venue_id: match.venue_id || null
       };
       
       console.log('Saving match data:', matchData);
@@ -262,6 +252,7 @@ function MatchDetail() {
       
       setMatch(savedMatch);
       setIsEditing(false);
+      setSuccessMessage(id === 'new' ? 'Match created successfully!' : 'Match updated successfully!');
       
       // If this was a new match, redirect to the match detail page with the new ID
       if (id === 'new') {
@@ -298,78 +289,84 @@ function MatchDetail() {
 
   const handleStartMatch = async () => {
     try {
-      // Set match status to in_progress and initialize scores
-      const updatedMatch = {
+      // Update the match status to in_progress
+      const updatedMatch = await matchService.updateMatch(id, {
         ...match,
-        status: 'in_progress',
-        home_score: 0,
-        away_score: 0
-      };
-      
-      // Save to database
-      const savedMatch = await matchService.updateMatch(id, {
         status: 'in_progress',
         home_score: 0,
         away_score: 0
       });
       
       // Update local state
-      setMatch(savedMatch);
+      if (updatedMatch) {
+        setMatch({
+          ...updatedMatch,
+          date: match.date,
+          time: match.time
+        });
+      }
     } catch (err) {
       console.error('Error starting match:', err);
-      setError(err.message || 'Failed to start match');
+      setError(err.message);
     }
   };
 
   const handleEndMatch = async () => {
-    if (window.confirm('Are you sure you want to end this match? The final score will be recorded.')) {
-      try {
-        // Set match status to completed
-        const updatedMatch = {
-          ...match,
-          status: 'completed'
-        };
-        
-        // Save to database
-        const savedMatch = await matchService.updateMatch(id, {
-          status: 'completed'
+    try {
+      // Update the match status to completed
+      const updatedMatch = await matchService.updateMatch(id, {
+        ...match,
+        status: 'completed'
+      });
+      
+      // Update local state
+      if (updatedMatch) {
+        setMatch({
+          ...updatedMatch,
+          date: match.date,
+          time: match.time
         });
-        
-        // Update local state
-        setMatch(savedMatch);
-      } catch (err) {
-        console.error('Error ending match:', err);
-        setError(err.message || 'Failed to end match');
       }
+    } catch (err) {
+      console.error('Error ending match:', err);
+      setError(err.message);
     }
   };
 
   const handleScoreChange = async (team, value) => {
-    // Don't allow negative scores
-    if (value < 0) return;
-    
     try {
-      // Update the score in the local state
-      const updatedMatch = {
+      // Ensure value is not negative
+      const newValue = Math.max(0, value);
+      
+      // Create updated match object
+      const updatedData = {
         ...match,
-        [team === 'home' ? 'home_score' : 'away_score']: value
+        [team === 'home' ? 'home_score' : 'away_score']: newValue
       };
       
-      // Save to database
-      const savedMatch = await matchService.updateMatch(id, {
-        [team === 'home' ? 'home_score' : 'away_score']: value
-      });
+      // Update in the database
+      const updatedMatch = await matchService.updateMatch(id, updatedData);
       
       // Update local state
-      setMatch(savedMatch);
+      if (updatedMatch) {
+        setMatch({
+          ...updatedMatch,
+          date: match.date,
+          time: match.time
+        });
+      }
     } catch (err) {
       console.error('Error updating score:', err);
-      setError(err.message || 'Failed to update score');
+      setError(err.message);
     }
   };
 
   if (isLoading) {
-    return <div className="container mx-auto px-4 py-8">Loading match details...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center h-64">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -425,6 +422,9 @@ function MatchDetail() {
   // Determine if scores can be edited (match is in progress)
   const canEditScores = !isEditing && match.status === 'in_progress';
 
+  // Prepare display data
+  const venueInfo = match?.venue ? `${match.venue.name}, ${match.venue.city}, ${match.venue.country}` : 'TBD';
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-8">
       <div className="header-gradient flex flex-col md:flex-row items-center justify-between mb-6 p-4 md:p-6">
@@ -439,9 +439,18 @@ function MatchDetail() {
         </Button>
       </div>
 
+      {successMessage && (
+        <div className="mb-6">
+          <div className="bg-emerald-50 border-2 border-emerald-200 text-emerald-700 px-4 py-3 rounded">
+            <div className="font-medium">Success</div>
+            <div className="text-sm">{successMessage}</div>
+          </div>
+        </div>
+      )}
+
       <Card className="match-card">
-        <CardHeader className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b p-4 md:p-6">
-          <CardTitle className="text-lg md:text-xl font-semibold text-neutral-800">
+        <CardHeader className="card-header-metallic p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
             {isEditing ? 'Edit Match Details' : 'Match Details'}
           </CardTitle>
         </CardHeader>
@@ -449,13 +458,14 @@ function MatchDetail() {
         <CardContent className="p-4 md:p-6">
           {isEditing ? (
             <Form className="space-y-6">
-              <FormField>
+              <FormField className="form-field">
                 <Label htmlFor="group_id">Group</Label>
-                <Select 
+                <select 
                   id="group_id" 
                   name="group_id" 
                   value={match.group_id || ''}
                   onChange={handleChange}
+                  className="w-full text-black bg-white"
                 >
                   <option value="">Select Group</option>
                   {groups.map(group => (
@@ -463,17 +473,18 @@ function MatchDetail() {
                       Group {group.name}
                     </option>
                   ))}
-                </Select>
+                </select>
               </FormField>
 
-              <FormField>
+              <FormField className="form-field">
                 <Label htmlFor="home_team_id">Home Team</Label>
-                <Select 
+                <select 
                   id="home_team_id" 
                   name="home_team_id" 
                   value={match.home_team_id || ''}
                   onChange={handleChange}
                   disabled={!match.group_id}
+                  className="w-full text-black bg-white"
                 >
                   <option value="">Select Home Team</option>
                   {filteredTeams.map(team => (
@@ -481,20 +492,21 @@ function MatchDetail() {
                       {team.name}
                     </option>
                   ))}
-                </Select>
+                </select>
                 {!match.group_id && 
                   <p className="text-sm text-amber-600 mt-1">Please select a group first</p>
                 }
               </FormField>
 
-              <FormField>
+              <FormField className="form-field">
                 <Label htmlFor="away_team_id">Away Team</Label>
-                <Select 
+                <select 
                   id="away_team_id" 
                   name="away_team_id" 
                   value={match.away_team_id || ''}
                   onChange={handleChange}
                   disabled={!match.group_id}
+                  className="w-full text-black bg-white"
                 >
                   <option value="">Select Away Team</option>
                   {filteredTeams
@@ -504,13 +516,31 @@ function MatchDetail() {
                       {team.name}
                     </option>
                   ))}
-                </Select>
+                </select>
                 {!match.group_id && 
                   <p className="text-sm text-amber-600 mt-1">Please select a group first</p>
                 }
               </FormField>
 
-              <FormField>
+              <FormField className="form-field">
+                <Label htmlFor="venue_id">Venue</Label>
+                <select 
+                  id="venue_id" 
+                  name="venue_id" 
+                  value={match.venue_id || ''}
+                  onChange={handleChange}
+                  className="w-full text-black bg-white"
+                >
+                  <option value="">Select Venue</option>
+                  {venues.map(venue => (
+                    <option key={venue.id} value={venue.id}>
+                      {venue.name} - {venue.city}, {venue.country}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField className="form-field">
                 <Label htmlFor="date">Date</Label>
                 <Input 
                   id="date" 
@@ -518,10 +548,11 @@ function MatchDetail() {
                   type="date" 
                   value={match.date || ''}
                   onChange={handleChange}
+                  className="w-full text-black bg-white"
                 />
               </FormField>
 
-              <FormField>
+              <FormField className="form-field">
                 <Label htmlFor="time">Time</Label>
                 <Input 
                   id="time" 
@@ -529,26 +560,28 @@ function MatchDetail() {
                   type="time" 
                   value={match.time || ''}
                   onChange={handleChange}
+                  className="w-full text-black bg-white"
                 />
               </FormField>
 
-              <FormField>
+              <FormField className="form-field">
                 <Label htmlFor="status">Status</Label>
-                <Select 
+                <select 
                   id="status" 
                   name="status" 
                   value={match.status || 'scheduled'}
                   onChange={handleChange}
+                  className="w-full text-black bg-white"
                 >
                   <option value="scheduled">Scheduled</option>
                   <option value="in_progress">In Progress</option>
                   <option value="completed">Completed</option>
-                </Select>
+                </select>
               </FormField>
 
               {match.status === 'completed' && (
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField className="col-span-1">
+                  <FormField className="col-span-1 form-field">
                     <Label htmlFor="home_score">Home Score</Label>
                     <Input 
                       id="home_score" 
@@ -557,10 +590,11 @@ function MatchDetail() {
                       min="0"
                       value={match.home_score || 0}
                       onChange={handleChange}
+                      className="w-full text-black bg-white"
                     />
                   </FormField>
                   
-                  <FormField className="col-span-1">
+                  <FormField className="col-span-1 form-field">
                     <Label htmlFor="away_score">Away Score</Label>
                     <Input 
                       id="away_score" 
@@ -569,208 +603,152 @@ function MatchDetail() {
                       min="0"
                       value={match.away_score || 0}
                       onChange={handleChange}
+                      className="w-full text-black bg-white"
                     />
                   </FormField>
                 </div>
               )}
             </Form>
           ) : (
-            <div className="space-y-6 md:space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-                <div className="col-span-1 text-center p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow transition-all">
-                  <div className="font-semibold text-lg mb-2">{homeName}</div>
-                  {match.home_team?.flag_url && (
-                    <img 
-                      src={match.home_team.flag_url} 
-                      alt={homeName}
-                      className="h-16 md:h-20 mx-auto my-2 md:my-3 rounded-md shadow-sm border border-neutral-200"
-                    />
-                  )}
-                  {match.status !== 'scheduled' && (
-                    <div className="flex items-center justify-center mt-3 md:mt-5">
-                      {canEditScores ? (
-                        <div className="match-score-controls">
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
-                            disabled={match.home_score <= 0}
-                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
-                          >
-                            -
-                          </Button>
-                          <div className="match-score-display text-lg md:text-2xl py-1 px-3 md:px-4">{match.home_score || 0}</div>
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
-                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
-                          >
-                            +
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="text-3xl md:text-4xl font-bold p-2 md:p-3 bg-neutral-100 rounded-md shadow-inner">{match.home_score || 0}</div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="col-span-1 flex flex-col items-center justify-center rounded-lg border border-neutral-200 p-4 bg-gradient-to-b from-white to-neutral-50">
-                  <div className="text-sm font-medium text-neutral-600 mb-3">
-                    <div className="text-center">{formattedDate}</div>
-                    <div className="text-center">{formattedTime}</div>
-                  </div>
-                  {match.status === 'completed' ? (
-                    <div className="status-indicator status-completed">FULL TIME</div>
-                  ) : match.status === 'in_progress' ? (
-                    <div className="status-indicator status-live">LIVE</div>
-                  ) : (
-                    <div className="status-indicator status-scheduled">UPCOMING</div>
-                  )}
-                  {groupName && <div className="mt-3 text-sm font-medium bg-blue-50 text-blue-700 py-1 px-3 rounded-full">Group {groupName}</div>}
-                  
-                  {/* Match Timeline Visualization */}
-                  <div className="w-full mt-5 pt-5 border-t border-neutral-200">
-                    <div className="flex justify-between items-center text-sm text-neutral-500">
-                      <div>1'</div>
-                      <div>45'</div>
-                      <div>90'</div>
-                    </div>
-                    <div className="mt-1 h-2 w-full bg-neutral-200 rounded-full overflow-hidden">
-                      {match.status === 'in_progress' && (
-                        <div className="h-full bg-emerald-500" style={{ width: '50%' }}></div>
-                      )}
-                      {match.status === 'completed' && (
-                        <div className="h-full bg-neutral-400" style={{ width: '100%' }}></div>
-                      )}
-                    </div>
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Home Team */}
+                <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
+                  <div className="text-sm text-[var(--text-secondary)] mb-2">Home Team</div>
+                  <div className="flex items-center gap-3">
+                    {match.home_team?.flag_url ? (
+                      <img 
+                        src={match.home_team.flag_url} 
+                        alt={homeName} 
+                        className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
+                      />
+                    ) : (
+                      <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                    )}
+                    <div className="font-medium text-[var(--text-heading)]">{homeName}</div>
                   </div>
                 </div>
                 
-                <div className="col-span-1 text-center p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow transition-all">
-                  <div className="font-semibold text-lg mb-2">{awayName}</div>
-                  {match.away_team?.flag_url && (
-                    <img 
-                      src={match.away_team.flag_url} 
-                      alt={awayName}
-                      className="h-16 md:h-20 mx-auto my-2 md:my-3 rounded-md shadow-sm border border-neutral-200"
-                    />
-                  )}
-                  {match.status !== 'scheduled' && (
-                    <div className="flex items-center justify-center mt-3 md:mt-5">
-                      {canEditScores ? (
-                        <div className="match-score-controls">
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
-                            disabled={match.away_score <= 0}
-                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
-                          >
-                            -
-                          </Button>
-                          <div className="match-score-display text-lg md:text-2xl py-1 px-3 md:px-4">{match.away_score || 0}</div>
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
-                            className="px-3 md:px-4 py-1 md:py-2 h-10 md:h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
-                          >
-                            +
-                          </Button>
+                {/* Score Display */}
+                <div className="p-4 bg-[#e6edf5] rounded-lg shadow-sm border border-[var(--wc-silver-blue)] text-center">
+                  <div className="text-sm text-[var(--text-secondary)] mb-2">Score</div>
+                  <div className="text-2xl font-bold text-[var(--text-heading)]">
+                    {match.status === 'completed' || match.status === 'in_progress' ? (
+                      <>
+                        {match.home_score || 0} - {match.away_score || 0}
+                        
+                        <div className="mt-2 text-sm font-normal text-[var(--wc-blue)]">
+                          {match.status === 'in_progress' ? 'LIVE' : 'COMPLETED'}
                         </div>
-                      ) : (
-                        <div className="text-3xl md:text-4xl font-bold p-2 md:p-3 bg-neutral-100 rounded-md shadow-inner">{match.away_score || 0}</div>
-                      )}
-                    </div>
-                  )}
+                      </>
+                    ) : (
+                      <span className="text-neutral-400">vs</span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Away Team */}
+                <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
+                  <div className="text-sm text-[var(--text-secondary)] mb-2">Away Team</div>
+                  <div className="flex items-center gap-3">
+                    {match.away_team?.flag_url ? (
+                      <img 
+                        src={match.away_team.flag_url} 
+                        alt={awayName} 
+                        className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
+                      />
+                    ) : (
+                      <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                    )}
+                    <div className="font-medium text-[var(--text-heading)]">{awayName}</div>
+                  </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6 md:mt-8">
-                <div className="col-span-1 p-4 md:p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
-                  <p className="text-sm font-semibold text-neutral-600 mb-2">Status</p>
-                  {match.status === 'scheduled' ? (
-                    <div className="status-indicator status-scheduled">Scheduled</div>
-                  ) : match.status === 'in_progress' ? (
-                    <div className="status-indicator status-live">In Progress</div>
-                  ) : (
-                    <div className="status-indicator status-completed">Completed</div>
-                  )}
-                </div>
-                <div className="col-span-1 p-4 md:p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
-                  <p className="text-sm font-semibold text-neutral-600 mb-2">Date & Time</p>
-                  <p className="font-medium flex flex-wrap gap-2">
-                    <span className="inline-block bg-neutral-100 px-2 py-1 rounded">{formattedDate}</span>
-                    <span className="inline-block bg-neutral-100 px-2 py-1 rounded">{formattedTime}</span>
-                  </p>
-                </div>
-                {match.group_id && (
-                  <div className="col-span-1 p-4 md:p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
-                    <p className="text-sm font-semibold text-neutral-600 mb-2">Group</p>
-                    <p className="font-medium">
-                      <span className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full">Group {groupName}</span>
-                    </p>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Date & Time */}
+                  <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-sm text-[var(--text-secondary)] mb-1">Date & Time</div>
+                    <div className="font-medium text-[var(--text-primary)]">{formattedDate}, {formattedTime}</div>
                   </div>
-                )}
+                  
+                  {/* Group */}
+                  <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-sm text-[var(--text-secondary)] mb-1">Group</div>
+                    <div className="font-medium text-[var(--text-primary)]">
+                      {match.group ? `Group ${match.group.name}` : 'Not Assigned'}
+                    </div>
+                  </div>
+
+                  {/* Venue */}
+                  <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-sm text-[var(--text-secondary)] mb-1">Venue</div>
+                    <div className="font-medium text-[var(--text-primary)]">{venueInfo}</div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </CardContent>
         
-        <CardFooter className="flex flex-col md:flex-row md:justify-between gap-4 bg-gradient-to-r from-neutral-50 to-neutral-100 border-t p-4 md:p-6">
+        <CardFooter className="p-4 md:p-6 space-x-2 border-t border-[var(--border-color)] justify-end">
           {isEditing ? (
-            <div className="flex w-full justify-between">
+            <>
               <Button 
                 variant="outline" 
-                onClick={() => setIsEditing(false)} 
-                className="border-2"
+                onClick={() => {
+                  if (id === 'new') {
+                    navigate('/matches');
+                  } else {
+                    setIsEditing(false);
+                  }
+                }}
               >
                 Cancel
               </Button>
               <Button 
-                onClick={handleSave} 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-md"
+                onClick={handleSave}
+                className="bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)] text-white"
               >
-                Save Changes
+                Save
               </Button>
-            </div>
+            </>
           ) : (
             <>
-              <div className="flex flex-wrap w-full md:w-auto gap-3 justify-center md:justify-start">
-                <Button 
-                  variant="destructive" 
-                  onClick={handleDelete} 
-                  className="bg-rose-600 hover:bg-rose-700 text-white border-0 shadow-md"
-                >
-                  Delete Match
-                </Button>
-                {canStartMatch && (
-                  <Button 
-                    variant="success"
-                    onClick={handleStartMatch}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium border-0 shadow-md"
-                  >
-                    Start Match
-                  </Button>
-                )}
-                {canEndMatch && (
-                  <Button 
-                    variant="warning"
-                    onClick={handleEndMatch}
-                    className="bg-amber-600 hover:bg-amber-700 text-white font-medium border-0 shadow-md"
-                  >
-                    End Match
-                  </Button>
-                )}
-              </div>
               <Button 
-                onClick={handleEdit} 
-                className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-md"
+                variant="outline" 
+                onClick={handleEdit}
               >
-                Edit Match
+                Edit
               </Button>
+              
+              {id !== 'new' && match.status === 'scheduled' && (
+                <Button 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={handleStartMatch}
+                >
+                  Start Match
+                </Button>
+              )}
+              
+              {id !== 'new' && match.status === 'in_progress' && (
+                <Button 
+                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                  onClick={handleEndMatch}
+                >
+                  End Match
+                </Button>
+              )}
+              
+              {id !== 'new' && (
+                <Button 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+              )}
             </>
           )}
         </CardFooter>

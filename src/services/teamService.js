@@ -30,6 +30,69 @@ export const teamService = {
     return data;
   },
 
+  async getGroups() {
+    const { data, error } = await supabase
+      .from('group')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching groups:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  async getTeamsByGroup(groupId) {
+    try {
+      // Get the group to find which team positions are filled
+      const { data: group, error: groupError } = await supabase
+        .from('group')
+        .select('*')
+        .eq('id', groupId)
+        .single();
+
+      if (groupError) {
+        console.error('Error fetching group:', groupError);
+        throw groupError;
+      }
+
+      if (!group) {
+        console.error('Group not found:', groupId);
+        return [];
+      }
+
+      // Collect all team IDs from the group (non-null values)
+      const teamIds = [
+        group.team1_id,
+        group.team2_id,
+        group.team3_id,
+        group.team4_id
+      ].filter(id => id !== null);
+
+      if (teamIds.length === 0) {
+        return [];
+      }
+
+      // Fetch the team details for all teams in the group
+      const { data: teams, error: teamsError } = await supabase
+        .from('team')
+        .select('*')
+        .in('id', teamIds);
+
+      if (teamsError) {
+        console.error('Error fetching teams by group:', teamsError);
+        throw teamsError;
+      }
+
+      return teams;
+    } catch (err) {
+      console.error('Error getting teams by group:', err);
+      throw err;
+    }
+  },
+
   async updateTeamQualification(teamId, qualified) {
     const { data, error } = await supabase
       .from('team')

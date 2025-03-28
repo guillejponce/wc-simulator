@@ -81,7 +81,7 @@ function Groups() {
 
   if (error) {
     return (
-      <div className="text-center text-[var(--wc-red)] py-8 font-medium">
+      <div className="text-center text-red-600 py-8 font-medium">
         {error}
       </div>
     );
@@ -90,18 +90,18 @@ function Groups() {
   return (
     <div className="container mx-auto px-4 py-6 md:py-8">
       <div className="header-gradient mb-6 md:mb-8 p-4 md:p-6">
-        <h1 className="text-2xl md:text-4xl font-bold flex flex-col md:flex-row items-center gap-2 md:gap-3 text-[var(--text-primary)]">
+        <h1 className="text-2xl md:text-4xl font-bold flex flex-col md:flex-row items-center gap-2 md:gap-3">
           <Flag className="w-6 h-6 md:w-8 md:h-8" />
           <span>FIFA World Cup 2026™</span>
         </h1>
-        <p className="text-lg md:text-xl opacity-90 mt-2 text-center md:text-left text-[var(--text-primary)]">Group Stage</p>
+        <p className="text-lg md:text-xl opacity-90 mt-2 text-center md:text-left">Group Stage</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {groups.map((group) => (
           <div key={group.name} className="group-card">
-            <div className="p-3 md:p-4 border-b border-[var(--border-color)]">
-              <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">Group {group.name}</h2>
+            <div className="card-header-metallic p-3 md:p-4 border-b border-[var(--border-color)]">
+              <h2 className="text-xl md:text-2xl font-bold text-[var(--text-heading)]">Group {group.name}</h2>
             </div>
             <div className="p-2 md:p-4 overflow-x-auto">
               <Table>
@@ -123,7 +123,7 @@ function Groups() {
                   {group.teams.map((team, index) => (
                     <TableRow 
                       key={team?.id || `empty-${index}`}
-                      className={index < 2 ? 'bg-gradient-secondary bg-opacity-10' : ''}
+                      className={index < 2 ? 'bg-[rgba(91,138,182,0.1)]' : ''}
                     >
                       <TableCell className="font-medium text-[var(--text-primary)]">{index + 1}</TableCell>
                       <TableCell>

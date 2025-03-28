@@ -1,223 +1,209 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui';
 import { Button } from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
-import { Trophy, Users, Calendar, Flag } from 'lucide-react';
+import { Trophy, Users, Calendar, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
+import '../assets/styles/theme.css';
 
 function Home() {
   return (
-    <div className="space-y-6 md:space-y-8">
-      {/* Hero Section */}
-      <motion.section 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative text-center py-10 md:py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-[url('/world-cup-pattern.png')] opacity-10"></div>
-        <div className="relative z-10 px-4">
-          <h1 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4">FIFA World Cup 2026</h1>
-          <p className="text-lg md:text-xl mb-6 md:mb-8">Experience the first-ever 48-team World Cup</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:space-x-4">
-            <Button asChild size="lg" className="w-full sm:w-auto">
-              <Link to="/simulations">Start New Tournament</Link>
+    <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
+      {/* Hero section */}
+      <div className="header-gradient rounded-xl shadow-lg overflow-hidden">
+        <div className="py-10 md:py-16 px-6 md:px-8">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">
+            FIFA World Cup Simulator
+          </h1>
+          <p className="text-lg md:text-xl mb-8 max-w-2xl">
+            Create your own World Cup tournament, manage teams, simulate matches, and track results all in one place.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white shadow-md border-0 backdrop-blur-sm w-full sm:w-auto"
+              asChild
+            >
+              <Link to="/matches">Start Simulating</Link>
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link to="/qualification">View Qualification</Link>
+            <Button
+              variant="outline"
+              className="bg-transparent border-white text-white hover:bg-white hover:bg-opacity-10 backdrop-blur-sm w-full sm:w-auto"
+              asChild
+            >
+              <Link to="/groups">View Groups</Link>
             </Button>
           </div>
         </div>
-      </motion.section>
+      </div>
 
-      {/* Tournament Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
+      {/* Tournament overview */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-6 text-[var(--text-heading)]">Tournament Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-blue-600" />
-                Tournament Details
-              </CardTitle>
+            <CardHeader className="card-header-metallic flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Teams</CardTitle>
+              <Users className="h-5 w-5 text-[var(--wc-accent-blue)]" />
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-gray-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                  48 Teams (Expanded Format)
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                  16 Groups of 3 Teams
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                  104 Matches
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                  3 Host Nations
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                  June-July 2026
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Flag className="w-5 h-5 text-green-600" />
-                Host Nations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-gray-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                  United States
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                  Canada
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                  Mexico
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                  16 Host Cities
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="md:col-span-2 lg:col-span-1"
-        >
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-purple-600" />
-                Qualification Spots
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-2">
-                <ul className="space-y-2 text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                    UEFA: 16 Teams
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                    CONMEBOL: 6 Teams
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                    CONCACAF: 6 Teams
-                  </li>
-                </ul>
-                <ul className="space-y-2 text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                    CAF: 9 Teams
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                    AFC: 8 Teams
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                    OFC: 1 Team
-                  </li>
-                </ul>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">Manage national teams participating in the World Cup</p>
+              <div className="mt-4">
+                <Link 
+                  to="/teams" 
+                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                >
+                  View Teams
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+
+          <Card className="h-full">
+            <CardHeader className="card-header-metallic flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Matches</CardTitle>
+              <Calendar className="h-5 w-5 text-[var(--wc-accent-blue)]" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">Schedule and simulate World Cup matches</p>
+              <div className="mt-4">
+                <Link 
+                  to="/matches" 
+                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                >
+                  View Matches
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="h-full">
+            <CardHeader className="card-header-metallic flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Groups</CardTitle>
+              <Users className="h-5 w-5 text-[var(--wc-accent-blue)]" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-[var(--text-secondary)] mb-1">Track standings and results for each group</p>
+              <div className="mt-4">
+                <Link 
+                  to="/groups" 
+                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                >
+                  View Groups
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white p-4 md:p-6 rounded-lg shadow-md"
-      >
-        <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <Link
-            to="/draw"
-            className="group p-3 md:p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+      {/* Quick actions */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-6 text-[var(--text-heading)]">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link 
+            to="/matches/new" 
+            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
           >
-            <h3 className="font-semibold text-blue-800 group-hover:text-blue-900">Group Draw</h3>
-            <p className="text-sm text-gray-600">Simulate the official draw process</p>
+            <div className="bg-[var(--wc-blue)] rounded-full p-2 text-white">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-medium text-[var(--text-heading)]">Create Match</h3>
+              <p className="text-sm text-[var(--text-secondary)]">Add a new fixture</p>
+            </div>
           </Link>
-          <Link
-            to="/matches"
-            className="group p-3 md:p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+
+          <Link 
+            to="/teams/new" 
+            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
           >
-            <h3 className="font-semibold text-green-800 group-hover:text-green-900">Match Schedule</h3>
-            <p className="text-sm text-gray-600">View and manage match fixtures</p>
+            <div className="bg-[var(--wc-light-blue)] rounded-full p-2 text-white">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-medium text-[var(--text-heading)]">Add Team</h3>
+              <p className="text-sm text-[var(--text-secondary)]">Register new team</p>
+            </div>
           </Link>
-          <Link
-            to="/teams"
-            className="group p-3 md:p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+
+          <Link 
+            to="/qualification" 
+            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
           >
-            <h3 className="font-semibold text-red-800 group-hover:text-red-900">Team Management</h3>
-            <p className="text-sm text-gray-600">Configure team rosters and lineups</p>
+            <div className="bg-[var(--wc-accent-blue)] rounded-full p-2 text-white">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-medium text-[var(--text-heading)]">Qualification</h3>
+              <p className="text-sm text-[var(--text-secondary)]">Track progression</p>
+            </div>
           </Link>
-          <Link
-            to="/statistics"
-            className="group p-3 md:p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+
+          <Link 
+            to="/draw" 
+            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
           >
-            <h3 className="font-semibold text-purple-800 group-hover:text-purple-900">Statistics</h3>
-            <p className="text-sm text-gray-600">Track tournament statistics</p>
+            <div className="bg-[var(--wc-metallic-blue)] rounded-full p-2 text-white">
+              <Trophy className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-medium text-[var(--text-heading)]">Draw</h3>
+              <p className="text-sm text-[var(--text-secondary)]">Group allocation</p>
+            </div>
           </Link>
         </div>
-      </motion.section>
+      </div>
 
       {/* Latest Updates */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="bg-white p-4 md:p-6 rounded-lg shadow-md"
-      >
-        <h2 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">Latest Updates</h2>
-        <div className="space-y-3 md:space-y-4">
-          <div className="flex items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg">
-            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-            <p className="text-gray-600">Qualification process ongoing for all confederations</p>
-          </div>
-          <div className="flex items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg">
-            <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-            <p className="text-gray-600">Venue preparations in progress across host nations</p>
-          </div>
-          <div className="flex items-center space-x-3 md:space-x-4 p-3 md:p-4 bg-gray-50 rounded-lg">
-            <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-            <p className="text-gray-600">New tournament format details announced</p>
-          </div>
-        </div>
-      </motion.section>
+      <div>
+        <h2 className="text-2xl font-semibold mb-6 text-[var(--text-heading)]">Latest Updates</h2>
+        <Card>
+          <CardHeader className="card-header-metallic">
+            <CardTitle className="text-lg font-semibold text-[var(--text-heading)]">What's New</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex gap-4 items-start">
+                <div className="bg-[#e6edf5] rounded-full p-1.5">
+                  <Sparkles className="h-4 w-4 text-[var(--wc-accent-blue)]" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-[var(--text-heading)]">Enhanced UI</h3>
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    Completely redesigned user interface with improved responsiveness for all devices
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 items-start">
+                <div className="bg-[#e6edf5] rounded-full p-1.5">
+                  <Sparkles className="h-4 w-4 text-[var(--wc-accent-blue)]" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-[var(--text-heading)]">Match Simulation</h3>
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    New match simulation engine with realistic outcomes based on team strengths
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 items-start">
+                <div className="bg-[#e6edf5] rounded-full p-1.5">
+                  <Sparkles className="h-4 w-4 text-[var(--wc-accent-blue)]" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-[var(--text-heading)]">Venue Support</h3>
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    Added venue selection for matches with real-world stadium information
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
