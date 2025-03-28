@@ -5,6 +5,7 @@ import Qualification from '../pages/Qualification';
 import Draw from '../pages/Draw';
 import Groups from '../pages/Groups';
 import Matches from '../pages/Matches';
+import MatchDetail from '../pages/MatchDetail';
 import Knockout from '../pages/Knockout';
 import Teams from '../pages/Teams';
 import Stats from '../pages/Stats';
@@ -17,6 +18,7 @@ function AppRoutes() {
       <Route path="/draw" element={<Draw />} />
       <Route path="/groups" element={<Groups />} />
       <Route path="/matches" element={<Matches />} />
+      <Route path="/matches/:id" element={<MatchDetail />} />
       <Route path="/knockout" element={<Knockout />} />
       <Route path="/teams" element={<Teams />} />
       <Route path="/stats" element={<Stats />} />

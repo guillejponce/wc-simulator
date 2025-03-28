@@ -40,6 +40,17 @@ const Dialog = ({ open, onClose, children, className, ...props }) => {
   );
 };
 
+const DialogContent = ({ className, children, ...props }) => {
+  return (
+    <div
+      className={cn("space-y-4", className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
 const DialogHeader = ({ className, ...props }) => {
   return (
     <div
@@ -93,6 +104,7 @@ const DialogClose = ({ className, ...props }) => {
 
 export {
   Dialog,
+  DialogContent,
   DialogHeader,
   DialogFooter,
   DialogTitle,
