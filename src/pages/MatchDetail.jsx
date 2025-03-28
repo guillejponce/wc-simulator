@@ -296,6 +296,78 @@ function MatchDetail() {
     }
   };
 
+  const handleStartMatch = async () => {
+    try {
+      // Set match status to in_progress and initialize scores
+      const updatedMatch = {
+        ...match,
+        status: 'in_progress',
+        home_score: 0,
+        away_score: 0
+      };
+      
+      // Save to database
+      const savedMatch = await matchService.updateMatch(id, {
+        status: 'in_progress',
+        home_score: 0,
+        away_score: 0
+      });
+      
+      // Update local state
+      setMatch(savedMatch);
+    } catch (err) {
+      console.error('Error starting match:', err);
+      setError(err.message || 'Failed to start match');
+    }
+  };
+
+  const handleEndMatch = async () => {
+    if (window.confirm('Are you sure you want to end this match? The final score will be recorded.')) {
+      try {
+        // Set match status to completed
+        const updatedMatch = {
+          ...match,
+          status: 'completed'
+        };
+        
+        // Save to database
+        const savedMatch = await matchService.updateMatch(id, {
+          status: 'completed'
+        });
+        
+        // Update local state
+        setMatch(savedMatch);
+      } catch (err) {
+        console.error('Error ending match:', err);
+        setError(err.message || 'Failed to end match');
+      }
+    }
+  };
+
+  const handleScoreChange = async (team, value) => {
+    // Don't allow negative scores
+    if (value < 0) return;
+    
+    try {
+      // Update the score in the local state
+      const updatedMatch = {
+        ...match,
+        [team === 'home' ? 'home_score' : 'away_score']: value
+      };
+      
+      // Save to database
+      const savedMatch = await matchService.updateMatch(id, {
+        [team === 'home' ? 'home_score' : 'away_score']: value
+      });
+      
+      // Update local state
+      setMatch(savedMatch);
+    } catch (err) {
+      console.error('Error updating score:', err);
+      setError(err.message || 'Failed to update score');
+    }
+  };
+
   if (isLoading) {
     return <div className="container mx-auto px-4 py-8">Loading match details...</div>;
   }
@@ -341,27 +413,42 @@ function MatchDetail() {
   const formattedDate = matchDateHelpers.formatDate(match.datetime);
   const formattedTime = matchDateHelpers.formatTime(match.datetime);
 
+  // Determine if the match can be started (has both teams and is scheduled)
+  const canStartMatch = !isEditing && 
+    match.status === 'scheduled' && 
+    match.home_team_id && 
+    match.away_team_id;
+
+  // Determine if the match can be ended (is in progress)
+  const canEndMatch = !isEditing && match.status === 'in_progress';
+
+  // Determine if scores can be edited (match is in progress)
+  const canEditScores = !isEditing && match.status === 'in_progress';
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="header-gradient flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">
           {id === 'new' ? 'Create New Match' : `${homeName} vs ${awayName}`}
         </h1>
-        <Button onClick={() => navigate('/matches')}>
+        <Button 
+          onClick={() => navigate('/matches')} 
+          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-0 backdrop-blur-sm"
+        >
           Back to Matches
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="match-card">
+        <CardHeader className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b">
+          <CardTitle className="text-xl font-semibold text-neutral-800">
             {isEditing ? 'Edit Match Details' : 'Match Details'}
           </CardTitle>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="p-6">
           {isEditing ? (
-            <Form className="space-y-4">
+            <Form className="space-y-6">
               <FormField>
                 <Label htmlFor="group_id">Group</Label>
                 <Select 
@@ -488,92 +575,200 @@ function MatchDetail() {
               )}
             </Form>
           ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-1 text-center">
-                  <div className="font-semibold">{homeName}</div>
+            <div className="space-y-8">
+              <div className="grid grid-cols-3 gap-8">
+                <div className="col-span-1 text-center p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow transition-all">
+                  <div className="font-semibold text-lg mb-2">{homeName}</div>
                   {match.home_team?.flag_url && (
                     <img 
                       src={match.home_team.flag_url} 
                       alt={homeName}
-                      className="h-16 mx-auto my-2"
+                      className="h-20 mx-auto my-3 rounded-md shadow-sm border border-neutral-200"
                     />
                   )}
-                  {match.status === 'completed' && (
-                    <div className="text-2xl font-bold">{match.home_score}</div>
+                  {match.status !== 'scheduled' && (
+                    <div className="flex items-center justify-center mt-5">
+                      {canEditScores ? (
+                        <div className="match-score-controls">
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
+                            disabled={match.home_score <= 0}
+                            className="px-4 py-2 h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
+                          >
+                            -
+                          </Button>
+                          <div className="match-score-display">{match.home_score || 0}</div>
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
+                            className="px-4 py-2 h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
+                          >
+                            +
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-4xl font-bold p-3 bg-neutral-100 rounded-md shadow-inner">{match.home_score || 0}</div>
+                      )}
+                    </div>
                   )}
                 </div>
                 
-                <div className="col-span-1 flex flex-col items-center justify-center">
-                  <div className="text-sm text-gray-500 mb-2">
-                    <div>{formattedDate}</div>
-                    <div>{formattedTime}</div>
+                <div className="col-span-1 flex flex-col items-center justify-center rounded-lg border border-neutral-200 p-4 bg-gradient-to-b from-white to-neutral-50">
+                  <div className="text-sm font-medium text-neutral-600 mb-3">
+                    <div className="text-center">{formattedDate}</div>
+                    <div className="text-center">{formattedTime}</div>
                   </div>
                   {match.status === 'completed' ? (
-                    <div className="text-xl">FT</div>
+                    <div className="status-indicator status-completed">FULL TIME</div>
                   ) : match.status === 'in_progress' ? (
-                    <div className="text-xl text-green-600">LIVE</div>
+                    <div className="status-indicator status-live">LIVE</div>
                   ) : (
-                    <div className="text-xl">vs</div>
+                    <div className="status-indicator status-scheduled">UPCOMING</div>
                   )}
-                  {groupName && <div className="mt-2 text-sm">Group {groupName}</div>}
+                  {groupName && <div className="mt-3 text-sm font-medium bg-blue-50 text-blue-700 py-1 px-3 rounded-full">Group {groupName}</div>}
+                  
+                  {/* Match Timeline Visualization */}
+                  <div className="w-full mt-5 pt-5 border-t border-neutral-200">
+                    <div className="flex justify-between items-center text-sm text-neutral-500">
+                      <div>1'</div>
+                      <div>45'</div>
+                      <div>90'</div>
+                    </div>
+                    <div className="mt-1 h-2 w-full bg-neutral-200 rounded-full overflow-hidden">
+                      {match.status === 'in_progress' && (
+                        <div className="h-full bg-emerald-500" style={{ width: '50%' }}></div>
+                      )}
+                      {match.status === 'completed' && (
+                        <div className="h-full bg-neutral-400" style={{ width: '100%' }}></div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="col-span-1 text-center">
-                  <div className="font-semibold">{awayName}</div>
+                <div className="col-span-1 text-center p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow transition-all">
+                  <div className="font-semibold text-lg mb-2">{awayName}</div>
                   {match.away_team?.flag_url && (
                     <img 
                       src={match.away_team.flag_url} 
                       alt={awayName}
-                      className="h-16 mx-auto my-2"
+                      className="h-20 mx-auto my-3 rounded-md shadow-sm border border-neutral-200"
                     />
                   )}
-                  {match.status === 'completed' && (
-                    <div className="text-2xl font-bold">{match.away_score}</div>
+                  {match.status !== 'scheduled' && (
+                    <div className="flex items-center justify-center mt-5">
+                      {canEditScores ? (
+                        <div className="match-score-controls">
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
+                            disabled={match.away_score <= 0}
+                            className="px-4 py-2 h-12 bg-rose-500 hover:bg-rose-600 text-white text-lg font-bold border-0"
+                          >
+                            -
+                          </Button>
+                          <div className="match-score-display">{match.away_score || 0}</div>
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
+                            className="px-4 py-2 h-12 bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-bold border-0"
+                          >
+                            +
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-4xl font-bold p-3 bg-neutral-100 rounded-md shadow-inner">{match.away_score || 0}</div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
               
-              <div className="border-t pt-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-500">Status</p>
-                    <p>{match.status === 'scheduled' ? 'Scheduled' : 
-                        match.status === 'in_progress' ? 'In Progress' : 
-                        'Completed'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-500">Date & Time</p>
-                    <p>{formattedDate} {formattedTime}</p>
-                  </div>
-                  {match.group_id && (
-                    <div>
-                      <p className="text-sm font-semibold text-gray-500">Group</p>
-                      <p>Group {groupName}</p>
-                    </div>
+              <div className="grid grid-cols-3 gap-4 mt-8">
+                <div className="col-span-1 p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
+                  <p className="text-sm font-semibold text-neutral-600 mb-2">Status</p>
+                  {match.status === 'scheduled' ? (
+                    <div className="status-indicator status-scheduled">Scheduled</div>
+                  ) : match.status === 'in_progress' ? (
+                    <div className="status-indicator status-live">In Progress</div>
+                  ) : (
+                    <div className="status-indicator status-completed">Completed</div>
                   )}
                 </div>
+                <div className="col-span-1 p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
+                  <p className="text-sm font-semibold text-neutral-600 mb-2">Date & Time</p>
+                  <p className="font-medium">
+                    <span className="inline-block bg-neutral-100 px-2 py-1 rounded mr-2">{formattedDate}</span>
+                    <span className="inline-block bg-neutral-100 px-2 py-1 rounded">{formattedTime}</span>
+                  </p>
+                </div>
+                {match.group_id && (
+                  <div className="col-span-1 p-5 bg-white rounded-lg border border-neutral-200 shadow-sm">
+                    <p className="text-sm font-semibold text-neutral-600 mb-2">Group</p>
+                    <p className="font-medium">
+                      <span className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full">Group {groupName}</span>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </CardContent>
         
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between bg-gradient-to-r from-neutral-50 to-neutral-100 border-t p-6">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEditing(false)} 
+                className="border-2"
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSave}>
+              <Button 
+                onClick={handleSave} 
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-md"
+              >
                 Save Changes
               </Button>
             </>
           ) : (
             <>
-              <Button variant="destructive" onClick={handleDelete}>
-                Delete Match
-              </Button>
-              <Button onClick={handleEdit}>
+              <div className="space-x-3">
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDelete} 
+                  className="bg-rose-600 hover:bg-rose-700 text-white border-0 shadow-md"
+                >
+                  Delete Match
+                </Button>
+                {canStartMatch && (
+                  <Button 
+                    variant="success"
+                    onClick={handleStartMatch}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium border-0 shadow-md"
+                  >
+                    Start Match
+                  </Button>
+                )}
+                {canEndMatch && (
+                  <Button 
+                    variant="warning"
+                    onClick={handleEndMatch}
+                    className="bg-amber-600 hover:bg-amber-700 text-white font-medium border-0 shadow-md"
+                  >
+                    End Match
+                  </Button>
+                )}
+              </div>
+              <Button 
+                onClick={handleEdit} 
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-md"
+              >
                 Edit Match
               </Button>
             </>

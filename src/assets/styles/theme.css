@@ -1,35 +1,61 @@
 :root {
-  /* World Cup 2026 Colors */
-  --wc-red: #E31B23;
-  --wc-blue: #004FA3;
-  --wc-purple: #9747FF;
-  --wc-lime: #BFFF00;
-  --wc-mint: #7FFFD4;
-  --wc-orange: #FF6B35;
+  /* World Cup 2026 Colors - Refined Palette */
+  --wc-red: #e63946;
+  --wc-blue: #1d3557;
+  --wc-light-blue: #457b9d;
+  --wc-teal: #00b4d8;
+  --wc-mint: #8ecae6;
+  --wc-cream: #f1faee;
+  --wc-orange: #ffb703;
+  --wc-yellow: #ffd166;
+  
+  /* Neutral Palette */
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
   
   /* Background gradients */
-  --gradient-primary: linear-gradient(135deg, var(--wc-red) 0%, var(--wc-purple) 50%, var(--wc-blue) 100%);
-  --gradient-secondary: linear-gradient(45deg, var(--wc-mint) 0%, var(--wc-lime) 50%, var(--wc-orange) 100%);
+  --gradient-primary: linear-gradient(135deg, var(--wc-blue) 0%, var(--wc-light-blue) 100%);
+  --gradient-secondary: linear-gradient(45deg, var(--wc-mint) 0%, var(--wc-teal) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--wc-orange) 0%, var(--wc-yellow) 100%);
   
   /* Component Colors */
-  --background-primary: #FFFFFF;
-  --background-secondary: #F8F9FA;
-  --text-primary: #1A1A1A;
-  --text-secondary: #666666;
-  --border-color: #E5E7EB;
+  --background-primary: #ffffff;
+  --background-secondary: var(--neutral-50);
+  --text-primary: var(--neutral-800);
+  --text-secondary: var(--neutral-600);
+  --border-color: var(--neutral-200);
   
   /* Card Styles */
-  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --card-radius: 1rem;
+  --card-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.1);
+  --card-radius: 0.75rem;
   
   /* Animation */
   --transition-speed: 0.2s;
+  
+  /* Status Colors */
+  --status-scheduled: var(--wc-mint);
+  --status-live: #10b981;
+  --status-completed: var(--neutral-300);
+  
+  /* Score Colors */
+  --score-increase: #10b981;
+  --score-decrease: #ef4444;
+  --score-display: var(--neutral-100);
 }
 
 /* Global Styles */
 body {
   background: var(--background-secondary);
   color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Card Styles */
@@ -37,11 +63,13 @@ body {
   background: var(--background-primary);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
-  transition: transform var(--transition-speed);
+  transition: all var(--transition-speed);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -5px rgba(0, 0, 0, 0.1);
 }
 
 /* Header Styles */
@@ -51,52 +79,108 @@ body {
   padding: 2rem;
   border-radius: var(--card-radius);
   margin-bottom: 2rem;
+  box-shadow: var(--card-shadow);
 }
 
 /* Table Styles */
 .table-header {
-  background: var(--gradient-secondary);
+  background: var(--neutral-100);
   color: var(--text-primary);
-  font-weight: bold;
+  font-weight: 600;
+}
+
+.table-row-hover:hover {
+  background-color: rgba(0, 180, 216, 0.05);
 }
 
 /* Badge Styles */
 .badge {
-  background: var(--gradient-primary);
-  color: white;
+  display: inline-block;
+  background: var(--neutral-100);
+  color: var(--text-primary);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background: var(--wc-light-blue);
+  color: white;
+}
+
+.badge-success {
+  background: var(--status-live);
+  color: white;
 }
 
 /* Button Styles */
 .button-primary {
-  background: var(--gradient-primary);
+  background: var(--wc-blue);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: opacity var(--transition-speed);
+  transition: all var(--transition-speed);
+  font-weight: 500;
 }
 
 .button-primary:hover {
-  opacity: 0.9;
+  background: var(--wc-light-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
 }
 
 /* Group Card Styles */
 .group-card {
-  border: 2px solid transparent;
-  background: 
-    linear-gradient(var(--background-primary), var(--background-primary)) padding-box,
-    var(--gradient-primary) border-box;
+  border: 1px solid var(--border-color);
+  background: var(--background-primary);
   border-radius: var(--card-radius);
+  overflow: hidden;
+  transition: all var(--transition-speed);
+}
+
+.group-card:hover {
+  border-color: var(--wc-teal);
+  box-shadow: 0 8px 30px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Match Card Styles */
+.match-card {
+  background: var(--background-primary);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all var(--transition-speed);
+}
+
+.match-card:hover {
+  border-color: var(--wc-teal);
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow);
+}
+
+.match-score-controls {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.match-score-display {
+  background-color: var(--score-display);
+  padding: 0.5rem 1.25rem;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 /* Loading Animation */
 .loader {
-  border: 4px solid var(--background-secondary);
-  border-top: 4px solid var(--wc-blue);
+  border: 4px solid var(--neutral-200);
+  border-top: 4px solid var(--wc-teal);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -106,4 +190,37 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.status-scheduled {
+  background-color: rgba(142, 202, 230, 0.2);
+  color: var(--wc-blue);
+}
+
+.status-live {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--status-live);
+  animation: pulse 2s infinite;
+}
+
+.status-completed {
+  background-color: var(--neutral-100);
+  color: var(--neutral-700);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
 } 
