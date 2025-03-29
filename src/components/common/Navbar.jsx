@@ -37,7 +37,12 @@ function Navbar() {
     { name: 'Stats', href: '/stats', icon: Award },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === '/teams' && location.pathname.startsWith('/teams/')) {
+      return true;
+    }
+    return location.pathname === path;
+  };
 
   return (
     <nav className="bg-gradient-to-r from-[#1a472a] via-[#2d5a3f] to-[#1a472a] border-b-4 border-[#ffd700] relative z-40">

@@ -8,6 +8,7 @@ import Matches from '../pages/Matches';
 import MatchDetail from '../pages/MatchDetail';
 import Knockout from '../pages/Knockout';
 import Teams from '../pages/Teams';
+import TeamDetail from '../pages/TeamDetail';
 import Stats from '../pages/Stats';
 
 function AppRoutes() {
@@ -21,6 +22,7 @@ function AppRoutes() {
       <Route path="/matches/:id" element={<MatchDetail />} />
       <Route path="/knockout" element={<Knockout />} />
       <Route path="/teams" element={<Teams />} />
+      <Route path="/teams/:id" element={<TeamDetail />} />
       <Route path="/stats" element={<Stats />} />
     </Routes>
   );
