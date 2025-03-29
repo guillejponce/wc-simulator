@@ -15,8 +15,12 @@ import {
 } from '../components/ui';
 import { matchService, matchDateHelpers } from '../services/matchService';
 import { teamService } from '../services/teamService';
-import { Calendar, Flag, Clock, Timer, Play, Square, ArrowLeft, MapPin } from 'lucide-react';
+import { lineupService } from '../services/lineupService';
+import { Calendar, Flag, Clock, Timer, Play, Square, ArrowLeft, MapPin, UserSquare, Edit as EditIcon, X, UserPlus } from 'lucide-react';
+import LineupEditor from '../components/LineupEditor';
+import LineupViewer from '../components/LineupViewer';
 import '../assets/styles/theme.css';
+import '../assets/styles/LineupEditor.css';
 
 function MatchDetail() {
   const { id } = useParams();
@@ -30,6 +34,13 @@ function MatchDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // Lineup related state
+  const [activeTab, setActiveTab] = useState('details');
+  const [homeLineup, setHomeLineup] = useState(null);
+  const [awayLineup, setAwayLineup] = useState(null);
+  const [editingLineupTeamId, setEditingLineupTeamId] = useState(null);
+  const [loadingLineups, setLoadingLineups] = useState(false);
   
   // Load data
   useEffect(() => {
@@ -122,6 +133,36 @@ function MatchDetail() {
 
     fetchData();
   }, [id]);
+
+  // Load lineup data when id changes or tab changes to lineups
+  useEffect(() => {
+    if (id && id !== 'new' && activeTab === 'lineups' && match) {
+      const fetchLineups = async () => {
+        try {
+          setLoadingLineups(true);
+          
+          // Get home team lineup
+          if (match.home_team_id) {
+            const homeLineupData = await lineupService.getLineupByMatchTeam(match.id, match.home_team_id);
+            setHomeLineup(homeLineupData);
+          }
+          
+          // Get away team lineup
+          if (match.away_team_id) {
+            const awayLineupData = await lineupService.getLineupByMatchTeam(match.id, match.away_team_id);
+            setAwayLineup(awayLineupData);
+          }
+          
+          setLoadingLineups(false);
+        } catch (err) {
+          console.error('Error loading lineups:', err);
+          setLoadingLineups(false);
+        }
+      };
+      
+      fetchLineups();
+    }
+  }, [id, activeTab, match]);
 
   // Filter teams based on the selected group
   const filteredTeams = useMemo(() => {
@@ -425,6 +466,65 @@ function MatchDetail() {
     }
   };
 
+  // Handle editing lineup for a team
+  const handleEditLineup = (teamId) => {
+    setEditingLineupTeamId(teamId);
+  };
+
+  // Handle lineup save
+  const handleLineupSave = async (savedLineup) => {
+    // Update the appropriate lineup state
+    if (savedLineup.team_id === match.home_team_id) {
+      setHomeLineup(savedLineup);
+    } else if (savedLineup.team_id === match.away_team_id) {
+      setAwayLineup(savedLineup);
+    }
+    
+    // Exit edit mode
+    setEditingLineupTeamId(null);
+    
+    // Show success message
+    setSuccessMessage('Team lineup has been saved successfully!');
+    
+    // Clear message after a few seconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+  };
+
+  // Handle cancel lineup edit
+  const handleCancelLineupEdit = () => {
+    setEditingLineupTeamId(null);
+  };
+
+  // Handle delete lineup
+  const handleDeleteLineup = async (lineupId) => {
+    if (window.confirm('Are you sure you want to delete this lineup?')) {
+      try {
+        await lineupService.deleteLineup(lineupId);
+        
+        // Update the relevant lineup state
+        const lineup = homeLineup?.id === lineupId ? 'home' : 'away';
+        if (lineup === 'home') {
+          setHomeLineup(null);
+        } else {
+          setAwayLineup(null);
+        }
+        
+        // Show success message
+        setSuccessMessage('Team lineup has been deleted successfully!');
+        
+        // Clear message after a few seconds
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 3000);
+      } catch (err) {
+        console.error('Error deleting lineup:', err);
+        setError('Failed to delete lineup. Please try again.');
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center h-64">
@@ -489,6 +589,10 @@ function MatchDetail() {
   // Prepare display data
   const venueInfo = match?.venue ? `${match.venue.name}, ${match.venue.city}, ${match.venue.country}` : 'TBD';
 
+  // Prepare team data for the lineup editor/viewer
+  const homeTeam = match?.home_team || teams.find(t => t.id === match?.home_team_id) || null;
+  const awayTeam = match?.away_team || teams.find(t => t.id === match?.away_team_id) || null;
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-8">
       <div className="header-gradient flex flex-col md:flex-row items-center justify-between mb-6 p-4 md:p-6">
@@ -499,6 +603,7 @@ function MatchDetail() {
           onClick={() => navigate('/matches')} 
           className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-0 backdrop-blur-sm"
         >
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Matches
         </Button>
       </div>
@@ -512,351 +617,513 @@ function MatchDetail() {
         </div>
       )}
 
-      <Card className="match-card">
-        <CardHeader className="card-header-metallic p-4 md:p-6">
-          <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
-            {isEditing ? 'Edit Match Details' : 'Match Details'}
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="p-4 md:p-6">
-          {isEditing ? (
-            <Form className="space-y-6">
-              <FormField className="form-field">
-                <Label htmlFor="group_id">Group</Label>
-                <select 
-                  id="group_id" 
-                  name="group_id" 
-                  value={match.group_id || ''}
-                  onChange={handleChange}
-                  className="w-full text-black bg-white"
-                >
-                  <option value="">Select Group</option>
-                  {groups.map(group => (
-                    <option key={group.id} value={group.id}>
-                      Group {group.name}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
+      {/* Tab navigation for match details and lineups */}
+      {id !== 'new' && !isEditing && (
+        <div className="mb-6">
+          <div className="flex space-x-2 md:space-x-4 border-b">
+            <button
+              className={`px-4 py-2 font-medium text-sm md:text-base ${
+                activeTab === 'details' 
+                  ? 'text-[var(--wc-blue)] border-b-2 border-[var(--wc-blue)]' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+              onClick={() => setActiveTab('details')}
+            >
+              Match Details
+            </button>
+            <button
+              className={`px-4 py-2 font-medium text-sm md:text-base ${
+                activeTab === 'lineups' 
+                  ? 'text-[var(--wc-blue)] border-b-2 border-[var(--wc-blue)]' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+              onClick={() => setActiveTab('lineups')}
+            >
+              Team Lineups
+            </button>
+          </div>
+        </div>
+      )}
 
-              <FormField className="form-field">
-                <Label htmlFor="home_team_id">Home Team</Label>
-                <select 
-                  id="home_team_id" 
-                  name="home_team_id" 
-                  value={match.home_team_id || ''}
-                  onChange={handleChange}
-                  disabled={!match.group_id}
-                  className="w-full text-black bg-white"
-                >
-                  <option value="">Select Home Team</option>
-                  {filteredTeams.map(team => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-                {!match.group_id && 
-                  <p className="text-sm text-amber-600 mt-1">Please select a group first</p>
-                }
-              </FormField>
+      {(activeTab === 'details' || isEditing || id === 'new') && (
+        <Card className="match-card">
+          <CardHeader className="card-header-metallic p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
+              {isEditing ? 'Edit Match Details' : 'Match Details'}
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="p-4 md:p-6">
+            {isEditing ? (
+              <Form className="space-y-6">
+                <FormField className="form-field">
+                  <Label htmlFor="group_id">Group</Label>
+                  <select 
+                    id="group_id" 
+                    name="group_id" 
+                    value={match.group_id || ''}
+                    onChange={handleChange}
+                    className="w-full text-black bg-white"
+                  >
+                    <option value="">Select Group</option>
+                    {groups.map(group => (
+                      <option key={group.id} value={group.id}>
+                        Group {group.name}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
 
-              <FormField className="form-field">
-                <Label htmlFor="away_team_id">Away Team</Label>
-                <select 
-                  id="away_team_id" 
-                  name="away_team_id" 
-                  value={match.away_team_id || ''}
-                  onChange={handleChange}
-                  disabled={!match.group_id}
-                  className="w-full text-black bg-white"
-                >
-                  <option value="">Select Away Team</option>
-                  {filteredTeams
-                    .filter(team => team.id !== match.home_team_id) // Prevent selecting same team for both home and away
-                    .map(team => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-                {!match.group_id && 
-                  <p className="text-sm text-amber-600 mt-1">Please select a group first</p>
-                }
-              </FormField>
+                <FormField className="form-field">
+                  <Label htmlFor="home_team_id">Home Team</Label>
+                  <select 
+                    id="home_team_id" 
+                    name="home_team_id" 
+                    value={match.home_team_id || ''}
+                    onChange={handleChange}
+                    disabled={!match.group_id}
+                    className="w-full text-black bg-white"
+                  >
+                    <option value="">Select Home Team</option>
+                    {filteredTeams.map(team => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!match.group_id && 
+                    <p className="text-sm text-amber-600 mt-1">Please select a group first</p>
+                  }
+                </FormField>
 
-              <FormField className="form-field">
-                <Label htmlFor="venue_id">Venue</Label>
-                <select 
-                  id="venue_id" 
-                  name="venue_id" 
-                  value={match.venue_id || ''}
-                  onChange={handleChange}
-                  className="w-full text-black bg-white"
-                >
-                  <option value="">Select Venue</option>
-                  {venues.map(venue => (
-                    <option key={venue.id} value={venue.id}>
-                      {venue.name} - {venue.city}, {venue.country}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
+                <FormField className="form-field">
+                  <Label htmlFor="away_team_id">Away Team</Label>
+                  <select 
+                    id="away_team_id" 
+                    name="away_team_id" 
+                    value={match.away_team_id || ''}
+                    onChange={handleChange}
+                    disabled={!match.group_id}
+                    className="w-full text-black bg-white"
+                  >
+                    <option value="">Select Away Team</option>
+                    {filteredTeams
+                      .filter(team => team.id !== match.home_team_id) // Prevent selecting same team for both home and away
+                      .map(team => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!match.group_id && 
+                    <p className="text-sm text-amber-600 mt-1">Please select a group first</p>
+                  }
+                </FormField>
 
-              <FormField className="form-field">
-                <Label htmlFor="date">Date</Label>
-                <Input 
-                  id="date" 
-                  name="date" 
-                  type="date" 
-                  value={match.date || ''}
-                  onChange={handleChange}
-                  className="w-full text-black bg-white"
-                />
-              </FormField>
+                <FormField className="form-field">
+                  <Label htmlFor="venue_id">Venue</Label>
+                  <select 
+                    id="venue_id" 
+                    name="venue_id" 
+                    value={match.venue_id || ''}
+                    onChange={handleChange}
+                    className="w-full text-black bg-white"
+                  >
+                    <option value="">Select Venue</option>
+                    {venues.map(venue => (
+                      <option key={venue.id} value={venue.id}>
+                        {venue.name} - {venue.city}, {venue.country}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
 
-              <FormField className="form-field">
-                <Label htmlFor="time">Time</Label>
-                <Input 
-                  id="time" 
-                  name="time" 
-                  type="time" 
-                  value={match.time || ''}
-                  onChange={handleChange}
-                  className="w-full text-black bg-white"
-                />
-              </FormField>
+                <FormField className="form-field">
+                  <Label htmlFor="date">Date</Label>
+                  <Input 
+                    id="date" 
+                    name="date" 
+                    type="date" 
+                    value={match.date || ''}
+                    onChange={handleChange}
+                    className="w-full text-black bg-white"
+                  />
+                </FormField>
 
-              <FormField className="form-field">
-                <Label htmlFor="status">Status</Label>
-                <select 
-                  id="status" 
-                  name="status" 
-                  value={match.status || 'scheduled'}
-                  onChange={handleChange}
-                  className="w-full text-black bg-white"
-                >
-                  <option value="scheduled">Scheduled</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </FormField>
+                <FormField className="form-field">
+                  <Label htmlFor="time">Time</Label>
+                  <Input 
+                    id="time" 
+                    name="time" 
+                    type="time" 
+                    value={match.time || ''}
+                    onChange={handleChange}
+                    className="w-full text-black bg-white"
+                  />
+                </FormField>
 
-              {match.status === 'completed' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField className="col-span-1 form-field">
-                    <Label htmlFor="home_score">Home Score</Label>
-                    <Input 
-                      id="home_score" 
-                      name="home_score" 
-                      type="number" 
-                      min="0"
-                      value={match.home_score || 0}
-                      onChange={handleChange}
-                      className="w-full text-black bg-white"
-                    />
-                  </FormField>
+                <FormField className="form-field">
+                  <Label htmlFor="status">Status</Label>
+                  <select 
+                    id="status" 
+                    name="status" 
+                    value={match.status || 'scheduled'}
+                    onChange={handleChange}
+                    className="w-full text-black bg-white"
+                  >
+                    <option value="scheduled">Scheduled</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </FormField>
+
+                {match.status === 'completed' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField className="col-span-1 form-field">
+                      <Label htmlFor="home_score">Home Score</Label>
+                      <Input 
+                        id="home_score" 
+                        name="home_score" 
+                        type="number" 
+                        min="0"
+                        value={match.home_score || 0}
+                        onChange={handleChange}
+                        className="w-full text-black bg-white"
+                      />
+                    </FormField>
+                    
+                    <FormField className="col-span-1 form-field">
+                      <Label htmlFor="away_score">Away Score</Label>
+                      <Input 
+                        id="away_score" 
+                        name="away_score" 
+                        type="number" 
+                        min="0"
+                        value={match.away_score || 0}
+                        onChange={handleChange}
+                        className="w-full text-black bg-white"
+                      />
+                    </FormField>
+                  </div>
+                )}
+              </Form>
+            ) : (
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Home Team */}
+                  <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-sm text-[var(--text-secondary)] mb-2">Home Team</div>
+                    <div className="flex items-center gap-3">
+                      {match.home_team?.flag_url ? (
+                        <img 
+                          src={match.home_team.flag_url} 
+                          alt={homeName} 
+                          className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
+                        />
+                      ) : (
+                        <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                      )}
+                      <div className="font-medium text-[var(--text-heading)]">{homeName}</div>
+                    </div>
+                  </div>
                   
-                  <FormField className="col-span-1 form-field">
-                    <Label htmlFor="away_score">Away Score</Label>
-                    <Input 
-                      id="away_score" 
-                      name="away_score" 
-                      type="number" 
-                      min="0"
-                      value={match.away_score || 0}
-                      onChange={handleChange}
-                      className="w-full text-black bg-white"
-                    />
-                  </FormField>
-                </div>
-              )}
-            </Form>
-          ) : (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Home Team */}
-                <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
-                  <div className="text-sm text-[var(--text-secondary)] mb-2">Home Team</div>
-                  <div className="flex items-center gap-3">
-                    {match.home_team?.flag_url ? (
-                      <img 
-                        src={match.home_team.flag_url} 
-                        alt={homeName} 
-                        className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
-                      />
-                    ) : (
-                      <div className="w-8 h-6 bg-gray-200 rounded"></div>
-                    )}
-                    <div className="font-medium text-[var(--text-heading)]">{homeName}</div>
-                  </div>
-                </div>
-                
-                {/* Score Display */}
-                <div className="p-4 bg-[#e6edf5] rounded-lg shadow-sm border border-[var(--wc-silver-blue)] text-center">
-                  <div className="text-sm text-[var(--text-secondary)] mb-2">Score</div>
-                  <div className="text-2xl font-bold text-[var(--text-heading)]">
-                    {match.status === 'completed' || match.status === 'in_progress' ? (
-                      <>
-                        {canEditScores ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="flex items-center">
-                              <Button
-                                variant="outline"
-                                className="h-8 w-8 p-0 rounded-full"
-                                onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
-                              >
-                                -
-                              </Button>
-                              <span className="mx-2">{match.home_score || 0}</span>
-                              <Button
-                                variant="outline"
-                                className="h-8 w-8 p-0 rounded-full"
-                                onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
-                              >
-                                +
-                              </Button>
+                  {/* Score Display */}
+                  <div className="p-4 bg-[#e6edf5] rounded-lg shadow-sm border border-[var(--wc-silver-blue)] text-center">
+                    <div className="text-sm text-[var(--text-secondary)] mb-2">Score</div>
+                    <div className="text-2xl font-bold text-[var(--text-heading)]">
+                      {match.status === 'completed' || match.status === 'in_progress' ? (
+                        <>
+                          {canEditScores ? (
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="flex items-center">
+                                <Button
+                                  variant="outline"
+                                  className="h-8 w-8 p-0 rounded-full"
+                                  onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
+                                >
+                                  -
+                                </Button>
+                                <span className="mx-2">{match.home_score || 0}</span>
+                                <Button
+                                  variant="outline"
+                                  className="h-8 w-8 p-0 rounded-full"
+                                  onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                              <span className="mx-2">-</span>
+                              <div className="flex items-center">
+                                <Button
+                                  variant="outline"
+                                  className="h-8 w-8 p-0 rounded-full"
+                                  onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
+                                >
+                                  -
+                                </Button>
+                                <span className="mx-2">{match.away_score || 0}</span>
+                                <Button
+                                  variant="outline"
+                                  className="h-8 w-8 p-0 rounded-full"
+                                  onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
+                                >
+                                  +
+                                </Button>
+                              </div>
                             </div>
-                            <span className="mx-2">-</span>
-                            <div className="flex items-center">
-                              <Button
-                                variant="outline"
-                                className="h-8 w-8 p-0 rounded-full"
-                                onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
-                              >
-                                -
-                              </Button>
-                              <span className="mx-2">{match.away_score || 0}</span>
-                              <Button
-                                variant="outline"
-                                className="h-8 w-8 p-0 rounded-full"
-                                onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
-                              >
-                                +
-                              </Button>
-                            </div>
+                          ) : (
+                            <span>{match.home_score || 0} - {match.away_score || 0}</span>
+                          )}
+                          
+                          <div className="mt-2 text-sm font-normal text-[var(--wc-blue)]">
+                            {match.status === 'in_progress' ? 'LIVE' : 'COMPLETED'}
                           </div>
-                        ) : (
-                          <span>{match.home_score || 0} - {match.away_score || 0}</span>
-                        )}
-                        
-                        <div className="mt-2 text-sm font-normal text-[var(--wc-blue)]">
-                          {match.status === 'in_progress' ? 'LIVE' : 'COMPLETED'}
-                        </div>
-                      </>
-                    ) : (
-                      <span className="text-neutral-400">vs</span>
-                    )}
+                        </>
+                      ) : (
+                        <span className="text-neutral-400">vs</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Away Team */}
+                  <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-sm text-[var(--text-secondary)] mb-2">Away Team</div>
+                    <div className="flex items-center gap-3">
+                      {match.away_team?.flag_url ? (
+                        <img 
+                          src={match.away_team.flag_url} 
+                          alt={awayName} 
+                          className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
+                        />
+                      ) : (
+                        <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                      )}
+                      <div className="font-medium text-[var(--text-heading)]">{awayName}</div>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Away Team */}
-                <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
-                  <div className="text-sm text-[var(--text-secondary)] mb-2">Away Team</div>
-                  <div className="flex items-center gap-3">
-                    {match.away_team?.flag_url ? (
-                      <img 
-                        src={match.away_team.flag_url} 
-                        alt={awayName} 
-                        className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
-                      />
-                    ) : (
-                      <div className="w-8 h-6 bg-gray-200 rounded"></div>
-                    )}
-                    <div className="font-medium text-[var(--text-heading)]">{awayName}</div>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Date & Time */}
+                    <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                      <div className="text-sm text-[var(--text-secondary)] mb-1">Date & Time</div>
+                      <div className="font-medium text-[var(--text-primary)]">{formattedDate}, {formattedTime}</div>
+                    </div>
+                    
+                    {/* Group */}
+                    <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                      <div className="text-sm text-[var(--text-secondary)] mb-1">Group</div>
+                      <div className="font-medium text-[var(--text-primary)]">
+                        {match.group ? `Group ${match.group.name}` : 'Not Assigned'}
+                      </div>
+                    </div>
+
+                    {/* Venue */}
+                    <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                      <div className="text-sm text-[var(--text-secondary)] mb-1">Venue</div>
+                      <div className="font-medium text-[var(--text-primary)]">{venueInfo}</div>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Date & Time */}
-                  <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
-                    <div className="text-sm text-[var(--text-secondary)] mb-1">Date & Time</div>
-                    <div className="font-medium text-[var(--text-primary)]">{formattedDate}, {formattedTime}</div>
-                  </div>
-                  
-                  {/* Group */}
-                  <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
-                    <div className="text-sm text-[var(--text-secondary)] mb-1">Group</div>
-                    <div className="font-medium text-[var(--text-primary)]">
-                      {match.group ? `Group ${match.group.name}` : 'Not Assigned'}
-                    </div>
-                  </div>
+            )}
+          </CardContent>
+          
+          <CardFooter className="p-4 md:p-6 space-x-2 border-t border-[var(--border-color)] justify-end">
+            {isEditing ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    if (id === 'new') {
+                      navigate('/matches');
+                    } else {
+                      setIsEditing(false);
+                    }
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSave}
+                  className="bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)] text-white"
+                >
+                  Save
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={handleEdit}
+                >
+                  Edit
+                </Button>
+                
+                {id !== 'new' && match.status === 'scheduled' && (
+                  <Button 
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={handleStartMatch}
+                  >
+                    Start Match
+                  </Button>
+                )}
+                
+                {id !== 'new' && match.status === 'in_progress' && (
+                  <Button 
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={handleEndMatch}
+                  >
+                    End Match
+                  </Button>
+                )}
+                
+                {id !== 'new' && (
+                  <Button 
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    onClick={handleDelete}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </>
+            )}
+          </CardFooter>
+        </Card>
+      )}
 
-                  {/* Venue */}
-                  <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
-                    <div className="text-sm text-[var(--text-secondary)] mb-1">Venue</div>
-                    <div className="font-medium text-[var(--text-primary)]">{venueInfo}</div>
-                  </div>
+      {activeTab === 'lineups' && id !== 'new' && !isEditing && (
+        <div className="space-y-6">
+          {loadingLineups ? (
+            <div className="flex items-center justify-center min-h-[300px]">
+              <div className="loader"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Home Team Lineup */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-semibold text-blue-700 flex items-center gap-2">
+                    <img 
+                      src={homeTeam?.flag_url} 
+                      alt={homeTeam?.name} 
+                      className="w-6 h-4 object-cover shadow-sm rounded-sm border border-gray-200"
+                    />
+                    {homeTeam?.name || 'Home Team'} Lineup
+                  </h3>
+                  
+                  {match?.status === 'scheduled' && (
+                    <>
+                      {homeLineup ? (
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleEditLineup(homeTeam?.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 shadow-sm"
+                          >
+                            <EditIcon className="h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => handleDeleteLineup(homeLineup.id)}
+                            className="text-red-600 border-red-300 hover:bg-red-50 flex items-center gap-1 shadow-sm"
+                          >
+                            <X className="h-4 w-4" />
+                            Delete
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleEditLineup(homeTeam?.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 shadow-sm"
+                        >
+                          <UserPlus className="h-4 w-4" />
+                          Set Lineup
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
+                
+                {editingLineupTeamId === homeTeam?.id ? (
+                  <LineupEditor 
+                    match={match} 
+                    team={homeTeam} 
+                    onSave={handleLineupSave} 
+                    onCancel={handleCancelLineupEdit}
+                  />
+                ) : (
+                  <LineupViewer lineup={homeLineup} team={homeTeam} />
+                )}
+              </div>
+
+              {/* Away Team Lineup */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-semibold text-blue-700 flex items-center gap-2">
+                    <img 
+                      src={awayTeam?.flag_url} 
+                      alt={awayTeam?.name} 
+                      className="w-6 h-4 object-cover shadow-sm rounded-sm border border-gray-200"
+                    />
+                    {awayTeam?.name || 'Away Team'} Lineup
+                  </h3>
+                  
+                  {match?.status === 'scheduled' && (
+                    <>
+                      {awayLineup ? (
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleEditLineup(awayTeam?.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 shadow-sm"
+                          >
+                            <EditIcon className="h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => handleDeleteLineup(awayLineup.id)}
+                            className="text-red-600 border-red-300 hover:bg-red-50 flex items-center gap-1 shadow-sm"
+                          >
+                            <X className="h-4 w-4" />
+                            Delete
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleEditLineup(awayTeam?.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 shadow-sm"
+                        >
+                          <UserPlus className="h-4 w-4" />
+                          Set Lineup
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+                
+                {editingLineupTeamId === awayTeam?.id ? (
+                  <LineupEditor 
+                    match={match} 
+                    team={awayTeam} 
+                    onSave={handleLineupSave} 
+                    onCancel={handleCancelLineupEdit}
+                  />
+                ) : (
+                  <LineupViewer lineup={awayLineup} team={awayTeam} />
+                )}
               </div>
             </div>
           )}
-        </CardContent>
-        
-        <CardFooter className="p-4 md:p-6 space-x-2 border-t border-[var(--border-color)] justify-end">
-          {isEditing ? (
-            <>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  if (id === 'new') {
-                    navigate('/matches');
-                  } else {
-                    setIsEditing(false);
-                  }
-                }}
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                className="bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)] text-white"
-              >
-                Save
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button 
-                variant="outline" 
-                onClick={handleEdit}
-              >
-                Edit
-              </Button>
-              
-              {id !== 'new' && match.status === 'scheduled' && (
-                <Button 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  onClick={handleStartMatch}
-                >
-                  Start Match
-                </Button>
-              )}
-              
-              {id !== 'new' && match.status === 'in_progress' && (
-                <Button 
-                  className="bg-amber-600 hover:bg-amber-700 text-white"
-                  onClick={handleEndMatch}
-                >
-                  End Match
-                </Button>
-              )}
-              
-              {id !== 'new' && (
-                <Button 
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                  onClick={handleDelete}
-                >
-                  Delete
-                </Button>
-              )}
-            </>
-          )}
-        </CardFooter>
-      </Card>
+        </div>
+      )}
     </div>
   );
 }

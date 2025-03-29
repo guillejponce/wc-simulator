@@ -34,18 +34,36 @@ export const playerService = {
 
   // Get players by team ID (squad)
   async getPlayersByTeam(teamId) {
-    const { data, error } = await supabase
-      .from('player')
-      .select('*')
-      .eq('team_id', teamId)
-      .order('number');
+    console.log('Fetching players for team ID:', teamId);
+    
+    if (!teamId) {
+      console.error('Error: No team ID provided to getPlayersByTeam');
+      return [];
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('player')
+        .select('*')
+        .eq('team_id', teamId)
+        .order('number');
 
-    if (error) {
-      console.error('Error fetching players by team:', error);
+      if (error) {
+        console.error('Error fetching players by team:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.log(`No players found for team ID: ${teamId}`);
+      } else {
+        console.log(`Found ${data.length} players for team ID: ${teamId}`);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getPlayersByTeam:', error);
       throw error;
     }
-
-    return data;
   },
 
   // Create a new player
