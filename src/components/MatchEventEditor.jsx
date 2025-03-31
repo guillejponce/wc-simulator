@@ -510,26 +510,26 @@ function MatchEventEditor({ match, onSave, onCancel }) {
         ) : (
           <div className="relative">
             {/* Team headers */}
-            <div className="grid grid-cols-2 mb-6 text-sm font-medium">
-              <div className="pr-8 text-right">
-                <div className="flex items-center justify-end gap-2">
+            <div className="grid grid-cols-2 mb-4 sm:mb-6 text-xs sm:text-sm font-medium">
+              <div className="pr-4 sm:pr-8 text-right">
+                <div className="flex items-center justify-end gap-1.5 sm:gap-2">
                   <span className="text-neutral-600">{match.home_team?.name || 'Home Team'}</span>
                   {match.home_team?.flag_url && (
                     <img 
                       src={match.home_team.flag_url} 
                       alt={match.home_team?.name} 
-                      className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                      className="w-4 h-3 sm:w-6 sm:h-4 object-cover rounded-sm shadow-sm"
                     />
                   )}
                 </div>
               </div>
-              <div className="pl-8">
-                <div className="flex items-center gap-2">
+              <div className="pl-4 sm:pl-8">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   {match.away_team?.flag_url && (
                     <img 
                       src={match.away_team.flag_url} 
                       alt={match.away_team?.name} 
-                      className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                      className="w-4 h-3 sm:w-6 sm:h-4 object-cover rounded-sm shadow-sm"
                     />
                   )}
                   <span className="text-neutral-600">{match.away_team?.name || 'Away Team'}</span>
@@ -538,12 +538,12 @@ function MatchEventEditor({ match, onSave, onCancel }) {
             </div>
 
             {/* Score display */}
-            <div className="flex justify-center mb-6 relative z-20">
-              <div className="bg-white rounded-lg shadow-sm border border-neutral-200 px-6 py-2">
-                <div className="text-2xl font-bold text-neutral-900">
+            <div className="flex justify-center mb-4 sm:mb-6 relative z-20">
+              <div className="bg-white rounded-lg shadow-sm border border-neutral-200 px-4 sm:px-6 py-1.5 sm:py-2">
+                <div className="text-xl sm:text-2xl font-bold text-neutral-900">
                   {match.home_score || 0} - {match.away_score || 0}
                 </div>
-                <div className="text-xs text-neutral-500 text-center mt-1">
+                <div className="text-[10px] sm:text-xs text-neutral-500 text-center mt-0.5 sm:mt-1">
                   {match.status === 'in_progress' ? 'LIVE' : match.status === 'completed' ? 'FULL TIME' : 'MATCH NOT STARTED'}
                 </div>
               </div>
@@ -560,57 +560,57 @@ function MatchEventEditor({ match, onSave, onCancel }) {
               return (
                 <div key={event.id} className="relative flex items-center group">
                   {/* Time indicator in the middle */}
-                  <div className="absolute left-1/2 -ml-3 w-6 h-6 rounded-full bg-white border-2 border-neutral-200 flex items-center justify-center z-10 shadow-sm">
-                    <div className="text-[10px] font-medium text-neutral-600">
+                  <div className="absolute left-1/2 -ml-2.5 sm:-ml-3 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border-2 border-neutral-200 flex items-center justify-center z-10 shadow-sm">
+                    <div className="text-[8px] sm:text-[10px] font-medium text-neutral-600">
                       {event.minute}'
                       {event.added_time > 0 && <span>+{event.added_time}</span>}
                     </div>
                   </div>
 
                   {/* Event content */}
-                  <div className={`grid grid-cols-2 w-full gap-4 py-4 ${isHomeTeam ? 'home-event' : 'away-event'}`}>
+                  <div className={`grid grid-cols-2 w-full gap-1 sm:gap-4 py-1 sm:py-4 ${isHomeTeam ? 'home-event' : 'away-event'}`}>
                     {/* Home team side */}
-                    <div className={`${isHomeTeam ? 'pr-8' : 'opacity-0'}`}>
+                    <div className={`${isHomeTeam ? 'pr-1 sm:pr-8' : 'opacity-0'}`}>
                       {isHomeTeam && (
                         <div className="flex items-start justify-end">
-                          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-2 max-w-md w-full transition-all duration-200 hover:shadow-md hover:border-neutral-300">
-                            <div className="flex items-center gap-2 justify-end">
+                          <div className="bg-white rounded-sm shadow-sm border border-neutral-200 p-1.5 sm:p-3 max-w-[200px] sm:max-w-md w-full transition-all duration-200 hover:shadow-md hover:border-neutral-300">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                               <div className="flex-grow text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  <span className="font-medium text-sm text-neutral-900">{getPlayerName(event.player_id)}</span>
+                                <div className="flex items-center justify-end gap-0.5 sm:gap-1">
+                                  <span className="font-medium text-xs sm:text-base text-neutral-900">{getPlayerName(event.player_id)}</span>
                                   {event.secondary_player_id && (
                                     <>
-                                      <span className="text-neutral-400 text-xs mx-1">•</span>
-                                      <span className="text-xs text-neutral-600">
+                                      <span className="text-neutral-400 text-[10px] sm:text-sm mx-0.5 sm:mx-1">•</span>
+                                      <span className="text-[10px] sm:text-sm text-neutral-600">
                                         {getPlayerName(event.secondary_player_id)}
                                       </span>
                                     </>
                                   )}
                                   {(event.penalty || event.own_goal || event.details) && (
-                                    <span className="text-neutral-400 text-xs mx-1">•</span>
+                                    <span className="text-neutral-400 text-[10px] sm:text-sm mx-0.5 sm:mx-1">•</span>
                                   )}
-                                  {event.penalty && <span className="text-amber-600 text-xs">(P)</span>}
-                                  {event.own_goal && <span className="text-red-600 text-xs">(OG)</span>}
-                                  {event.details && <span className="text-neutral-500 text-xs">({event.details})</span>}
+                                  {event.penalty && <span className="text-amber-600 text-[10px] sm:text-sm">(P)</span>}
+                                  {event.own_goal && <span className="text-red-600 text-[10px] sm:text-sm">(OG)</span>}
+                                  {event.details && <span className="text-neutral-500 text-[10px] sm:text-sm">({event.details})</span>}
                                 </div>
                               </div>
-                              <div className="text-lg w-6 h-6 flex items-center justify-center">{getEventIcon(event.event_type)}</div>
-                              <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="text-base sm:text-xl w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center bg-neutral-50 rounded-sm border border-neutral-200">{getEventIcon(event.event_type)}</div>
+                              <div className="flex space-x-0.5 sm:space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEdit(event)}
-                                  className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                  className="h-5 w-5 sm:h-7 sm:w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-sm"
                                 >
-                                  <Edit2 className="w-3 h-3" />
+                                  <Edit2 className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDelete(event.id)}
-                                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="h-5 w-5 sm:h-7 sm:w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-sm"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                                 </Button>
                               </div>
                             </div>
@@ -620,47 +620,47 @@ function MatchEventEditor({ match, onSave, onCancel }) {
                     </div>
 
                     {/* Away team side */}
-                    <div className={`${!isHomeTeam ? 'pl-8' : 'opacity-0'}`}>
+                    <div className={`${!isHomeTeam ? 'pl-1 sm:pl-8' : 'opacity-0'}`}>
                       {!isHomeTeam && (
                         <div className="flex items-start">
-                          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-2 max-w-md w-full transition-all duration-200 hover:shadow-md hover:border-neutral-300">
-                            <div className="flex items-center gap-2">
-                              <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="bg-white rounded-sm shadow-sm border border-neutral-200 p-1.5 sm:p-3 max-w-[200px] sm:max-w-md w-full transition-all duration-200 hover:shadow-md hover:border-neutral-300">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <div className="flex space-x-0.5 sm:space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEdit(event)}
-                                  className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                  className="h-5 w-5 sm:h-7 sm:w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-sm"
                                 >
-                                  <Edit2 className="w-3 h-3" />
+                                  <Edit2 className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDelete(event.id)}
-                                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="h-5 w-5 sm:h-7 sm:w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-sm"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                                 </Button>
                               </div>
-                              <div className="text-lg w-6 h-6 flex items-center justify-center">{getEventIcon(event.event_type)}</div>
+                              <div className="text-base sm:text-xl w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center bg-neutral-50 rounded-sm border border-neutral-200">{getEventIcon(event.event_type)}</div>
                               <div className="flex-grow">
-                                <div className="flex items-center gap-1">
-                                  <span className="font-medium text-sm text-neutral-900">{getPlayerName(event.player_id)}</span>
+                                <div className="flex items-center gap-0.5 sm:gap-1">
+                                  <span className="font-medium text-xs sm:text-base text-neutral-900">{getPlayerName(event.player_id)}</span>
                                   {event.secondary_player_id && (
                                     <>
-                                      <span className="text-neutral-400 text-xs mx-1">•</span>
-                                      <span className="text-xs text-neutral-600">
+                                      <span className="text-neutral-400 text-[10px] sm:text-sm mx-0.5 sm:mx-1">•</span>
+                                      <span className="text-[10px] sm:text-sm text-neutral-600">
                                         {getPlayerName(event.secondary_player_id)}
                                       </span>
                                     </>
                                   )}
                                   {(event.penalty || event.own_goal || event.details) && (
-                                    <span className="text-neutral-400 text-xs mx-1">•</span>
+                                    <span className="text-neutral-400 text-[10px] sm:text-sm mx-0.5 sm:mx-1">•</span>
                                   )}
-                                  {event.penalty && <span className="text-amber-600 text-xs">(P)</span>}
-                                  {event.own_goal && <span className="text-red-600 text-xs">(OG)</span>}
-                                  {event.details && <span className="text-neutral-500 text-xs">({event.details})</span>}
+                                  {event.penalty && <span className="text-amber-600 text-[10px] sm:text-sm">(P)</span>}
+                                  {event.own_goal && <span className="text-red-600 text-[10px] sm:text-sm">(OG)</span>}
+                                  {event.details && <span className="text-neutral-500 text-[10px] sm:text-sm">({event.details})</span>}
                                 </div>
                               </div>
                             </div>

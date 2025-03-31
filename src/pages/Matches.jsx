@@ -146,12 +146,12 @@ function Matches() {
     <div className="container mx-auto px-4 py-6 md:py-8">
       <div className="header-gradient flex flex-col md:flex-row items-center justify-between mb-6 p-4 md:p-6">
         <div className="flex items-center gap-3 mb-4 md:mb-0">
-          <Calendar className="h-5 md:h-6 w-5 md:w-6" />
-          <h1 className="text-xl md:text-2xl font-bold">Match Schedule</h1>
+          <Calendar className="h-5 md:h-6 w-5 md:w-6 text-black" />
+          <h1 className="text-xl md:text-2xl font-bold text-black">Match Schedule</h1>
         </div>
         <Button 
           onClick={handleCreateMatch} 
-          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white shadow-md border-0 backdrop-blur-sm w-full md:w-auto"
+          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-black shadow-md border-0 backdrop-blur-sm w-full md:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           Create Match
@@ -160,7 +160,7 @@ function Matches() {
 
       <Card className="match-card">
         <CardHeader className="card-header-metallic p-4 md:p-6">
-          <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
+          <CardTitle className="text-lg md:text-xl font-semibold text-black">
             All Matches
           </CardTitle>
         </CardHeader>
@@ -179,7 +179,7 @@ function Matches() {
               <div className="w-12 h-12 mx-auto mb-4 bg-neutral-100 rounded-full flex items-center justify-center">
                 <Calendar className="h-6 w-6 text-neutral-400" />
               </div>
-              <p className="text-neutral-600 mb-4 text-base md:text-lg">No matches found</p>
+              <p className="text-black mb-4 text-base md:text-lg">No matches found</p>
               <Button 
                 onClick={handleCreateMatch} 
                 className="bg-gradient-to-r from-[var(--wc-blue)] to-[var(--wc-light-blue)] hover:from-[var(--wc-light-blue)] hover:to-[var(--wc-blue)] text-white shadow-md border-0"
@@ -194,13 +194,13 @@ function Matches() {
                 <Table>
                   <TableHeader className="bg-[#f7f9fc]">
                     <TableRow>
-                      <TableHead className="font-bold text-[var(--text-primary)]">Home Team</TableHead>
-                      <TableHead className="font-bold text-[var(--text-primary)] text-center">Score</TableHead>
-                      <TableHead className="font-bold text-[var(--text-primary)]">Away Team</TableHead>
-                      <TableHead className="font-bold text-[var(--text-primary)]">Date</TableHead>
-                      <TableHead className="font-bold text-[var(--text-primary)]">Venue</TableHead>
-                      <TableHead className="font-bold text-[var(--text-primary)]">Group</TableHead>
-                      <TableHead className="font-bold text-[var(--text-primary)]">Status</TableHead>
+                      <TableHead className="font-bold text-black">Home Team</TableHead>
+                      <TableHead className="font-bold text-black text-center">Score</TableHead>
+                      <TableHead className="font-bold text-black">Away Team</TableHead>
+                      <TableHead className="font-bold text-black">Date</TableHead>
+                      <TableHead className="font-bold text-black">Venue</TableHead>
+                      <TableHead className="font-bold text-black">Group</TableHead>
+                      <TableHead className="font-bold text-black">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -226,13 +226,13 @@ function Matches() {
                       onClick={() => navigate(`/matches/${match.id}`)}
                     >
                       <div className="flex justify-between items-center mb-3">
-                        <div className="text-sm font-medium text-neutral-500">{formattedDate} • {formattedTime}</div>
+                        <div className="text-sm font-medium text-black">{formattedDate} • {formattedTime}</div>
                         {match.status === 'scheduled' ? (
-                          <span className="status-indicator status-scheduled text-xs">Scheduled</span>
+                          <span className="status-indicator status-scheduled text-xs text-black">Scheduled</span>
                         ) : match.status === 'in_progress' ? (
-                          <span className="status-indicator status-live text-xs">Live</span>
+                          <span className="status-indicator status-live text-xs text-black">Live</span>
                         ) : (
-                          <span className="status-indicator status-completed text-xs">Completed</span>
+                          <span className="status-indicator status-completed text-xs text-black">Completed</span>
                         )}
                       </div>
                       
@@ -249,12 +249,12 @@ function Matches() {
                               <span className="text-xs">TBD</span>
                             </div>
                           )}
-                          <span className="font-medium truncate">{homeTeamName}</span>
+                          <span className="font-medium truncate text-black">{homeTeamName}</span>
                         </div>
                         
                         <div className="text-center min-w-[60px]">
                           {match.status === 'completed' ? (
-                            <span className="font-bold text-lg">{match.home_score || 0} - {match.away_score || 0}</span>
+                            <span className="font-bold text-lg text-black">{match.home_score || 0} - {match.away_score || 0}</span>
                           ) : match.status === 'in_progress' ? (
                             <span className="font-medium text-emerald-600 animate-pulse">{match.home_score || 0} - {match.away_score || 0}</span>
                           ) : (
@@ -263,7 +263,7 @@ function Matches() {
                         </div>
                         
                         <div className="flex items-center gap-2 justify-end flex-1">
-                          <span className="font-medium truncate">{awayTeamName}</span>
+                          <span className="font-medium truncate text-black">{awayTeamName}</span>
                           {match.away_team?.flag_url ? (
                             <img 
                               src={match.away_team.flag_url} 
@@ -279,13 +279,13 @@ function Matches() {
                       </div>
                       
                       <div className="flex items-center justify-between mt-3 text-xs">
-                        <div className="flex items-center gap-1 text-neutral-500">
+                        <div className="flex items-center gap-1 text-black">
                           <MapPin className="w-3 h-3" />
                           <span>{venueName}</span>
                         </div>
                         
                         {groupName && (
-                          <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-2 py-1 rounded-full text-xs font-medium">
+                          <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-black px-2 py-1 rounded-full text-xs font-medium">
                             {groupName}
                           </span>
                         )}

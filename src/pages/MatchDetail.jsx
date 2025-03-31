@@ -619,14 +619,14 @@ function MatchDetail() {
   const awayTeam = match?.away_team || teams.find(t => t.id === match?.away_team_id) || null;
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8">
-      <div className="header-gradient flex flex-col md:flex-row items-center justify-between mb-6 p-4 md:p-6">
-        <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-0 text-center md:text-left">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8">
+      <div className="header-gradient flex flex-col md:flex-row items-center justify-between mb-4 sm:mb-6 p-3 sm:p-4 md:p-6">
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-0 text-center md:text-left">
           {id === 'new' ? 'Create New Match' : `${homeName} vs ${awayName}`}
         </h1>
         <Button 
           onClick={() => navigate('/matches')} 
-          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-0 backdrop-blur-sm"
+          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-0 backdrop-blur-sm w-full sm:w-auto"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Matches
@@ -634,20 +634,20 @@ function MatchDetail() {
       </div>
 
       {successMessage && (
-        <div className="mb-6">
-          <div className="bg-emerald-50 border-2 border-emerald-200 text-emerald-700 px-4 py-3 rounded">
+        <div className="mb-4 sm:mb-6">
+          <div className="bg-emerald-50 border-2 border-emerald-200 text-emerald-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm">
             <div className="font-medium">Success</div>
-            <div className="text-sm">{successMessage}</div>
+            <div className="text-xs sm:text-sm">{successMessage}</div>
           </div>
         </div>
       )}
 
       {/* Tab navigation for match details and lineups */}
       {id !== 'new' && !isEditing && (
-        <div className="mb-6">
-          <div className="flex space-x-2 md:space-x-4 border-b">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex space-x-1 sm:space-x-2 md:space-x-4 border-b overflow-x-auto">
             <button
-              className={`px-4 py-2 font-medium text-sm md:text-base ${
+              className={`px-2 sm:px-4 py-1.5 sm:py-2 font-medium text-xs sm:text-sm md:text-base whitespace-nowrap ${
                 activeTab === 'details' 
                   ? 'text-[var(--wc-blue)] border-b-2 border-[var(--wc-blue)]' 
                   : 'text-neutral-500 hover:text-neutral-700'
@@ -657,7 +657,7 @@ function MatchDetail() {
               Match Details
             </button>
             <button
-              className={`px-4 py-2 font-medium text-sm md:text-base ${
+              className={`px-2 sm:px-4 py-1.5 sm:py-2 font-medium text-xs sm:text-sm md:text-base whitespace-nowrap ${
                 activeTab === 'lineups' 
                   ? 'text-[var(--wc-blue)] border-b-2 border-[var(--wc-blue)]' 
                   : 'text-neutral-500 hover:text-neutral-700'
@@ -668,7 +668,7 @@ function MatchDetail() {
             </button>
             {(match.status === 'in_progress' || match.status === 'completed') && (
               <button
-                className={`px-4 py-2 font-medium text-sm md:text-base ${
+                className={`px-2 sm:px-4 py-1.5 sm:py-2 font-medium text-xs sm:text-sm md:text-base whitespace-nowrap ${
                   activeTab === 'events' 
                     ? 'text-[var(--wc-blue)] border-b-2 border-[var(--wc-blue)]' 
                     : 'text-neutral-500 hover:text-neutral-700'
@@ -684,15 +684,15 @@ function MatchDetail() {
 
       {(activeTab === 'details' || isEditing || id === 'new') && (
         <Card className="match-card">
-          <CardHeader className="card-header-metallic p-4 md:p-6">
-            <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
+          <CardHeader className="card-header-metallic p-3 sm:p-4 md:p-6">
+            <CardTitle className="text-base sm:text-lg md:text-xl font-semibold text-[var(--text-heading)]">
               {isEditing ? 'Edit Match Details' : 'Match Details'}
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="p-4 md:p-6">
+          <CardContent className="p-3 sm:p-4 md:p-6">
             {isEditing ? (
-              <Form className="space-y-6">
+              <Form className="space-y-4 sm:space-y-6">
                 <FormField className="form-field">
                   <Label htmlFor="group_id">Group</Label>
                   <select 
@@ -845,63 +845,63 @@ function MatchDetail() {
                 )}
               </Form>
             ) : (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="space-y-4 sm:space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
                   {/* Home Team */}
-                  <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
-                    <div className="text-sm text-[var(--text-secondary)] mb-2">Home Team</div>
-                    <div className="flex items-center gap-3">
+                  <div className="p-3 sm:p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-xs sm:text-sm text-[var(--text-secondary)] mb-1 sm:mb-2">Home Team</div>
+                    <div className="flex items-center gap-2 sm:gap-3">
                       {match.home_team?.flag_url ? (
                         <img 
                           src={match.home_team.flag_url} 
                           alt={homeName} 
-                          className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
+                          className="w-6 sm:w-8 h-4 sm:h-6 object-cover shadow-sm border border-gray-200 rounded"
                         />
                       ) : (
-                        <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                        <div className="w-6 sm:w-8 h-4 sm:h-6 bg-gray-200 rounded"></div>
                       )}
-                      <div className="font-medium text-[var(--text-heading)]">{homeName}</div>
+                      <div className="font-medium text-sm sm:text-base text-[var(--text-heading)]">{homeName}</div>
                     </div>
                   </div>
                   
                   {/* Score Display */}
-                  <div className="p-4 bg-[#e6edf5] rounded-lg shadow-sm border border-[var(--wc-silver-blue)] text-center">
-                    <div className="text-sm text-[var(--text-secondary)] mb-2">Score</div>
-                    <div className="text-2xl font-bold text-[var(--text-heading)]">
+                  <div className="p-3 sm:p-4 bg-[#e6edf5] rounded-lg shadow-sm border border-[var(--wc-silver-blue)] text-center">
+                    <div className="text-xs sm:text-sm text-[var(--text-secondary)] mb-1 sm:mb-2">Score</div>
+                    <div className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
                       {match.status === 'completed' || match.status === 'in_progress' ? (
                         <>
                           {canEditScores ? (
-                            <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center justify-center gap-1 sm:gap-2">
                               <div className="flex items-center">
                                 <Button
                                   variant="outline"
-                                  className="h-8 w-8 p-0 rounded-full"
+                                  className="h-6 sm:h-8 w-6 sm:w-8 p-0 rounded-full"
                                   onClick={() => handleScoreChange('home', (match.home_score || 0) - 1)}
                                 >
                                   -
                                 </Button>
-                                <span className="mx-2">{match.home_score || 0}</span>
+                                <span className="mx-1 sm:mx-2">{match.home_score || 0}</span>
                                 <Button
                                   variant="outline"
-                                  className="h-8 w-8 p-0 rounded-full"
+                                  className="h-6 sm:h-8 w-6 sm:w-8 p-0 rounded-full"
                                   onClick={() => handleScoreChange('home', (match.home_score || 0) + 1)}
                                 >
                                   +
                                 </Button>
                               </div>
-                              <span className="mx-2">-</span>
+                              <span className="mx-1 sm:mx-2">-</span>
                               <div className="flex items-center">
                                 <Button
                                   variant="outline"
-                                  className="h-8 w-8 p-0 rounded-full"
+                                  className="h-6 sm:h-8 w-6 sm:w-8 p-0 rounded-full"
                                   onClick={() => handleScoreChange('away', (match.away_score || 0) - 1)}
                                 >
                                   -
                                 </Button>
-                                <span className="mx-2">{match.away_score || 0}</span>
+                                <span className="mx-1 sm:mx-2">{match.away_score || 0}</span>
                                 <Button
                                   variant="outline"
-                                  className="h-8 w-8 p-0 rounded-full"
+                                  className="h-6 sm:h-8 w-6 sm:w-8 p-0 rounded-full"
                                   onClick={() => handleScoreChange('away', (match.away_score || 0) + 1)}
                                 >
                                   +
@@ -912,7 +912,7 @@ function MatchDetail() {
                             <span>{match.home_score || 0} - {match.away_score || 0}</span>
                           )}
                           
-                          <div className="mt-2 text-sm font-normal text-[var(--wc-blue)]">
+                          <div className="mt-1 sm:mt-2 text-xs sm:text-sm font-normal text-[var(--wc-blue)]">
                             {match.status === 'in_progress' ? 'LIVE' : 'COMPLETED'}
                           </div>
                         </>
@@ -923,43 +923,43 @@ function MatchDetail() {
                   </div>
                   
                   {/* Away Team */}
-                  <div className="p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
-                    <div className="text-sm text-[var(--text-secondary)] mb-2">Away Team</div>
-                    <div className="flex items-center gap-3">
+                  <div className="p-3 sm:p-4 bg-[#f7f9fc] rounded-lg shadow-sm border border-[var(--border-color)]">
+                    <div className="text-xs sm:text-sm text-[var(--text-secondary)] mb-1 sm:mb-2">Away Team</div>
+                    <div className="flex items-center gap-2 sm:gap-3">
                       {match.away_team?.flag_url ? (
                         <img 
                           src={match.away_team.flag_url} 
                           alt={awayName} 
-                          className="w-8 h-6 object-cover shadow-sm border border-gray-200 rounded"
+                          className="w-6 sm:w-8 h-4 sm:h-6 object-cover shadow-sm border border-gray-200 rounded"
                         />
                       ) : (
-                        <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                        <div className="w-6 sm:w-8 h-4 sm:h-6 bg-gray-200 rounded"></div>
                       )}
-                      <div className="font-medium text-[var(--text-heading)]">{awayName}</div>
+                      <div className="font-medium text-sm sm:text-base text-[var(--text-heading)]">{awayName}</div>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                     {/* Date & Time */}
-                    <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
-                      <div className="text-sm text-[var(--text-secondary)] mb-1">Date & Time</div>
-                      <div className="font-medium text-[var(--text-primary)]">{formattedDate}, {formattedTime}</div>
+                    <div className="p-3 sm:p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                      <div className="text-xs sm:text-sm text-[var(--text-secondary)] mb-1">Date & Time</div>
+                      <div className="font-medium text-sm sm:text-base text-[var(--text-primary)]">{formattedDate}, {formattedTime}</div>
                     </div>
                     
                     {/* Group */}
-                    <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
-                      <div className="text-sm text-[var(--text-secondary)] mb-1">Group</div>
-                      <div className="font-medium text-[var(--text-primary)]">
+                    <div className="p-3 sm:p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                      <div className="text-xs sm:text-sm text-[var(--text-secondary)] mb-1">Group</div>
+                      <div className="font-medium text-sm sm:text-base text-[var(--text-primary)]">
                         {match.group ? `Group ${match.group.name}` : 'Not Assigned'}
                       </div>
                     </div>
 
                     {/* Venue */}
-                    <div className="p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
-                      <div className="text-sm text-[var(--text-secondary)] mb-1">Venue</div>
-                      <div className="font-medium text-[var(--text-primary)]">{venueInfo}</div>
+                    <div className="p-3 sm:p-4 bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+                      <div className="text-xs sm:text-sm text-[var(--text-secondary)] mb-1">Venue</div>
+                      <div className="font-medium text-sm sm:text-base text-[var(--text-primary)]">{venueInfo}</div>
                     </div>
                   </div>
                 </div>
@@ -967,7 +967,7 @@ function MatchDetail() {
             )}
           </CardContent>
           
-          <CardFooter className="p-4 md:p-6 space-x-2 border-t border-[var(--border-color)] justify-end">
+          <CardFooter className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-0 sm:space-x-2 border-t border-[var(--border-color)] justify-end flex-col sm:flex-row">
             {isEditing ? (
               <>
                 <Button 
@@ -979,12 +979,13 @@ function MatchDetail() {
                       setIsEditing(false);
                     }
                   }}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleSave}
-                  className="bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)] text-white"
+                  className="w-full sm:w-auto bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)] text-white"
                 >
                   Save
                 </Button>
@@ -994,13 +995,14 @@ function MatchDetail() {
                 <Button 
                   variant="outline" 
                   onClick={handleEdit}
+                  className="w-full sm:w-auto"
                 >
                   Edit
                 </Button>
                 
                 {id !== 'new' && match.status === 'scheduled' && (
                   <Button 
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
                     onClick={handleStartMatch}
                   >
                     Start Match
@@ -1009,7 +1011,7 @@ function MatchDetail() {
                 
                 {id !== 'new' && match.status === 'in_progress' && (
                   <Button 
-                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white"
                     onClick={handleEndMatch}
                   >
                     End Match
@@ -1018,7 +1020,7 @@ function MatchDetail() {
                 
                 {id !== 'new' && (
                   <Button 
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
                     onClick={handleDelete}
                   >
                     Delete

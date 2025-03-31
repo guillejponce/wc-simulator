@@ -373,4 +373,176 @@ select option {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
+}
+
+/* Mobile optimizations for iPhone 15 */
+@media (max-width: 430px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .header-gradient {
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .match-card, .group-card, .card {
+    border-radius: 0.5rem;
+  }
+  
+  .badge, .status-indicator {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  /* Adjust font sizes for better readability on iPhone */
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  .text-sm {
+    font-size: 0.75rem;
+  }
+
+  .text-xs {
+    font-size: 0.7rem;
+  }
+
+  /* Optimize spacing for mobile */
+  .p-4 {
+    padding: 0.75rem;
+  }
+
+  .p-6 {
+    padding: 1rem;
+  }
+
+  .gap-4 {
+    gap: 0.75rem;
+  }
+
+  .gap-6 {
+    gap: 1rem;
+  }
+
+  /* Adjust card layouts */
+  .card-content {
+    padding: 0.75rem;
+  }
+
+  .card-footer {
+    padding: 0.75rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card-footer > * {
+    width: 100%;
+  }
+
+  /* Optimize form elements */
+  input, select, textarea, button {
+    font-size: 16px !important;
+    padding: 0.5rem;
+  }
+
+  .form-field {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Improve touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  button, .button, a.button, [role="button"] {
+    min-height: 44px;
+    padding: 0.5rem;
+  }
+
+  /* Adjust grid layouts */
+  .grid {
+    gap: 0.75rem;
+  }
+
+  /* Optimize team cards */
+  .team-card {
+    margin-bottom: 0.75rem;
+  }
+
+  .team-card-header {
+    padding: 0.75rem;
+  }
+
+  .team-card-content {
+    padding: 0.75rem;
+  }
+
+  /* Adjust flag sizes */
+  .flag-img {
+    width: 1.5rem;
+    height: 1rem;
+  }
+
+  /* Optimize table views */
+  .mobile-table-container {
+    margin: 0 -0.75rem;
+    padding: 0 0.75rem;
+  }
+
+  /* Improve navigation */
+  .nav-link {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Adjust spacing in lists */
+  .space-y-4 > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+
+  /* Optimize match timeline */
+  .match-timeline {
+    padding: 0.5rem;
+  }
+
+  .timeline-event {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Improve readability of match details */
+  .match-details {
+    font-size: 0.875rem;
+  }
+
+  .match-score {
+    font-size: 1.5rem;
+  }
+
+  /* Optimize lineup display */
+  .lineup-player {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .lineup-number {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.75rem;
+  }
 } 

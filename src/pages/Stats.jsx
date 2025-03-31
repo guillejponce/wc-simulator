@@ -47,27 +47,27 @@ function Stats() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-black">Tournament Statistics</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8">
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-black">Tournament Statistics</h1>
 
       {/* Top Scorers */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-black">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+      <Card className="mb-4 sm:mb-6">
+        <CardHeader className="p-3 sm:p-4">
+          <CardTitle className="flex items-center gap-2 text-black text-lg sm:text-xl">
+            <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
             Top Scorers
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 sm:p-4">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 text-black">Player</th>
-                  <th className="text-center py-2 text-black">Team</th>
-                  <th className="text-center py-2 text-black">Goals</th>
-                  <th className="text-center py-2 text-black">Assists</th>
-                  <th className="text-center py-2 text-black">Matches</th>
+                  <th className="text-left py-2 text-black text-xs sm:text-sm">Player</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm">Team</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm">Goals</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">Assists</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">Matches</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,25 +78,25 @@ function Stats() {
                     <tr key={stat.player.id} className="border-b last:border-0">
                       <td className="py-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-black">{index + 1}.</span>
-                          <span className="text-black">{stat.player.name}</span>
+                          <span className="font-medium text-black text-xs sm:text-sm">{index + 1}.</span>
+                          <span className="text-black text-xs sm:text-sm">{stat.player.name}</span>
                         </div>
                       </td>
                       <td className="text-center py-2">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                           {stat.player.team?.flag_url && (
                             <img 
                               src={stat.player.team.flag_url} 
                               alt={stat.player.team.name} 
-                              className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                              className="w-4 h-3 sm:w-5 sm:h-4 object-cover rounded-sm shadow-sm"
                             />
                           )}
-                          <span className="text-black">{stat.player.team?.name || 'Unknown'}</span>
+                          <span className="text-black text-xs sm:text-sm">{stat.player.team?.name || 'Unknown'}</span>
                         </div>
                       </td>
-                      <td className="text-center py-2 font-bold text-black">{stat.goals}</td>
-                      <td className="text-center py-2 text-black">{stat.assists}</td>
-                      <td className="text-center py-2 text-black">{stat.matches_played}</td>
+                      <td className="text-center py-2 font-bold text-black text-xs sm:text-sm">{stat.goals}</td>
+                      <td className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">{stat.assists}</td>
+                      <td className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">{stat.matches_played}</td>
                     </tr>
                   ))}
               </tbody>
@@ -106,23 +106,23 @@ function Stats() {
       </Card>
 
       {/* Top Assists */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-black">
-            <Award className="w-5 h-5 text-blue-500" />
+      <Card className="mb-4 sm:mb-6">
+        <CardHeader className="p-3 sm:p-4">
+          <CardTitle className="flex items-center gap-2 text-black text-lg sm:text-xl">
+            <Award className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
             Top Assists
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 sm:p-4">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 text-black">Player</th>
-                  <th className="text-center py-2 text-black">Team</th>
-                  <th className="text-center py-2 text-black">Assists</th>
-                  <th className="text-center py-2 text-black">Goals</th>
-                  <th className="text-center py-2 text-black">Matches</th>
+                  <th className="text-left py-2 text-black text-xs sm:text-sm">Player</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm">Team</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm">Assists</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">Goals</th>
+                  <th className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">Matches</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,25 +134,25 @@ function Stats() {
                     <tr key={stat.player.id} className="border-b last:border-0">
                       <td className="py-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-black">{index + 1}.</span>
-                          <span className="text-black">{stat.player.name}</span>
+                          <span className="font-medium text-black text-xs sm:text-sm">{index + 1}.</span>
+                          <span className="text-black text-xs sm:text-sm">{stat.player.name}</span>
                         </div>
                       </td>
                       <td className="text-center py-2">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                           {stat.player.team?.flag_url && (
                             <img 
                               src={stat.player.team.flag_url} 
                               alt={stat.player.team.name} 
-                              className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                              className="w-4 h-3 sm:w-5 sm:h-4 object-cover rounded-sm shadow-sm"
                             />
                           )}
-                          <span className="text-black">{stat.player.team?.name || 'Unknown'}</span>
+                          <span className="text-black text-xs sm:text-sm">{stat.player.team?.name || 'Unknown'}</span>
                         </div>
                       </td>
-                      <td className="text-center py-2 font-bold text-black">{stat.assists}</td>
-                      <td className="text-center py-2 text-black">{stat.goals}</td>
-                      <td className="text-center py-2 text-black">{stat.matches_played}</td>
+                      <td className="text-center py-2 font-bold text-black text-xs sm:text-sm">{stat.assists}</td>
+                      <td className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">{stat.goals}</td>
+                      <td className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">{stat.matches_played}</td>
                     </tr>
                   ))}
               </tbody>
@@ -162,24 +162,24 @@ function Stats() {
       </Card>
 
       {/* Cards Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Yellow Cards */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-black">
-              <AlertTriangle className="w-5 h-5 text-yellow-500" />
+          <CardHeader className="p-3 sm:p-4">
+            <CardTitle className="flex items-center gap-2 text-black text-lg sm:text-xl">
+              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
               Yellow Cards
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-4">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 text-black">Player</th>
-                    <th className="text-center py-2 text-black">Team</th>
-                    <th className="text-center py-2 text-black">Yellow Cards</th>
-                    <th className="text-center py-2 text-black">Matches</th>
+                    <th className="text-left py-2 text-black text-xs sm:text-sm">Player</th>
+                    <th className="text-center py-2 text-black text-xs sm:text-sm">Team</th>
+                    <th className="text-center py-2 text-black text-xs sm:text-sm">Yellow Cards</th>
+                    <th className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">Matches</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,24 +191,24 @@ function Stats() {
                       <tr key={stat.player.id} className="border-b last:border-0">
                         <td className="py-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-black">{index + 1}.</span>
-                            <span className="text-black">{stat.player.name}</span>
+                            <span className="font-medium text-black text-xs sm:text-sm">{index + 1}.</span>
+                            <span className="text-black text-xs sm:text-sm">{stat.player.name}</span>
                           </div>
                         </td>
                         <td className="text-center py-2">
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                             {stat.player.team?.flag_url && (
                               <img 
                                 src={stat.player.team.flag_url} 
                                 alt={stat.player.team.name} 
-                                className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                                className="w-4 h-3 sm:w-5 sm:h-4 object-cover rounded-sm shadow-sm"
                               />
                             )}
-                            <span className="text-black">{stat.player.team?.name || 'Unknown'}</span>
+                            <span className="text-black text-xs sm:text-sm">{stat.player.team?.name || 'Unknown'}</span>
                           </div>
                         </td>
-                        <td className="text-center py-2 font-bold text-black">{stat.yellow_cards}</td>
-                        <td className="text-center py-2 text-black">{stat.matches_played}</td>
+                        <td className="text-center py-2 font-bold text-black text-xs sm:text-sm">{stat.yellow_cards}</td>
+                        <td className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">{stat.matches_played}</td>
                       </tr>
                     ))}
                 </tbody>
@@ -219,21 +219,21 @@ function Stats() {
 
         {/* Red Cards */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-black">
-              <AlertCircle className="w-5 h-5 text-red-500" />
+          <CardHeader className="p-3 sm:p-4">
+            <CardTitle className="flex items-center gap-2 text-black text-lg sm:text-xl">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
               Red Cards
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-4">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 text-black">Player</th>
-                    <th className="text-center py-2 text-black">Team</th>
-                    <th className="text-center py-2 text-black">Red Cards</th>
-                    <th className="text-center py-2 text-black">Matches</th>
+                    <th className="text-left py-2 text-black text-xs sm:text-sm">Player</th>
+                    <th className="text-center py-2 text-black text-xs sm:text-sm">Team</th>
+                    <th className="text-center py-2 text-black text-xs sm:text-sm">Red Cards</th>
+                    <th className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">Matches</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -245,24 +245,24 @@ function Stats() {
                       <tr key={stat.player.id} className="border-b last:border-0">
                         <td className="py-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-black">{index + 1}.</span>
-                            <span className="text-black">{stat.player.name}</span>
+                            <span className="font-medium text-black text-xs sm:text-sm">{index + 1}.</span>
+                            <span className="text-black text-xs sm:text-sm">{stat.player.name}</span>
                           </div>
                         </td>
                         <td className="text-center py-2">
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                             {stat.player.team?.flag_url && (
                               <img 
                                 src={stat.player.team.flag_url} 
                                 alt={stat.player.team.name} 
-                                className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                                className="w-4 h-3 sm:w-5 sm:h-4 object-cover rounded-sm shadow-sm"
                               />
                             )}
-                            <span className="text-black">{stat.player.team?.name || 'Unknown'}</span>
+                            <span className="text-black text-xs sm:text-sm">{stat.player.team?.name || 'Unknown'}</span>
                           </div>
                         </td>
-                        <td className="text-center py-2 font-bold text-black">{stat.red_cards}</td>
-                        <td className="text-center py-2 text-black">{stat.matches_played}</td>
+                        <td className="text-center py-2 font-bold text-black text-xs sm:text-sm">{stat.red_cards}</td>
+                        <td className="text-center py-2 text-black text-xs sm:text-sm hidden sm:table-cell">{stat.matches_played}</td>
                       </tr>
                     ))}
                 </tbody>
