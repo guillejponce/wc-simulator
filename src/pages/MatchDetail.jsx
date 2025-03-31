@@ -19,6 +19,8 @@ import { lineupService } from '../services/lineupService';
 import { Calendar, Flag, Clock, Timer, Play, Square, ArrowLeft, MapPin, UserSquare, Edit as EditIcon, X, UserPlus } from 'lucide-react';
 import LineupEditor from '../components/LineupEditor';
 import LineupViewer from '../components/LineupViewer';
+import MatchEventEditor from '../components/MatchEventEditor';
+import { matchEventService } from '../services/matchEventService';
 import '../assets/styles/theme.css';
 import '../assets/styles/LineupEditor.css';
 
@@ -525,6 +527,29 @@ function MatchDetail() {
     }
   };
 
+  // Add handler for event save
+  const handleEventSave = async (savedEvent, updatedMatch) => {
+    if (updatedMatch) {
+      // Update the match with new scores
+      setMatch(prev => ({
+        ...prev,
+        home_score: updatedMatch.home_score,
+        away_score: updatedMatch.away_score
+      }));
+    }
+    
+    if (savedEvent) {
+      setSuccessMessage('Match event has been saved successfully!');
+    } else {
+      setSuccessMessage('Match event has been deleted successfully!');
+    }
+    
+    // Clear message after a few seconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center h-64">
@@ -641,6 +666,18 @@ function MatchDetail() {
             >
               Team Lineups
             </button>
+            {(match.status === 'in_progress' || match.status === 'completed') && (
+              <button
+                className={`px-4 py-2 font-medium text-sm md:text-base ${
+                  activeTab === 'events' 
+                    ? 'text-[var(--wc-blue)] border-b-2 border-[var(--wc-blue)]' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+                onClick={() => setActiveTab('events')}
+              >
+                Match Events
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -1123,6 +1160,22 @@ function MatchDetail() {
             </div>
           )}
         </div>
+      )}
+
+      {activeTab === 'events' && id !== 'new' && !isEditing && (
+        <Card className="match-card">
+          <CardHeader className="card-header-metallic p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl font-semibold text-[var(--text-heading)]">
+              Match Events
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6">
+            <MatchEventEditor 
+              match={match} 
+              onSave={handleEventSave}
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );

@@ -11,4 +11,5 @@ export { Badge } from './Badge';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 export { Progress } from './Progress';
 export { Separator } from './Separator';
-export { ScrollArea, ScrollBar } from './ScrollArea'; 
+export { ScrollArea, ScrollBar } from './ScrollArea';
+export { Textarea } from './Textarea'; 
