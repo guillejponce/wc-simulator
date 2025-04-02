@@ -3,20 +3,20 @@ import { supabase } from '../supabase';
 export const statisticsService = {
   async getPlayerStatistics() {
     try {
-      // Get all completed matches
+      // Get all completed and in-progress matches
       const { data: matches, error: matchesError } = await supabase
         .from('match')
         .select('id')
-        .eq('status', 'completed');
+        .in('status', ['completed', 'in_progress']);
 
       if (matchesError) {
-        console.error('Error fetching completed matches:', matchesError);
+        console.error('Error fetching matches:', matchesError);
         throw matchesError;
       }
 
       const matchIds = matches.map(match => match.id);
 
-      // Get all goals from completed matches
+      // Get all goals from completed and in-progress matches
       const { data: goals, error: goalsError } = await supabase
         .from('goal')
         .select(`
@@ -56,7 +56,7 @@ export const statisticsService = {
             away_team_id
           )
         `)
-        .eq('match.status', 'completed');
+        .in('match.status', ['completed', 'in_progress']);
 
       if (eventsError) {
         console.error('Error fetching match events:', eventsError);

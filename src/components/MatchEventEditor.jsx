@@ -14,6 +14,7 @@ import {
 } from './ui';
 import { matchEventService } from '../services/matchEventService';
 import { playerService } from '../services/playerService';
+import { matchService } from '../services/matchService';
 import { Plus, Edit2, Trash2, Clock, User, ArrowRight } from 'lucide-react';
 
 function MatchEventEditor({ match, onSave, onCancel }) {
@@ -105,9 +106,6 @@ function MatchEventEditor({ match, onSave, onCancel }) {
         own_goal: formData.own_goal
       };
 
-      // Log the data being sent
-      console.log('Submitting event data:', JSON.stringify(eventData, null, 2));
-      
       let savedEvent;
       if (editingEvent) {
         savedEvent = await matchEventService.updateMatchEvent(editingEvent.id, eventData);
@@ -140,6 +138,20 @@ function MatchEventEditor({ match, onSave, onCancel }) {
           } else {
             match.away_score = (match.away_score || 0) + 1;
           }
+        }
+      }
+      
+      // Update match score in the database if it's a goal event
+      if (savedEvent.event_type === 'goal') {
+        try {
+          await matchService.updateMatch(match.id, {
+            ...match,
+            home_score: match.home_score,
+            away_score: match.away_score
+          });
+        } catch (err) {
+          console.error('Error updating match score:', err);
+          throw err;
         }
       }
       
@@ -202,6 +214,18 @@ function MatchEventEditor({ match, onSave, onCancel }) {
             match.home_score = Math.max(0, (match.home_score || 0) - 1);
           } else {
             match.away_score = Math.max(0, (match.away_score || 0) - 1);
+          }
+          
+          // Update match score in the database
+          try {
+            await matchService.updateMatch(match.id, {
+              ...match,
+              home_score: match.home_score,
+              away_score: match.away_score
+            });
+          } catch (err) {
+            console.error('Error updating match score:', err);
+            throw err;
           }
         }
         

@@ -529,13 +529,15 @@ function MatchDetail() {
 
   // Add handler for event save
   const handleEventSave = async (savedEvent, updatedMatch) => {
-    if (updatedMatch) {
-      // Update the match with new scores
-      setMatch(prev => ({
-        ...prev,
-        home_score: updatedMatch.home_score,
-        away_score: updatedMatch.away_score
-      }));
+    try {
+      // Always refresh the match data to get the latest state
+      const refreshedMatch = await matchService.getMatchById(id);
+      if (refreshedMatch) {
+        // Update the entire match state with fresh data
+        setMatch(refreshedMatch);
+      }
+    } catch (err) {
+      console.error('Error refreshing match data:', err);
     }
     
     if (savedEvent) {

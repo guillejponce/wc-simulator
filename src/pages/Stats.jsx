@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui';
 import { statisticsService } from '../services/statisticsService';
 import { Trophy, Award, AlertTriangle, AlertCircle } from 'lucide-react';
+import { supabase } from '../supabase';
 
 function Stats() {
   const [stats, setStats] = useState([]);
@@ -22,7 +23,67 @@ function Stats() {
       }
     };
 
+    // Load initial stats
     loadStats();
+
+    // Subscribe to match events changes
+    const matchEventsSubscription = supabase
+      .channel('match_events_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'match_event'
+        },
+        () => {
+          // Reload stats when any match event changes
+          loadStats();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to goals changes
+    const goalsSubscription = supabase
+      .channel('goals_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'goal'
+        },
+        () => {
+          // Reload stats when any goal changes
+          loadStats();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to match score changes
+    const matchScoreSubscription = supabase
+      .channel('match_score_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'match',
+          filter: 'home_score,away_score'
+        },
+        () => {
+          // Reload stats when match score changes
+          loadStats();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      matchEventsSubscription.unsubscribe();
+      goalsSubscription.unsubscribe();
+      matchScoreSubscription.unsubscribe();
+    };
   }, []);
 
   if (isLoading) {
