@@ -386,6 +386,33 @@ export const teamService = {
     }
 
     try {
+      // Get the match's current status to determine if this is a new match or an edit
+      const { data: existingMatch, error: matchError } = await supabase
+        .from('match')
+        .select('status, home_score, away_score')
+        .eq('id', match.id)
+        .single();
+
+      if (matchError && matchError.code !== 'PGRST116') { // PGRST116 means no row found
+        console.error('Error checking existing match:', matchError);
+        throw matchError;
+      }
+
+      // If this is a live match or score change, reset and recalculate all stats
+      if (match.status === 'in_progress' || 
+          (existingMatch && 
+           (existingMatch.home_score !== match.home_score || 
+            existingMatch.away_score !== match.away_score))) {
+        console.log('Live match or score change detected - resetting and recalculating stats');
+        // Reset stats for the group
+        await this.resetTeamStatsForGroup(match.group_id);
+        
+        // Recalculate all stats for the group
+        await this.recalculateGroupStats(match.group_id);
+        return true;
+      }
+
+      // For completed matches, proceed with normal update
       // Get current records for both teams
       const homeTeamRecord = await this.getTeamGroupRecord(match.home_team_id, match.group_id) || {
         points: 0,
@@ -411,41 +438,14 @@ export const teamService = {
         position: 0
       };
 
-      // Get the match's current status to determine if this is a new match or an edit
-      const { data: existingMatch, error: matchError } = await supabase
-        .from('match')
-        .select('status, home_score, away_score')
-        .eq('id', match.id)
-        .single();
-
-      if (matchError && matchError.code !== 'PGRST116') { // PGRST116 means no row found
-        console.error('Error checking existing match:', matchError);
-        throw matchError;
-      }
-
       // Calculate new stats based on match result
       const homeScore = match.home_score || 0;
       const awayScore = match.away_score || 0;
       
       // Determine if this is a new result or an edit of an existing result
       const isNewCompletion = !existingMatch || existingMatch.status !== 'completed';
-      const isScoreChange = existingMatch && 
-        (existingMatch.home_score !== homeScore || existingMatch.away_score !== awayScore);
 
-      // If this is an edit of an already completed match, we need to adjust stats differently
-      // First, reverse the previous result's impact on team records
-      if (!isNewCompletion && match.status === 'completed') {
-        console.log('Updating existing completed match - adjusting stats');
-        // Reset stats for both teams to calculate them again with the new scores
-        await this.resetTeamStatsForGroup(match.group_id);
-        
-        // Recalculate all stats for the group
-        await this.recalculateGroupStats(match.group_id);
-        return true;
-      }
-
-      // This is either a new match being completed or a live match update
-      // Determine result (win/draw/loss)
+      // Calculate points and results
       let homePoints = 0;
       let awayPoints = 0;
       let homeWon = 0;
@@ -481,11 +481,6 @@ export const teamService = {
         points: homeTeamRecord.points + homePoints
       };
       
-      // If this is a live match or score change, don't increment played games
-      if (!isNewCompletion) {
-        updatedHomeTeam.played = homeTeamRecord.played;
-      }
-      
       updatedHomeTeam.goal_difference = updatedHomeTeam.goals_for - updatedHomeTeam.goals_against;
 
       // Update away team record
@@ -498,11 +493,6 @@ export const teamService = {
         goals_against: awayTeamRecord.goals_against + homeScore,
         points: awayTeamRecord.points + awayPoints
       };
-      
-      // If this is a live match or score change, don't increment played games
-      if (!isNewCompletion) {
-        updatedAwayTeam.played = awayTeamRecord.played;
-      }
       
       updatedAwayTeam.goal_difference = updatedAwayTeam.goals_for - updatedAwayTeam.goals_against;
 
@@ -547,7 +537,8 @@ export const teamService = {
             goals_for: 0,
             goals_against: 0,
             goal_difference: 0,
-            points: 0
+            points: 0,
+            position: 0
           })
           .eq('team_id', record.team_id)
           .eq('group_id', groupId);
@@ -557,6 +548,33 @@ export const teamService = {
       return true;
     } catch (err) {
       console.error('Error resetting team stats:', err);
+      throw err;
+    }
+  },
+
+  async resetAllGroupStats() {
+    try {
+      // Get all groups
+      const { data: groups, error: groupsError } = await supabase
+        .from('group')
+        .select('id');
+
+      if (groupsError) {
+        console.error('Error fetching groups:', groupsError);
+        throw groupsError;
+      }
+
+      // Reset stats for each group
+      const resetPromises = groups.map(group => this.resetTeamStatsForGroup(group.id));
+      await Promise.all(resetPromises);
+
+      // Recalculate stats for each group
+      const recalcPromises = groups.map(group => this.recalculateGroupStats(group.id));
+      await Promise.all(recalcPromises);
+
+      return true;
+    } catch (err) {
+      console.error('Error resetting all group stats:', err);
       throw err;
     }
   },

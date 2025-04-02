@@ -266,17 +266,17 @@ function MatchEventEditor({ match, onSave, onCancel }) {
   const getEventIcon = (eventType) => {
     switch (eventType) {
       case 'goal':
-        return '⚽';
+        return <img src="/ball.png" alt="Goal" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />;
       case 'yellow_card':
-        return '🟨';
+        return <img src="/yellow_card.png" alt="Yellow Card" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />;
       case 'red_card':
-        return '🟥';
+        return <img src="/red_card.png" alt="Red Card" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />;
+      case 'var_review':
+        return <img src="/var.png" alt="VAR Review" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />;
       case 'substitution':
         return '🔄';
       case 'injury':
         return '🏥';
-      case 'var_review':
-        return '📺';
       default:
         return '⚪';
     }
@@ -576,7 +576,7 @@ function MatchEventEditor({ match, onSave, onCancel }) {
             {/* Central timeline line */}
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-neutral-200 via-neutral-200 to-transparent z-10"></div>
 
-            {events.map((event, index) => {
+            {[...events].reverse().map((event, index) => {
               // Determine if event belongs to home or away team
               const isHomeTeam = event.team_id === match.home_team_id || 
                 (event.player_id && homePlayers.some(p => p.id === event.player_id));
@@ -618,7 +618,7 @@ function MatchEventEditor({ match, onSave, onCancel }) {
                                   {event.details && <span className="text-neutral-500 text-[10px] sm:text-sm">({event.details})</span>}
                                 </div>
                               </div>
-                              <div className="text-base sm:text-xl w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center bg-neutral-50 rounded-sm border border-neutral-200">{getEventIcon(event.event_type)}</div>
+                              {getEventIcon(event.event_type)}
                               <div className="flex space-x-0.5 sm:space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button
                                   variant="ghost"
@@ -667,7 +667,7 @@ function MatchEventEditor({ match, onSave, onCancel }) {
                                   <Trash2 className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                                 </Button>
                               </div>
-                              <div className="text-base sm:text-xl w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center bg-neutral-50 rounded-sm border border-neutral-200">{getEventIcon(event.event_type)}</div>
+                              {getEventIcon(event.event_type)}
                               <div className="flex-grow">
                                 <div className="flex items-center gap-0.5 sm:gap-1">
                                   <span className="font-medium text-xs sm:text-base text-neutral-900">{getPlayerName(event.player_id)}</span>
