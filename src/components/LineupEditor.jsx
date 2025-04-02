@@ -135,31 +135,17 @@ function LineupEditor({ match, team, onSave, onCancel }) {
 
   // Handle player selection
   const handlePlayerSelect = (player) => {
-    // Check if player is already selected in another position
-    const existingIndex = selectedPlayers.findIndex(p => p.id === player.id);
+    // First, remove any existing player in this position
+    const updatedPlayers = selectedPlayers.filter(p => p.specific_position !== positionToFill);
     
-    if (existingIndex >= 0) {
-      // Remove player from the previous position
-      const updatedPlayers = [...selectedPlayers];
-      updatedPlayers.splice(existingIndex, 1);
-      
-      // Add to the new position
-      updatedPlayers.push({
+    // Then add the new player
+    setSelectedPlayers([
+      ...updatedPlayers,
+      {
         ...player,
         specific_position: positionToFill
-      });
-      
-      setSelectedPlayers(updatedPlayers);
-    } else {
-      // Add player to the selected position
-      setSelectedPlayers([
-        ...selectedPlayers,
-        {
-          ...player,
-          specific_position: positionToFill
-        }
-      ]);
-    }
+      }
+    ]);
     
     setIsPlayerSelectorOpen(false);
   };
@@ -187,7 +173,10 @@ function LineupEditor({ match, team, onSave, onCancel }) {
     
     // Check if all required positions are filled
     const filledPositions = selectedPlayers.map(p => p.specific_position);
-    const missingPositions = requiredPositions.filter(pos => !filledPositions.includes(pos));
+    const missingPositions = requiredPositions.filter(pos => {
+      // For positions that might have numbers (like CB1, CB2), check if any position starts with the base position
+      return !filledPositions.some(filled => filled.startsWith(pos));
+    });
     
     if (missingPositions.length > 0) {
       setError(`Missing players for positions: ${missingPositions.map(p => positionNames[p]).join(', ')}`);
@@ -250,26 +239,26 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           return {
             GK: { gridColumn: '4', gridRow: '15' },
             LB: { gridColumn: '1', gridRow: '11' },
-            CB: { gridColumn: '3', gridRow: '11' },
-            'CB-2': { gridColumn: '5', gridRow: '11' },
+            CB1: { gridColumn: '3', gridRow: '11' },
+            CB2: { gridColumn: '5', gridRow: '11' },
             RB: { gridColumn: '7', gridRow: '11' },
             LM: { gridColumn: '1', gridRow: '7' },
-            CM: { gridColumn: '3', gridRow: '7' },
-            'CM-2': { gridColumn: '5', gridRow: '7' },
+            CM1: { gridColumn: '3', gridRow: '7' },
+            CM2: { gridColumn: '5', gridRow: '7' },
             RM: { gridColumn: '7', gridRow: '7' },
-            ST: { gridColumn: '3', gridRow: '3' },
-            'ST-2': { gridColumn: '5', gridRow: '3' }
+            ST1: { gridColumn: '3', gridRow: '3' },
+            ST2: { gridColumn: '5', gridRow: '3' }
           };
         case '4-3-3':
           return {
             GK: { gridColumn: '4', gridRow: '15' },
             LB: { gridColumn: '1', gridRow: '11' },
-            CB: { gridColumn: '3', gridRow: '11' },
-            'CB-2': { gridColumn: '5', gridRow: '11' },
+            CB1: { gridColumn: '3', gridRow: '11' },
+            CB2: { gridColumn: '5', gridRow: '11' },
             RB: { gridColumn: '7', gridRow: '11' },
             CDM: { gridColumn: '4', gridRow: '9' },
-            CM: { gridColumn: '2', gridRow: '7' },
-            'CM-2': { gridColumn: '6', gridRow: '7' },
+            CM1: { gridColumn: '2', gridRow: '7' },
+            CM2: { gridColumn: '6', gridRow: '7' },
             LW: { gridColumn: '1', gridRow: '3' },
             ST: { gridColumn: '4', gridRow: '3' },
             RW: { gridColumn: '7', gridRow: '3' }
@@ -278,11 +267,11 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           return {
             GK: { gridColumn: '4', gridRow: '15' },
             LB: { gridColumn: '1', gridRow: '11' },
-            CB: { gridColumn: '3', gridRow: '11' },
-            'CB-2': { gridColumn: '5', gridRow: '11' },
+            CB1: { gridColumn: '3', gridRow: '11' },
+            CB2: { gridColumn: '5', gridRow: '11' },
             RB: { gridColumn: '7', gridRow: '11' },
-            CDM: { gridColumn: '3', gridRow: '9' },
-            'CDM-2': { gridColumn: '5', gridRow: '9' },
+            CDM1: { gridColumn: '3', gridRow: '9' },
+            CDM2: { gridColumn: '5', gridRow: '9' },
             LAM: { gridColumn: '2', gridRow: '5' },
             CAM: { gridColumn: '4', gridRow: '5' },
             RAM: { gridColumn: '6', gridRow: '5' },
@@ -291,26 +280,26 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         case '3-5-2':
           return {
             GK: { gridColumn: '4', gridRow: '15' },
-            CB: { gridColumn: '2', gridRow: '11' },
-            'CB-2': { gridColumn: '4', gridRow: '11' },
-            'CB-3': { gridColumn: '6', gridRow: '11' },
+            CB1: { gridColumn: '2', gridRow: '11' },
+            CB2: { gridColumn: '4', gridRow: '11' },
+            CB3: { gridColumn: '6', gridRow: '11' },
             LWB: { gridColumn: '1', gridRow: '9' },
-            CM: { gridColumn: '2', gridRow: '7' },
-            'CM-2': { gridColumn: '4', gridRow: '7' },
-            'CM-3': { gridColumn: '6', gridRow: '7' },
+            CM1: { gridColumn: '2', gridRow: '7' },
+            CM2: { gridColumn: '4', gridRow: '7' },
+            CM3: { gridColumn: '6', gridRow: '7' },
             RWB: { gridColumn: '7', gridRow: '9' },
-            ST: { gridColumn: '3', gridRow: '3' },
-            'ST-2': { gridColumn: '5', gridRow: '3' }
+            ST1: { gridColumn: '3', gridRow: '3' },
+            ST2: { gridColumn: '5', gridRow: '3' }
           };
         case '3-4-3':
           return {
             GK: { gridColumn: '4', gridRow: '15' },
-            CB: { gridColumn: '2', gridRow: '11' },
-            'CB-2': { gridColumn: '4', gridRow: '11' },
-            'CB-3': { gridColumn: '6', gridRow: '11' },
+            CB1: { gridColumn: '2', gridRow: '11' },
+            CB2: { gridColumn: '4', gridRow: '11' },
+            CB3: { gridColumn: '6', gridRow: '11' },
             LM: { gridColumn: '1', gridRow: '7' },
-            CM: { gridColumn: '3', gridRow: '7' },
-            'CM-2': { gridColumn: '5', gridRow: '7' },
+            CM1: { gridColumn: '3', gridRow: '7' },
+            CM2: { gridColumn: '5', gridRow: '7' },
             RM: { gridColumn: '7', gridRow: '7' },
             LW: { gridColumn: '1', gridRow: '3' },
             ST: { gridColumn: '4', gridRow: '3' },
@@ -320,27 +309,27 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           return {
             GK: { gridColumn: '4', gridRow: '15' },
             LWB: { gridColumn: '1', gridRow: '11' },
-            CB: { gridColumn: '2', gridRow: '12' },
-            'CB-2': { gridColumn: '4', gridRow: '13' },
-            'CB-3': { gridColumn: '6', gridRow: '12' },
+            CB1: { gridColumn: '2', gridRow: '12' },
+            CB2: { gridColumn: '4', gridRow: '13' },
+            CB3: { gridColumn: '6', gridRow: '12' },
             RWB: { gridColumn: '7', gridRow: '11' },
-            CM: { gridColumn: '2', gridRow: '7' },
-            'CM-2': { gridColumn: '4', gridRow: '7' },
-            'CM-3': { gridColumn: '6', gridRow: '7' },
-            ST: { gridColumn: '3', gridRow: '3' },
-            'ST-2': { gridColumn: '5', gridRow: '3' }
+            CM1: { gridColumn: '2', gridRow: '7' },
+            CM2: { gridColumn: '4', gridRow: '7' },
+            CM3: { gridColumn: '6', gridRow: '7' },
+            ST1: { gridColumn: '3', gridRow: '3' },
+            ST2: { gridColumn: '5', gridRow: '3' }
           };
         case '5-4-1':
           return {
             GK: { gridColumn: '4', gridRow: '15' },
             LWB: { gridColumn: '1', gridRow: '11' },
-            CB: { gridColumn: '2', gridRow: '12' },
-            'CB-2': { gridColumn: '4', gridRow: '13' },
-            'CB-3': { gridColumn: '6', gridRow: '12' },
+            CB1: { gridColumn: '2', gridRow: '12' },
+            CB2: { gridColumn: '4', gridRow: '13' },
+            CB3: { gridColumn: '6', gridRow: '12' },
             RWB: { gridColumn: '7', gridRow: '11' },
             LM: { gridColumn: '2', gridRow: '7' },
-            CM: { gridColumn: '3', gridRow: '7' },
-            'CM-2': { gridColumn: '5', gridRow: '7' },
+            CM1: { gridColumn: '3', gridRow: '7' },
+            CM2: { gridColumn: '5', gridRow: '7' },
             RM: { gridColumn: '6', gridRow: '7' },
             ST: { gridColumn: '4', gridRow: '3' }
           };
@@ -368,19 +357,12 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         
         {/* Positions */}
         <div className="positions-grid">
-          {requiredPositions.map((position, index) => {
-            // Handle multiple players in same position (e.g. 2 CB's)
-            const posKey = requiredPositions.filter(p => p === position).length > 1 && 
-                          requiredPositions.indexOf(position) !== index 
-                          ? `${position}-${index - requiredPositions.indexOf(position) + 1}`
-                          : position;
-            
-            const style = layout[posKey] || {};
+          {Object.entries(layout).map(([position, style]) => {
             const player = filledPositions[position];
             
             return (
               <div 
-                key={`${position}-${index}`} 
+                key={position} 
                 className="position-slot"
                 style={style}
               >
@@ -400,7 +382,7 @@ function LineupEditor({ match, team, onSave, onCancel }) {
                     className="player-token empty"
                     onClick={() => handleSelectPlayerForPosition(position)}
                   >
-                    <div className="position-name">{positionNames[position]}</div>
+                    <div className="position-name">{positionNames[position.replace(/[0-9]/g, '')]}</div>
                     <div className="add-icon"><UserPlus size={16} /></div>
                   </button>
                 )}
@@ -423,24 +405,24 @@ function LineupEditor({ match, team, onSave, onCancel }) {
   return (
     <div className="lineup-editor">
       <Card className="mb-6 shadow-md border-[1px] border-gray-200">
-        <CardHeader className="card-header-metallic border-b">
-          <CardTitle className="text-lg font-semibold text-black">
+        <CardHeader className="card-header-metallic border-b px-2 py-1.5 sm:px-4 sm:py-3">
+          <CardTitle className="text-sm sm:text-lg font-semibold text-black">
             {team.name} Lineup
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 bg-white">
+        <CardContent className="p-1.5 sm:p-4 bg-white">
           {error && (
-            <div className="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-md flex items-center gap-2 mb-4">
-              <AlertCircle className="h-5 w-5" />
-              <span className="font-medium">{error}</span>
+            <div className="bg-red-50 border border-red-300 text-red-700 px-2 py-1 rounded-md flex items-center gap-2 mb-2 sm:mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-xs font-medium">{error}</span>
             </div>
           )}
           
-          <div className="mb-4">
-            <Label htmlFor="formation" className="text-black font-medium mb-1 block">Formation</Label>
+          <div className="mb-2 sm:mb-4">
+            <Label htmlFor="formation" className="text-xs text-black font-medium mb-1 block">Formation</Label>
             <select
               id="formation"
-              className="w-full text-black bg-white border border-gray-300 rounded-md h-10 px-3 py-2 shadow-sm"
+              className="w-full text-xs text-black bg-white border border-gray-300 rounded-md h-7 sm:h-10 px-2 py-1 shadow-sm"
               value={formation}
               onChange={handleFormationChange}
             >
@@ -450,37 +432,103 @@ function LineupEditor({ match, team, onSave, onCancel }) {
             </select>
           </div>
           
-          <div className="lineup-display border rounded-lg p-1 shadow-inner bg-gray-50">
+          <div className="lineup-display border rounded-lg p-0.5 shadow-inner bg-gray-50">
             {renderPitch()}
           </div>
           
-          <div className="mt-4">
-            <div className="text-sm font-medium text-gray-700 mb-2">Selected Players: {selectedPlayers.length}/11</div>
-            <div className="selected-player-list">
-              {selectedPlayers.map(player => (
-                <Badge 
-                  key={player.id} 
-                  variant="outline" 
-                  className="mr-2 mb-2 flex items-center gap-1 bg-blue-100 text-blue-800 border border-blue-300"
-                >
-                  <span>{player.name}</span>
-                  <span className="ml-1 text-xs">({positionNames[player.specific_position]})</span>
-                </Badge>
+          <div className="mt-2 sm:mt-4">
+            <div className="text-xs font-medium text-gray-700 mb-1">Selected Players (11)</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+              {/* Goalkeepers */}
+              {selectedPlayers.filter(p => p.specific_position === 'GK').map(player => (
+                <div key={player.id} className="flex items-center gap-1 p-1 bg-green-50 border border-green-200 rounded text-xs">
+                  <span className="w-4 h-4 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-bold">{player.number}</span>
+                  <span className="font-medium truncate">{player.name}</span>
+                  <span className="text-[10px] text-green-700 ml-auto">GK</span>
+                </div>
+              ))}
+              
+              {/* Defenders */}
+              {selectedPlayers.filter(p => ['LB', 'CB1', 'CB2', 'RB', 'LWB', 'RWB', 'CB3'].includes(p.specific_position)).map(player => (
+                <div key={player.id} className="flex items-center gap-1 p-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                  <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">{player.number}</span>
+                  <span className="font-medium truncate">{player.name}</span>
+                  <span className="text-[10px] text-blue-700 ml-auto">{player.specific_position}</span>
+                </div>
+              ))}
+              
+              {/* Midfielders */}
+              {selectedPlayers.filter(p => ['CDM', 'CM1', 'CM2', 'CM3', 'CAM', 'LAM', 'RAM', 'LM', 'RM'].includes(p.specific_position)).map(player => (
+                <div key={player.id} className="flex items-center gap-1 p-1 bg-amber-50 border border-amber-200 rounded text-xs">
+                  <span className="w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px] font-bold">{player.number}</span>
+                  <span className="font-medium truncate">{player.name}</span>
+                  <span className="text-[10px] text-amber-700 ml-auto">{player.specific_position}</span>
+                </div>
+              ))}
+              
+              {/* Forwards */}
+              {selectedPlayers.filter(p => ['ST', 'ST1', 'ST2', 'LW', 'RW'].includes(p.specific_position)).map(player => (
+                <div key={player.id} className="flex items-center gap-1 p-1 bg-red-50 border border-red-200 rounded text-xs">
+                  <span className="w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold">{player.number}</span>
+                  <span className="font-medium truncate">{player.name}</span>
+                  <span className="text-[10px] text-red-700 ml-auto">{player.specific_position}</span>
+                </div>
               ))}
             </div>
           </div>
+
+          {/* Bench Section */}
+          <div className="mt-3 sm:mt-6">
+            <div className="text-xs font-medium text-gray-700 mb-1">Bench</div>
+            <div className="bench-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+              {availablePlayers
+                .filter(player => !selectedPlayers.some(sp => sp.id === player.id))
+                .map(player => (
+                  <div 
+                    key={player.id}
+                    className="flex items-center p-1.5 border border-gray-200 rounded-md bg-gray-50"
+                  >
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2 ${
+                      player.position === 'GK' ? 'bg-green-600' : 
+                      player.position === 'DEF' ? 'bg-blue-600' : 
+                      player.position === 'MID' ? 'bg-amber-600' : 
+                      'bg-red-600'
+                    }`}>
+                      {player.number || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-xs text-black truncate">{player.name}</div>
+                      <div className="text-[10px] text-gray-600 flex items-center gap-1">
+                        <Badge className={`
+                          ${player.position === 'GK' ? 'bg-green-100 text-green-800 border-green-300' : 
+                          player.position === 'DEF' ? 'bg-blue-100 text-blue-800 border-blue-300' : 
+                          player.position === 'MID' ? 'bg-amber-100 text-amber-800 border-amber-300' : 
+                          'bg-red-100 text-red-800 border-red-300'}
+                        `}>
+                          {player.position === 'GK' ? 'GK' : 
+                           player.position === 'DEF' ? 'DEF' : 
+                           player.position === 'MID' ? 'MID' : 
+                           'FWD'}
+                        </Badge>
+                        {player.club && <span className="text-gray-500 truncate">• {player.club}</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
         </CardContent>
-        <CardFooter className="p-4 border-t flex justify-end gap-2 bg-gray-50">
+        <CardFooter className="p-2 sm:p-4 border-t flex justify-end gap-2 bg-gray-50">
           <Button
             variant="outline"
             onClick={onCancel}
-            className="border-gray-300 hover:bg-gray-100 text-gray-700"
+            className="text-xs border-gray-300 hover:bg-gray-100 text-gray-700 px-2 py-1"
           >
             Cancel
           </Button>
           <Button
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1"
             onClick={handleSaveLineup}
           >
             {saving ? 'Saving...' : 'Save Lineup'}
@@ -493,15 +541,15 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         open={isPlayerSelectorOpen}
         onClose={() => setIsPlayerSelectorOpen(false)}
       >
-        <DialogContent className="sm:max-w-[500px] bg-white">
+        <DialogContent className="sm:max-w-[500px] bg-white p-3 sm:p-4">
           <DialogHeader>
-            <DialogTitle className="text-black">Select Player for {positionNames[positionToFill]}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-sm sm:text-base font-semibold text-black">Select Player for {positionNames[positionToFill]}</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Choose a player to fill the {positionNames[positionToFill]} position.
-              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md text-blue-800 text-sm">
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md text-blue-800 text-xs sm:text-sm">
                 <div className="flex items-start gap-2">
                   <div className="mt-0.5">
-                    <AlertCircle size={16} />
+                    <AlertCircle size={14} className="sm:w-4 sm:h-4" />
                   </div>
                   <div>
                     Puedes seleccionar cualquier jugador para cualquier posición, independientemente de su posición natural.
@@ -512,29 +560,29 @@ function LineupEditor({ match, team, onSave, onCancel }) {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="player-list-container max-h-[400px] overflow-y-auto py-4">
+          <div className="player-list-container max-h-[300px] sm:max-h-[400px] overflow-y-auto py-2 sm:py-4">
             {getFilteredPlayersForCurrentPosition().length === 0 ? (
-              <div className="text-center py-8 px-4 bg-gray-50 rounded-lg border border-gray-200">
-                <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-700 font-medium mb-2">No hay jugadores disponibles</p>
-                <p className="text-gray-500 text-sm">
+              <div className="text-center py-6 sm:py-8 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-200">
+                <Users className="h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-2 sm:mb-3" />
+                <p className="text-sm sm:text-base text-gray-700 font-medium mb-1 sm:mb-2">No hay jugadores disponibles</p>
+                <p className="text-xs sm:text-sm text-gray-500">
                   No hay jugadores disponibles para este equipo. Debes agregar jugadores al equipo en la página de detalles del equipo antes de poder configurar la alineación.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-1.5 sm:gap-2">
                 {getFilteredPlayersForCurrentPosition().map(player => {
                   const isAlreadySelected = selectedPlayers.some(p => p.id === player.id);
                   
                   return (
                     <div 
                       key={player.id}
-                      className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors ${
+                      className={`flex items-center p-2 sm:p-3 border rounded-md cursor-pointer transition-colors ${
                         isAlreadySelected ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50 border-gray-200'
                       }`}
                       onClick={() => handlePlayerSelect(player)}
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold mr-3 ${
+                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold mr-2 sm:mr-3 ${
                         player.position === 'GK' ? 'bg-green-600' : 
                         player.position === 'DEF' ? 'bg-blue-600' : 
                         player.position === 'MID' ? 'bg-amber-600' : 
@@ -542,25 +590,25 @@ function LineupEditor({ match, team, onSave, onCancel }) {
                       }`}>
                         {player.number || '?'}
                       </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-black">{player.name}</div>
-                        <div className="text-xs text-gray-600 flex items-center gap-1">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-xs sm:text-sm text-black truncate">{player.name}</div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 flex items-center gap-1">
                           <Badge className={`
                             ${player.position === 'GK' ? 'bg-green-100 text-green-800 border-green-300' : 
                             player.position === 'DEF' ? 'bg-blue-100 text-blue-800 border-blue-300' : 
                             player.position === 'MID' ? 'bg-amber-100 text-amber-800 border-amber-300' : 
                             'bg-red-100 text-red-800 border-red-300'}
                           `}>
-                            {player.position === 'GK' ? 'Portero' : 
-                             player.position === 'DEF' ? 'Defensa' : 
-                             player.position === 'MID' ? 'Mediocampista' : 
-                             'Delantero'}
+                            {player.position === 'GK' ? 'GK' : 
+                             player.position === 'DEF' ? 'DEF' : 
+                             player.position === 'MID' ? 'MID' : 
+                             'FWD'}
                           </Badge>
-                          {player.club && <span className="text-gray-500">• {player.club}</span>}
+                          {player.club && <span className="text-gray-500 truncate">• {player.club}</span>}
                         </div>
                       </div>
                       {isAlreadySelected && (
-                        <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                        <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-[10px] sm:text-xs">
                           Ya seleccionado
                         </Badge>
                       )}
@@ -571,8 +619,8 @@ function LineupEditor({ match, team, onSave, onCancel }) {
             )}
           </div>
           
-          <DialogFooter className="border-t pt-3">
-            <Button variant="outline" onClick={() => setIsPlayerSelectorOpen(false)} className="border-gray-300 text-gray-700">
+          <DialogFooter className="border-t pt-2 sm:pt-3">
+            <Button variant="outline" onClick={() => setIsPlayerSelectorOpen(false)} className="text-xs sm:text-sm border-gray-300 text-gray-700 px-2 sm:px-3 py-1 sm:py-2">
               Cancel
             </Button>
           </DialogFooter>
@@ -583,13 +631,13 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         .pitch-container {
           aspect-ratio: 68/105;
           width: 100%;
-          max-width: 600px;
+          max-width: 400px;
           margin: 0 auto;
           border: 2px solid #fff;
           position: relative;
           display: flex;
           flex-direction: column;
-          padding: 10px;
+          padding: 4px;
         }
         
         .positions-grid {
@@ -603,14 +651,14 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         .player-token {
           width: 100%;
           aspect-ratio: 1;
-          max-width: 60px;
+          max-width: 40px;
           margin: 0 auto;
           border-radius: 50%;
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          font-size: 0.75rem;
+          font-size: 0.65rem;
           position: relative;
           transition: all 0.2s;
         }
@@ -618,7 +666,7 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         .player-token.filled {
           background-color: white;
           color: black;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
         .player-token.empty {
@@ -640,11 +688,11 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         
         .player-token .number {
           font-weight: bold;
-          font-size: 1rem;
+          font-size: 0.8rem;
         }
         
         .player-token .name {
-          font-size: 0.65rem;
+          font-size: 0.55rem;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -652,7 +700,7 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         }
         
         .player-token .position-name {
-          font-size: 0.6rem;
+          font-size: 0.45rem;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -661,17 +709,17 @@ function LineupEditor({ match, team, onSave, onCancel }) {
         
         .remove-player {
           position: absolute;
-          top: -5px;
-          right: -5px;
-          width: 18px;
-          height: 18px;
+          top: -4px;
+          right: -4px;
+          width: 14px;
+          height: 14px;
           background: rgba(255, 0, 0, 0.7);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
-          font-size: 12px;
+          font-size: 8px;
           cursor: pointer;
           opacity: 0;
           transition: opacity 0.2s;
@@ -686,7 +734,7 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           top: 50%;
           left: 0;
           width: 100%;
-          height: 2px;
+          height: 1px;
           background-color: rgba(255, 255, 255, 0.6);
         }
         
@@ -694,8 +742,8 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 60px;
-          height: 60px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           border: 2px solid rgba(255, 255, 255, 0.6);
           transform: translate(-50%, -50%);
@@ -705,8 +753,8 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           position: absolute;
           bottom: 0;
           left: 50%;
-          width: 120px;
-          height: 50px;
+          width: 80px;
+          height: 30px;
           border: 2px solid rgba(255, 255, 255, 0.6);
           border-bottom: none;
           transform: translateX(-50%);
@@ -716,8 +764,8 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           position: absolute;
           top: 0;
           left: 50%;
-          width: 120px;
-          height: 50px;
+          width: 80px;
+          height: 30px;
           border: 2px solid rgba(255, 255, 255, 0.6);
           border-top: none;
           transform: translateX(-50%);
