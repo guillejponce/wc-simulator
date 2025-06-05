@@ -26,7 +26,7 @@ import {
 } from '../components/ui';
 import { teamService } from '../services/teamService';
 import { playerService } from '../services/playerService';
-import { Flag, ArrowLeft, Users, Award, User, Calendar, MapPin, Briefcase, Plus, Edit, Trash, Pencil, AlertTriangle } from 'lucide-react';
+import { Flag, ArrowLeft, Users, Award, User, Calendar, MapPin, Briefcase, Plus, Edit, Trash, Pencil, AlertTriangle, Trophy } from 'lucide-react';
 import '../assets/styles/theme.css';
 
 function TeamDetail() {
@@ -278,9 +278,9 @@ function TeamDetail() {
         <div className="lg:col-span-1">
           <Card className="bg-white shadow-md text-black">
             <CardHeader className="card-header-metallic border-b">
-              <CardTitle className="text-lg font-semibold text-black">Team Information</CardTitle>
+              <CardTitle className="text-lg font-semibold text-[var(--text-heading)]">Team Information</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 space-y-4 text-black">
+            <CardContent className="p-4 space-y-4">
               {team.qualified ? (
                 <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-md flex items-center gap-2">
                   <Award className="h-5 w-5" />
@@ -293,57 +293,61 @@ function TeamDetail() {
                 </div>
               )}
               
-              <div className="flex items-center gap-3">
-                <Award className="h-5 w-5 text-[var(--text-secondary)]" />
-                <div>
-                  <div className="text-sm text-black">FIFA Ranking</div>
-                  <div className="font-medium text-black">#{team.fifa_ranking || 'N/A'}</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-[var(--text-secondary)]" />
-                <div>
-                  <div className="text-sm text-black">Region</div>
-                  <div className="font-medium text-black">{team.region}</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-[var(--text-secondary)]" />
-                <div>
-                  <div className="text-sm text-black">Squad Size</div>
-                  <div className="font-medium text-black">{squadCount} Players</div>
-                </div>
-              </div>
-              
-              {/* Position Distribution */}
-              <div className="mt-4">
-                <div className="text-sm font-medium text-black mb-2">Squad Composition</div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-black">Goalkeepers</span>
-                    <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
-                      {positionCounts.GK}
-                    </Badge>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Trophy className="h-5 w-5 text-[var(--text-secondary)]" />
+                    <div>
+                      <div className="text-sm text-[var(--text-secondary)]">FIFA Ranking</div>
+                      <div className="font-medium text-[var(--text-primary)]">#{team.fifa_ranking || 'N/A'}</div>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-black">Defenders</span>
-                    <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
-                      {positionCounts.DEF}
-                    </Badge>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-[var(--text-secondary)]" />
+                  <div>
+                    <div className="text-sm text-[var(--text-secondary)]">Region</div>
+                    <div className="font-medium text-[var(--text-primary)]">{team.region}</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-black">Midfielders</span>
-                    <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
-                      {positionCounts.MID}
-                    </Badge>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5 text-[var(--text-secondary)]" />
+                  <div>
+                    <div className="text-sm text-[var(--text-secondary)]">Squad Size</div>
+                    <div className="font-medium text-[var(--text-primary)]">{squadCount} Players</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-black">Forwards</span>
-                    <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
-                      {positionCounts.FWD}
-                    </Badge>
+                </div>
+                
+                {/* Position Distribution */}
+                <div className="mt-4">
+                  <div className="text-sm font-medium text-[var(--text-primary)] mb-2">Squad Composition</div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-[var(--text-primary)]">Goalkeepers</span>
+                      <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
+                        {positionCounts.GK}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-[var(--text-primary)]">Defenders</span>
+                      <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
+                        {positionCounts.DEF}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-[var(--text-primary)]">Midfielders</span>
+                      <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
+                        {positionCounts.MID}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-[var(--text-primary)]">Forwards</span>
+                      <Badge variant="outline" className="bg-[var(--wc-blue)] bg-opacity-10 text-[var(--wc-blue)]">
+                        {positionCounts.FWD}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -479,96 +483,117 @@ function TeamDetail() {
         open={isPlayerModalOpen} 
         onClose={() => setIsPlayerModalOpen(false)}
       >
-        <DialogContent className="sm:max-w-[500px] text-black">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editingPlayer ? 'Edit Player' : 'Add New Player'}</DialogTitle>
-            <DialogDescription>
-              {editingPlayer 
-                ? 'Update the player information in the form below.' 
-                : 'Enter the player information in the form below.'}
-            </DialogDescription>
+            <DialogTitle>Add New Player</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmitPlayer}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={playerForm.name}
-                  onChange={handleInputChange}
-                  className="col-span-3 text-black"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="position" className="text-right">Position</Label>
-                <select 
-                  id="position"
-                  name="position"
-                  value={playerForm.position}
-                  onChange={handleInputChange}
-                  className="col-span-3 border rounded-md h-10 px-3 py-2 text-black"
-                  required
-                >
-                  <option value="GK">Goalkeeper (GK)</option>
-                  <option value="DEF">Defender (DEF)</option>
-                  <option value="MID">Midfielder (MID)</option>
-                  <option value="FWD">Forward (FWD)</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="number" className="text-right">Jersey Number</Label>
-                <Input
-                  id="number"
-                  name="number"
-                  type="number"
-                  min="1"
-                  max="99"
-                  value={playerForm.number}
-                  onChange={handleInputChange}
-                  className="col-span-3 text-black"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="birth_date" className="text-right">Birth Date <span className="text-gray-400 text-xs">(optional)</span></Label>
-                <Input
-                  id="birth_date"
-                  name="birth_date"
-                  type="date"
-                  value={playerForm.birth_date}
-                  onChange={handleInputChange}
-                  className="col-span-3 text-black"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="club" className="text-right">Club</Label>
-                <Input
-                  id="club"
-                  name="club"
-                  value={playerForm.club}
-                  onChange={handleInputChange}
-                  className="col-span-3 text-black"
-                />
-              </div>
+          <form onSubmit={handleSubmitPlayer} className="space-y-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                value={playerForm.name}
+                onChange={handleInputChange}
+                className="col-span-3 text-[var(--text-primary)]"
+                required
+              />
             </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsPlayerModalOpen(false)}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="position" className="text-right">
+                Position
+              </Label>
+              <select
+                id="position"
+                name="position"
+                value={playerForm.position}
+                onChange={handleInputChange}
+                className="col-span-3 border rounded-md h-10 px-3 py-2 text-[var(--text-primary)]"
+                required
               >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={formSubmitting}
-                className="bg-[var(--wc-blue)]"
-              >
-                {formSubmitting ? 'Saving...' : 'Save Player'}
-              </Button>
-            </DialogFooter>
+                <option value="">Select Position</option>
+                <option value="GK">Goalkeeper</option>
+                <option value="DEF">Defender</option>
+                <option value="MID">Midfielder</option>
+                <option value="FWD">Forward</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="number" className="text-right">
+                Number
+              </Label>
+              <Input
+                id="number"
+                name="number"
+                type="number"
+                min="1"
+                max="99"
+                value={playerForm.number}
+                onChange={handleInputChange}
+                className="col-span-3 text-[var(--text-primary)]"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="birth_date" className="text-right">
+                Birth Date <span className="text-gray-400 text-xs">(optional)</span>
+              </Label>
+              <Input
+                id="birth_date"
+                name="birth_date"
+                type="date"
+                value={playerForm.birth_date}
+                onChange={handleInputChange}
+                className="col-span-3 text-[var(--text-primary)]"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="club" className="text-right">
+                Club
+              </Label>
+              <Input
+                id="club"
+                name="club"
+                value={playerForm.club}
+                onChange={handleInputChange}
+                className="col-span-3 text-[var(--text-primary)]"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="age" className="text-right">
+                Age
+              </Label>
+              <Input
+                id="age"
+                name="age"
+                type="number"
+                min="16"
+                max="45"
+                value={playerForm.age}
+                onChange={handleInputChange}
+                className="col-span-3 text-[var(--text-primary)]"
+                required
+              />
+            </div>
           </form>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsPlayerModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={formSubmitting}
+              className="bg-[var(--wc-blue)]"
+            >
+              {formSubmitting ? 'Saving...' : editingPlayer ? 'Update Player' : 'Save Player'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

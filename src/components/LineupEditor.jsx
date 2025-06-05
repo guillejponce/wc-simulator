@@ -347,48 +347,55 @@ function LineupEditor({ match, team, onSave, onCancel }) {
     });
     
     // Render player positions based on formation
-    return (
-      <div className="pitch-container bg-gradient-to-b from-[#4b8a0b] to-[#195303] rounded-lg overflow-hidden relative">
-        {/* Field markings */}
-        <div className="center-circle"></div>
-        <div className="goal-box-top"></div>
-        <div className="goal-box-bottom"></div>
-        <div className="halfway-line"></div>
-        
-        {/* Positions */}
-        <div className="positions-grid">
-          {Object.entries(layout).map(([position, style]) => {
-            const player = filledPositions[position];
-            
-            return (
-              <div 
-                key={position} 
-                className="position-slot"
-                style={style}
+    const playerPositions = Object.entries(layout).map(([position, style]) => {
+      const player = filledPositions[position];
+      
+      return (
+        <div 
+          key={position} 
+          className="position-slot"
+          style={style}
+        >
+          {player ? (
+            <div className="player-token filled">
+              <div className="number">{player.number || '?'}</div>
+              <div className="name">{player.name.split(' ').pop()}</div>
+              <button 
+                className="remove-player"
+                onClick={() => handleRemovePlayer(player.id)}
               >
-                {player ? (
-                  <div className="player-token filled">
-                    <div className="number">{player.number || '?'}</div>
-                    <div className="name">{player.name.split(' ').pop()}</div>
-                    <button 
-                      className="remove-player"
-                      onClick={() => handleRemovePlayer(player.id)}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ) : (
-                  <button 
-                    className="player-token empty"
-                    onClick={() => handleSelectPlayerForPosition(position)}
-                  >
-                    <div className="position-name">{positionNames[position.replace(/[0-9]/g, '')]}</div>
-                    <div className="add-icon"><UserPlus size={16} /></div>
-                  </button>
-                )}
-              </div>
-            );
-          })}
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <button 
+              className="player-token empty"
+              onClick={() => handleSelectPlayerForPosition(position)}
+            >
+              <div className="font-medium text-xs text-[var(--text-primary)] truncate">{positionNames[position.replace(/[0-9]/g, '')]}</div>
+              <div className="text-xs text-[var(--text-secondary)] truncate">#{position.replace(/[0-9]/g, '')}</div>
+            </button>
+          )}
+        </div>
+      );
+    });
+
+    return (
+      <div 
+        className="relative mx-auto"
+        style={{
+          width: '100%',
+          maxWidth: '500px',
+          height: '600px',
+          background: 'linear-gradient(to bottom, #0f7b0f 0%, #006400 50%, #0f7b0f 100%)',
+          position: 'relative',
+          border: '3px solid white',
+          borderRadius: '8px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+        }}
+      >
+        <div className="absolute inset-0 p-2">
+          {playerPositions}
         </div>
       </div>
     );
@@ -406,11 +413,11 @@ function LineupEditor({ match, team, onSave, onCancel }) {
     <div className="lineup-editor">
       <Card className="mb-6 shadow-md border-[1px] border-gray-200">
         <CardHeader className="card-header-metallic border-b px-2 py-1.5 sm:px-4 sm:py-3">
-          <CardTitle className="text-sm sm:text-lg font-semibold text-black">
+          <CardTitle className="text-sm sm:text-lg font-semibold text-[var(--text-heading)]">
             {team.name} Lineup
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-1.5 sm:p-4 bg-white">
+        <CardContent className="p-2 sm:p-4 space-y-3 sm:space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-300 text-red-700 px-2 py-1 rounded-md flex items-center gap-2 mb-2 sm:mb-4">
               <AlertCircle className="h-4 w-4" />
@@ -419,10 +426,10 @@ function LineupEditor({ match, team, onSave, onCancel }) {
           )}
           
           <div className="mb-2 sm:mb-4">
-            <Label htmlFor="formation" className="text-xs text-black font-medium mb-1 block">Formation</Label>
+            <Label htmlFor="formation" className="text-xs text-[var(--text-primary)] font-medium mb-1 block">Formation</Label>
             <select
               id="formation"
-              className="w-full text-xs text-black bg-white border border-gray-300 rounded-md h-7 sm:h-10 px-2 py-1 shadow-sm"
+              className="w-full text-xs text-[var(--text-primary)] bg-[var(--background-primary)] border border-gray-300 rounded-md h-7 sm:h-10 px-2 py-1 shadow-sm"
               value={formation}
               onChange={handleFormationChange}
             >
@@ -432,9 +439,7 @@ function LineupEditor({ match, team, onSave, onCancel }) {
             </select>
           </div>
           
-          <div className="lineup-display border rounded-lg p-0.5 shadow-inner bg-gray-50">
-            {renderPitch()}
-          </div>
+          {renderPitch()}
           
           <div className="mt-2 sm:mt-4">
             <div className="text-xs font-medium text-gray-700 mb-1">Selected Players (11)</div>
@@ -517,33 +522,35 @@ function LineupEditor({ match, team, onSave, onCancel }) {
                 ))}
             </div>
           </div>
+
+          <div className="flex justify-end gap-2 pt-2 sm:pt-4">
+            <Button 
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+            <Button 
+              size="sm"
+              onClick={handleSaveLineup}
+              className="bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)] text-[var(--text-on-color)]"
+            >
+              Save Lineup
+            </Button>
+          </div>
         </CardContent>
-        <CardFooter className="p-2 sm:p-4 border-t flex justify-end gap-2 bg-gray-50">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            className="text-xs border-gray-300 hover:bg-gray-100 text-gray-700 px-2 py-1"
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={saving}
-            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1"
-            onClick={handleSaveLineup}
-          >
-            {saving ? 'Saving...' : 'Save Lineup'}
-          </Button>
-        </CardFooter>
       </Card>
       
-      {/* Player Selector Dialog */}
+      {/* Player Selection Dialog */}
       <Dialog
         open={isPlayerSelectorOpen}
         onClose={() => setIsPlayerSelectorOpen(false)}
       >
         <DialogContent className="sm:max-w-[500px] bg-white p-3 sm:p-4">
           <DialogHeader>
-            <DialogTitle className="text-sm sm:text-base font-semibold text-black">Select Player for {positionNames[positionToFill]}</DialogTitle>
+            <DialogTitle className="text-sm sm:text-base font-semibold text-[var(--text-heading)]">Select Player for {positionNames[positionToFill]}</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
               Choose a player to fill the {positionNames[positionToFill]} position.
               <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md text-blue-800 text-xs sm:text-sm">
@@ -591,27 +598,9 @@ function LineupEditor({ match, team, onSave, onCancel }) {
                         {player.number || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-xs sm:text-sm text-black truncate">{player.name}</div>
-                        <div className="text-[10px] sm:text-xs text-gray-600 flex items-center gap-1">
-                          <Badge className={`
-                            ${player.position === 'GK' ? 'bg-green-100 text-green-800 border-green-300' : 
-                            player.position === 'DEF' ? 'bg-blue-100 text-blue-800 border-blue-300' : 
-                            player.position === 'MID' ? 'bg-amber-100 text-amber-800 border-amber-300' : 
-                            'bg-red-100 text-red-800 border-red-300'}
-                          `}>
-                            {player.position === 'GK' ? 'GK' : 
-                             player.position === 'DEF' ? 'DEF' : 
-                             player.position === 'MID' ? 'MID' : 
-                             'FWD'}
-                          </Badge>
-                          {player.club && <span className="text-gray-500 truncate">• {player.club}</span>}
-                        </div>
+                        <div className="font-medium text-xs sm:text-sm text-[var(--text-primary)] truncate">{player.name}</div>
+                        <div className="text-xs text-[var(--text-secondary)] truncate">#{player.number} • {player.position}</div>
                       </div>
-                      {isAlreadySelected && (
-                        <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-[10px] sm:text-xs">
-                          Ya seleccionado
-                        </Badge>
-                      )}
                     </div>
                   );
                 })}

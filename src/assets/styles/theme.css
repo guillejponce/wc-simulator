@@ -28,12 +28,13 @@
   
   /* Component Colors */
   --background-primary: #ffffff;
-  --background-secondary: #f7f9fc;
-  --text-primary: black;
-  --text-secondary: black;
-  --text-on-color: black;
-  --text-on-dark: white;
-  --text-heading: black;
+  --background-secondary: #f9fafb;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-on-color: #ffffff;
+  --text-on-dark: #ffffff;
+  --text-heading: #111827;
+  --text-muted: #9ca3af;
   --border-color: var(--neutral-200);
   
   /* Card Styles */
@@ -46,7 +47,7 @@
   /* Status Colors */
   --status-scheduled: var(--wc-silver-blue);
   --status-live: #10b981;
-  --status-completed: var(--neutral-300);
+  --status-completed: var(--neutral-400);
   
   /* Score Colors */
   --score-increase: #10b981;
@@ -57,19 +58,19 @@
 /* Global Styles */
 body {
   background: var(--background-secondary);
-  color: black;
+  color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: black;
+  color: var(--text-heading);
   font-weight: 600;
 }
 
 /* Form Elements */
 select, input, option, textarea {
-  color: black;
-  background-color: white;
+  color: var(--text-primary);
+  background-color: var(--background-primary);
 }
 
 select {
@@ -80,8 +81,8 @@ select {
 }
 
 select option {
-  color: black;
-  background-color: white;
+  color: var(--text-primary);
+  background-color: var(--background-primary);
   padding: 8px;
 }
 
@@ -130,6 +131,11 @@ select option {
   border-bottom: 1px solid var(--border-color);
 }
 
+.card-header-metallic h2,
+.card-header-metallic h3 {
+  color: var(--text-heading);
+}
+
 /* Table Styles */
 .table-header {
   background: var(--neutral-100);
@@ -154,18 +160,18 @@ select option {
 
 .badge-primary {
   background: var(--wc-light-blue);
-  color: white;
+  color: var(--text-on-color);
 }
 
 .badge-success {
   background: var(--status-live);
-  color: white;
+  color: var(--text-on-color);
 }
 
 /* Button Styles */
 .button-primary {
   background: var(--wc-blue);
-  color: white;
+  color: var(--text-on-color);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;

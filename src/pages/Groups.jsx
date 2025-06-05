@@ -15,95 +15,168 @@ function Groups() {
     const fetchGroups = async () => {
       try {
         setLoading(true);
-        // Get group assignments first to create the group structure
-        const assignments = await teamService.getGroupAssignments();
-        
-        // Transform assignments into groups structure
-        const groupsMap = {};
-        assignments.forEach(assignment => {
-          const groupLetter = assignment.group.letter;
-          if (!groupsMap[groupLetter]) {
-            groupsMap[groupLetter] = {
-              id: assignment.group.id,
-              name: groupLetter,
-              teams: Array(4).fill(null)
-            };
-          }
-          
-          // Create a basic team record at the appropriate position
-          const teamIndex = assignment.position - 1;
-          if (teamIndex >= 0 && teamIndex < 4) {
-            groupsMap[groupLetter].teams[teamIndex] = {
-              id: assignment.team.id,
-              name: assignment.team.name,
-              code: assignment.team.code,
-              flag_url: assignment.team.flag_url,
-              region: assignment.team.region,
-              // Default stats (will be updated later)
-              played: 0,
-              won: 0,
-              drawn: 0,
-              lost: 0,
-              goalsFor: 0,
-              goalsAgainst: 0,
-              points: 0,
-              position: assignment.position
-            };
-          }
-        });
 
-        // Now fetch team_group records to get actual standings
+        // Fetch all groups from the database
+        const { data: groupsData, error: groupsError } = await supabase
+          .from('group')
+          .select('*')
+          .order('name');
+
+        if (groupsError) {
+          console.error('Error fetching groups:', groupsError);
+          throw groupsError;
+        }
+
+        // Fetch all team_group records with team information
         const { data: teamGroupRecords, error: teamGroupError } = await supabase
           .from('team_group')
-          .select('*, team:team_id(id, name, code, flag_url, region)');
+          .select(`
+            *,
+            team:team_id(id, name, code, flag_url, region)
+          `)
+          .order('group_id')
+          .order('position');
         
         if (teamGroupError) {
           console.error('Error fetching team group records:', teamGroupError);
           throw teamGroupError;
         }
 
-        // Update teams with standings data
-        if (teamGroupRecords?.length > 0) {
-          for (const record of teamGroupRecords) {
-            // Find the group this record belongs to
-            for (const groupKey in groupsMap) {
-              const group = groupsMap[groupKey];
-              if (group.id === record.group_id) {
-                // Find the team in this group
-                const teamIndex = group.teams.findIndex(team => 
-                  team && team.id === record.team_id
-                );
-                
-                if (teamIndex >= 0) {
-                  // Update team stats
-                  group.teams[teamIndex] = {
-                    ...group.teams[teamIndex],
-                    played: record.played || 0,
-                    won: record.won || 0,
-                    drawn: record.drawn || 0, 
-                    lost: record.lost || 0,
-                    goalsFor: record.goals_for || 0,
-                    goalsAgainst: record.goals_against || 0,
-                    goalDifference: record.goal_difference || 0,
-                    points: record.points || 0,
-                    position: record.position || teamIndex + 1
-                  };
-                }
-                break;
+        // Create groups map to organize teams by group
+        const groupsMap = {};
+        
+        // Initialize groups
+        groupsData.forEach(group => {
+          groupsMap[group.id] = {
+            id: group.id,
+            name: group.name,
+            teams: []
+          };
+
+          // Add teams based on their assigned positions in the group table
+          for (let i = 1; i <= 4; i++) {
+            const teamId = group[`team${i}_id`];
+            if (teamId) {
+              // Find the team's stats if they exist
+              const teamStats = teamGroupRecords.find(record => 
+                record.team_id === teamId && record.group_id === group.id
+              );
+
+              if (teamStats) {
+                // Team has played matches and has stats
+                groupsMap[group.id].teams.push({
+                  id: teamStats.team.id,
+                  name: teamStats.team.name,
+                  code: teamStats.team.code,
+                  flag_url: teamStats.team.flag_url,
+                  region: teamStats.team.region,
+                  played: teamStats.played || 0,
+                  won: teamStats.won || 0,
+                  drawn: teamStats.drawn || 0,
+                  lost: teamStats.lost || 0,
+                  goalsFor: teamStats.goals_for || 0,
+                  goalsAgainst: teamStats.goals_against || 0,
+                  goalDifference: teamStats.goal_difference || 0,
+                  points: teamStats.points || 0,
+                  position: teamStats.position || i
+                });
+              } else {
+                // Team is assigned but has no match stats yet
+                // We need to fetch the team details separately
+                const fetchTeamDetails = async (teamId) => {
+                  const { data: teamData, error: teamError } = await supabase
+                    .from('team')
+                    .select('*')
+                    .eq('id', teamId)
+                    .single();
+                  
+                  if (teamError) {
+                    console.error('Error fetching team details:', teamError);
+                    return null;
+                  }
+                  
+                  return teamData;
+                };
+
+                // We'll handle this in a second pass to avoid async issues in the loop
+                groupsMap[group.id].teams.push({
+                  id: teamId,
+                  position: i,
+                  isPlaceholder: true // Mark for later processing
+                });
+              }
+            }
+          }
+        });
+
+        // Second pass: fetch details for teams without stats
+        for (const groupId in groupsMap) {
+          const group = groupsMap[groupId];
+          for (let i = 0; i < group.teams.length; i++) {
+            const team = group.teams[i];
+            if (team.isPlaceholder) {
+              const { data: teamData, error: teamError } = await supabase
+                .from('team')
+                .select('*')
+                .eq('id', team.id)
+                .single();
+              
+              if (!teamError && teamData) {
+                group.teams[i] = {
+                  id: teamData.id,
+                  name: teamData.name,
+                  code: teamData.code,
+                  flag_url: teamData.flag_url,
+                  region: teamData.region,
+                  played: 0,
+                  won: 0,
+                  drawn: 0,
+                  lost: 0,
+                  goalsFor: 0,
+                  goalsAgainst: 0,
+                  goalDifference: 0,
+                  points: 0,
+                  position: team.position
+                };
               }
             }
           }
         }
 
-        // Sort teams in each group by position
-        for (const groupKey in groupsMap) {
-          const group = groupsMap[groupKey];
-          // Sort by position (keeping null values at the end)
+        // Sort teams within each group by standings (position for teams with stats, then by initial position)
+        for (const groupId in groupsMap) {
+          const group = groupsMap[groupId];
           group.teams.sort((a, b) => {
+            // Handle null teams
+            if (!a && !b) return 0;
             if (!a) return 1;
             if (!b) return -1;
-            return (a.position || 999) - (b.position || 999);
+            
+            // Teams with match stats should be sorted by their calculated position
+            if (a.played > 0 || b.played > 0) {
+              // Sort by points (desc), then goal difference (desc), then goals for (desc)
+              if (a.points !== b.points) {
+                return b.points - a.points;
+              }
+              if (a.goalDifference !== b.goalDifference) {
+                return b.goalDifference - a.goalDifference;
+              }
+              if (a.goalsFor !== b.goalsFor) {
+                return b.goalsFor - a.goalsFor;
+              }
+              // If all stats are equal, sort by name
+              return a.name.localeCompare(b.name);
+            }
+            // For teams without matches, sort by their initial position
+            return a.position - b.position;
           });
+
+          // Ensure we have exactly 4 slots (fill with null if needed)
+          while (group.teams.length < 4) {
+            group.teams.push(null);
+          }
+          // Truncate if we somehow have more than 4
+          group.teams = group.teams.slice(0, 4);
         }
 
         // Convert to array and sort by group name
@@ -215,12 +288,12 @@ function Groups() {
                               <span className="font-medium text-[var(--text-primary)] text-xs sm:text-sm md:text-base truncate">{team.name}</span>
                             </div>
                           ) : (
-                            <span className="text-[var(--text-primary)] opacity-60 text-xs sm:text-sm">TBD</span>
+                            <span className="text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm">TBD</span>
                           )}
                         </TableCell>
                         <TableCell className="text-[var(--text-primary)] text-xs sm:text-sm py-2">{team?.played || 0}</TableCell>
                         <TableCell className="py-2">
-                          <span className="inline-flex items-center justify-center min-w-[24px] h-6 bg-[var(--wc-blue)] text-white rounded text-xs sm:text-sm font-medium px-1.5">
+                          <span className="inline-flex items-center justify-center min-w-[24px] h-6 bg-[var(--wc-blue)] text-[var(--text-on-color)] rounded text-xs sm:text-sm font-medium px-1.5">
                             {team?.points || 0}
                           </span>
                         </TableCell>
@@ -233,9 +306,9 @@ function Groups() {
                           <span className={`font-medium ${
                             (team?.goalDifference || 0) > 0 ? 'text-green-600' : 
                             (team?.goalDifference || 0) < 0 ? 'text-red-600' : 
-                            'text-gray-600'
+                            'text-[var(--text-secondary)]'
                           }`}>
-                            {team?.goalDifference || team ? (team.goalsFor || 0) - (team.goalsAgainst || 0) : 0}
+                            {team?.goalDifference || 0}
                           </span>
                         </TableCell>
                       </TableRow>
