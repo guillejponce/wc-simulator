@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Badge } from '../components/ui';
-import { Flag, Loader2 } from 'lucide-react';
+import { Flag, Loader2, Trophy } from 'lucide-react';
 import { teamService } from '../services/teamService';
 import { supabase } from '../supabase';
 import '../assets/styles/theme.css';
 
 function Groups() {
   const [groups, setGroups] = useState([]);
+  const [thirdPlaces, setThirdPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshKey, setRefreshKey] = useState(Date.now());
@@ -78,7 +79,8 @@ function Groups() {
                   goalsAgainst: teamStats.goals_against || 0,
                   goalDifference: teamStats.goal_difference || 0,
                   points: teamStats.points || 0,
-                  position: teamStats.position || i
+                  position: teamStats.position || i,
+                  groupName: group.name
                 });
               } else {
                 // Team is assigned but has no match stats yet
@@ -102,7 +104,8 @@ function Groups() {
                 groupsMap[group.id].teams.push({
                   id: teamId,
                   position: i,
-                  isPlaceholder: true // Mark for later processing
+                  isPlaceholder: true, // Mark for later processing
+                  groupName: group.name
                 });
               }
             }
@@ -136,7 +139,8 @@ function Groups() {
                   goalsAgainst: 0,
                   goalDifference: 0,
                   points: 0,
-                  position: team.position
+                  position: team.position,
+                  groupName: team.groupName
                 };
               }
             }
@@ -184,7 +188,32 @@ function Groups() {
           a.name.localeCompare(b.name)
         );
 
+        // Extract third places and sort them
+        const thirdPlaceTeams = groupsArray
+          .map(group => group.teams[2]) // Get third place (index 2)
+          .filter(team => team && team.name) // Filter out null/empty teams
+          .sort((a, b) => {
+            // Sort by FIFA World Cup third place criteria
+            // 1. Points (descending)
+            if (a.points !== b.points) {
+              return b.points - a.points;
+            }
+            // 2. Goal difference (descending)
+            if (a.goalDifference !== b.goalDifference) {
+              return b.goalDifference - a.goalDifference;
+            }
+            // 3. Goals scored (descending)
+            if (a.goalsFor !== b.goalsFor) {
+              return b.goalsFor - a.goalsFor;
+            }
+            // 4. Head-to-head records (not implemented in this simple version)
+            // 5. Fair play points (not implemented)
+            // 6. FIFA ranking (not implemented, using alphabetical as tiebreaker)
+            return a.name.localeCompare(b.name);
+          });
+
         setGroups(groupsArray);
+        setThirdPlaces(thirdPlaceTeams);
       } catch (err) {
         console.error('Error fetching groups:', err);
         setError('Failed to load groups. Please try again.');
@@ -239,7 +268,7 @@ function Groups() {
         <p className="text-base sm:text-lg md:text-xl opacity-90 mt-2 text-center md:text-left">Group Stage</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-10">
         {groups.map((group) => (
           <div key={group.name} className="group-card bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
             <div className="card-header-metallic p-2 sm:p-3 md:p-4 border-b border-[var(--border-color)]">
@@ -319,6 +348,130 @@ function Groups() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Best Third Places Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-[var(--border-color)]">
+        <div className="card-header-metallic p-3 sm:p-4 md:p-6 border-b border-[var(--border-color)]">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[var(--text-heading)] flex items-center gap-2 md:gap-3">
+            <Trophy className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
+            <span>Mejores Terceros Lugares</span>
+          </h2>
+          <p className="text-sm sm:text-base text-[var(--text-secondary)] mt-1 sm:mt-2">
+            Los primeros 8 equipos clasifican a los Octavos de Final
+          </p>
+        </div>
+        <div className="p-3 sm:p-4 md:p-6">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="table-header bg-gray-50">
+                  <TableHead className="w-[40px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">Pos</TableHead>
+                  <TableHead className="w-[60px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">Grupo</TableHead>
+                  <TableHead className="text-[var(--text-primary)] text-xs sm:text-sm font-semibold">Equipo</TableHead>
+                  <TableHead className="w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">P</TableHead>
+                  <TableHead className="w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">Pts</TableHead>
+                  <TableHead className="hidden sm:table-cell w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">W</TableHead>
+                  <TableHead className="hidden sm:table-cell w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">D</TableHead>
+                  <TableHead className="hidden sm:table-cell w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">L</TableHead>
+                  <TableHead className="hidden md:table-cell w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">GF</TableHead>
+                  <TableHead className="hidden md:table-cell w-[35px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">GA</TableHead>
+                  <TableHead className="w-[40px] text-[var(--text-primary)] text-xs sm:text-sm font-semibold">GD</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {thirdPlaces.map((team, index) => (
+                  <TableRow 
+                    key={team.id}
+                    className={`border-b last:border-0 ${
+                      index < 8 ? 'bg-[rgba(91,138,182,0.05)]' : 'bg-gray-50/30'
+                    }`}
+                  >
+                    <TableCell className="font-medium text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">
+                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                        index < 8 ? 'bg-[var(--wc-blue)] text-white' : 'bg-gray-300 text-gray-600'
+                      }`}>
+                        {index + 1}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2 sm:py-3">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-[var(--wc-blue)] text-white rounded-full text-xs sm:text-sm font-bold">
+                        {team.groupName}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2 sm:py-3">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <img
+                          src={team.flag_url || `https://flagcdn.com/w20/${team.code.toLowerCase()}.png`}
+                          alt={`${team.name} flag`}
+                          className="w-4 h-3 sm:w-5 sm:h-4 md:w-6 md:h-4 object-cover rounded shadow-sm"
+                        />
+                        <span className="font-medium text-[var(--text-primary)] text-xs sm:text-sm md:text-base">{team.name}</span>
+                        {index < 8 && (
+                          <Badge className="bg-green-100 text-green-800 text-xs ml-1 sm:ml-2">
+                            Clasificado
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.played}</TableCell>
+                    <TableCell className="py-2 sm:py-3">
+                      <span className={`inline-flex items-center justify-center min-w-[28px] h-7 rounded text-xs sm:text-sm font-medium px-2 ${
+                        index < 8 ? 'bg-[var(--wc-blue)] text-white' : 'bg-gray-300 text-gray-700'
+                      }`}>
+                        {team.points}
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.won}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.drawn}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.lost}</TableCell>
+                    <TableCell className="hidden md:table-cell text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.goalsFor}</TableCell>
+                    <TableCell className="hidden md:table-cell text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.goalsAgainst}</TableCell>
+                    <TableCell className="text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">
+                      <span className={`font-medium ${
+                        team.goalDifference > 0 ? 'text-green-600' : 
+                        team.goalDifference < 0 ? 'text-red-600' : 
+                        'text-[var(--text-secondary)]'
+                      }`}>
+                        {team.goalDifference}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {/* Fill remaining slots if less than 12 teams */}
+                {Array.from({ length: Math.max(0, 12 - thirdPlaces.length) }).map((_, index) => (
+                  <TableRow key={`empty-third-${index}`} className="border-b last:border-0 bg-gray-50/30">
+                    <TableCell className="font-medium text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold bg-gray-300 text-gray-600">
+                        {thirdPlaces.length + index + 1}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2 sm:py-3">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-600 rounded-full text-xs sm:text-sm font-bold">
+                        -
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2 sm:py-3">
+                      <span className="text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm">TBD</span>
+                    </TableCell>
+                    <TableCell className="text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                    <TableCell className="py-2 sm:py-3">
+                      <span className="inline-flex items-center justify-center min-w-[28px] h-7 bg-gray-300 text-gray-700 rounded text-xs sm:text-sm font-medium px-2">
+                        0
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                    <TableCell className="hidden sm:table-cell text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                    <TableCell className="hidden sm:table-cell text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                    <TableCell className="hidden md:table-cell text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                    <TableCell className="hidden md:table-cell text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                    <TableCell className="text-[var(--text-secondary)] opacity-60 text-xs sm:text-sm py-2 sm:py-3">0</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </div>
   );
