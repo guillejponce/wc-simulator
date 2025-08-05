@@ -65,7 +65,7 @@ function Matches() {
     const awayTeamName = match.away_team?.name || 'TBD';
     const formattedDate = matchDateHelpers.formatDate(match.datetime);
     const formattedTime = matchDateHelpers.formatTime(match.datetime);
-    const groupName = match.group?.name ? `Group ${match.group.name}` : '';
+    const stageLabel = match.group?.name ? `Group ${match.group.name}` : (match.stage?.name || match.stage?.type || 'Knockout');
     const venueName = match.venue?.name || 'TBD';
     
     return (
@@ -128,9 +128,9 @@ function Matches() {
           </div>
         </TableCell>
         <TableCell>
-          {groupName ? (
+          {stageLabel ? (
             <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-3 py-1 rounded-full font-medium text-sm">
-              {groupName}
+              {stageLabel}
             </span>
           ) : (
             <span className="text-[var(--text-muted)]">-</span>
@@ -255,7 +255,7 @@ function Matches() {
                         const homeTeamName = match.home_team?.name || 'TBD';
                         const awayTeamName = match.away_team?.name || 'TBD';
                         const formattedTime = matchDateHelpers.formatTime(match.datetime);
-                        const groupName = match.group?.name ? `Group ${match.group.name}` : '';
+                        const stageLabel = match.group?.name ? `Group ${match.group.name}` : (match.stage?.name || match.stage?.type || 'Knockout');
                         const venueName = match.venue?.name || 'TBD';
                         
                         return (
@@ -326,9 +326,9 @@ function Matches() {
                                 <span className="truncate">{venueName}</span>
                               </div>
                               
-                              {groupName && (
+                              {stageLabel && (
                                 <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-1.5 py-0.5 rounded-full text-[10px] font-medium">
-                                  {groupName}
+                                  {stageLabel}
                                 </span>
                               )}
                             </div>

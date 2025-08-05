@@ -36,6 +36,7 @@ export const matchService = {
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
         group:group_id(id, name),
+        stage:stage_id(id, name, type),
         venue:venue_id(id, name, city, country)
       `)
       .order('datetime', { ascending: true });
@@ -56,6 +57,7 @@ export const matchService = {
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
         group:group_id(id, name),
+        stage:stage_id(id, name, type),
         venue:venue_id(id, name, city, country)
       `)
       .eq('id', id)
@@ -93,6 +95,7 @@ export const matchService = {
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
         group:group_id(id, name),
+        stage:stage_id(id, name, type),
         venue:venue_id(id, name, city, country)
       `)
       .single();
@@ -130,6 +133,7 @@ export const matchService = {
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
         group:group_id(id, name),
+        stage:stage_id(id, name, type),
         venue:venue_id(id, name, city, country)
       `)
       .single();
@@ -164,6 +168,7 @@ export const matchService = {
         home_team:home_team_id(id, name, code, flag_url),
         away_team:away_team_id(id, name, code, flag_url),
         group:group_id(id, name),
+        stage:stage_id(id, name, type),
         venue:venue_id(id, name, city, country)
       `)
       .eq('group_id', groupId)

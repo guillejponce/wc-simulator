@@ -147,6 +147,57 @@ function Groups() {
           }
         }
 
+        // Recalculate stats from all group matches to ensure data is accurate
+        const { data: groupMatches, error: matchesError } = await supabase
+          .from('match')
+          .select('home_team_id, away_team_id, home_score, away_score, status')
+          .not('group_id', 'is', null);
+
+        if (matchesError) {
+          console.error('Error fetching group matches:', matchesError);
+          throw matchesError;
+        }
+
+        if (groupMatches) {
+          for (const groupId in groupsMap) {
+            const group = groupsMap[groupId];
+            for (const team of group.teams) {
+              if (team && team.id) {
+                const playedMatches = groupMatches.filter(m => 
+                  (m.home_team_id === team.id || m.away_team_id === team.id) &&
+                  (m.status === 'completed' || m.status === 'in_progress')
+                );
+
+                let won = 0, drawn = 0, lost = 0, goalsFor = 0, goalsAgainst = 0;
+
+                playedMatches.forEach(m => {
+                  const isHome = m.home_team_id === team.id;
+                  const scoreFor = isHome ? (m.home_score || 0) : (m.away_score || 0);
+                  const scoreAgainst = isHome ? (m.away_score || 0) : (m.home_score || 0);
+
+                  goalsFor += scoreFor;
+                  goalsAgainst += scoreAgainst;
+
+                  if (m.status === 'completed') {
+                    if (scoreFor > scoreAgainst) won++;
+                    else if (scoreFor < scoreAgainst) lost++;
+                    else drawn++;
+                  }
+                });
+                
+                team.played = playedMatches.length;
+                team.won = won;
+                team.drawn = drawn;
+                team.lost = lost;
+                team.goalsFor = goalsFor;
+                team.goalsAgainst = goalsAgainst;
+                team.goalDifference = goalsFor - goalsAgainst;
+                team.points = (won * 3) + drawn;
+              }
+            }
+          }
+        }
+
         // Sort teams within each group by standings (position for teams with stats, then by initial position)
         for (const groupId in groupsMap) {
           const group = groupsMap[groupId];
