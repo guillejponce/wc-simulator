@@ -16,41 +16,41 @@ function Knockout() {
   const [resolvedRound32Matchups, setResolvedRound32Matchups] = useState([]);
   const navigate = useNavigate();
 
-  // Define the Round of 32 matchups according to FIFA format - CORRECT ORDER
+  // Define the Round of 32 matchups according to FIFA format - CORRECT PAIRINGS
   const round32Matchups = [
-    { id: 73, stage: 'Round of 32', team1: 'Winner Group E', team2: '3rd Group A/B/D/E/F' },
-    { id: 74, stage: 'Round of 32', team1: 'Winner Group I', team2: '3rd Group C/D/F/G/H' },
-    { id: 75, stage: 'Round of 32', team1: 'Runner-up Group A', team2: 'Runner-up Group B' },
-    { id: 76, stage: 'Round of 32', team1: 'Winner Group F', team2: 'Runner-up Group C' },
-    { id: 77, stage: 'Round of 32', team1: 'Runner-up Group L', team2: 'Runner-up Group K' },
-    { id: 78, stage: 'Round of 32', team1: 'Winner Group H', team2: 'Runner-up Group J' },
-    { id: 79, stage: 'Round of 32', team1: 'Winner Group D', team2: '3rd Group B/E/F/I/J' },
-    { id: 80, stage: 'Round of 32', team1: 'Winner Group G', team2: '3rd Group A/E/H/I/J' },
-    { id: 81, stage: 'Round of 32', team1: 'Winner Group C', team2: 'Runner-up Group F' },
-    { id: 82, stage: 'Round of 32', team1: 'Runner-up Group E', team2: 'Runner-up Group I' },
-    { id: 83, stage: 'Round of 32', team1: 'Winner Group A', team2: '3rd Group C/E/F/H/I' },
-    { id: 84, stage: 'Round of 32', team1: 'Winner Group L', team2: '3rd Group E/H/I/J/K' },
-    { id: 85, stage: 'Round of 32', team1: 'Winner Group J', team2: 'Runner-up Group H' },
-    { id: 86, stage: 'Round of 32', team1: 'Runner-up Group D', team2: 'Runner-up Group G' },
-    { id: 87, stage: 'Round of 32', team1: 'Winner Group B', team2: '3rd Group E/F/G/I/J' },
-    { id: 88, stage: 'Round of 32', team1: 'Winner Group K', team2: '3rd Group D/E/I/J/L' }
+    { id: 73, stage: 'Round of 32', team1: 'Runner-up Group A', team2: 'Runner-up Group B' },
+    { id: 74, stage: 'Round of 32', team1: 'Winner Group E', team2: '3rd Group A/B/C/D/F' },
+    { id: 75, stage: 'Round of 32', team1: 'Winner Group F', team2: 'Runner-up Group C' },
+    { id: 76, stage: 'Round of 32', team1: 'Winner Group C', team2: 'Runner-up Group F' },
+    { id: 77, stage: 'Round of 32', team1: 'Winner Group I', team2: '3rd Group C/D/F/G/H' },
+    { id: 78, stage: 'Round of 32', team1: 'Runner-up Group E', team2: 'Runner-up Group I' },
+    { id: 79, stage: 'Round of 32', team1: 'Winner Group A', team2: '3rd Group C/E/F/H/I' },
+    { id: 80, stage: 'Round of 32', team1: 'Winner Group L', team2: '3rd Group E/H/I/J/K' },
+    { id: 81, stage: 'Round of 32', team1: 'Winner Group D', team2: '3rd Group B/E/F/I/J' },
+    { id: 82, stage: 'Round of 32', team1: 'Winner Group G', team2: '3rd Group A/E/H/I/J' },
+    { id: 83, stage: 'Round of 32', team1: 'Runner-up Group K', team2: 'Runner-up Group L' },
+    { id: 84, stage: 'Round of 32', team1: 'Winner Group H', team2: 'Runner-up Group J' },
+    { id: 85, stage: 'Round of 32', team1: 'Winner Group B', team2: '3rd Group E/F/G/I/J' },
+    { id: 86, stage: 'Round of 32', team1: 'Winner Group J', team2: 'Runner-up Group H' },
+    { id: 87, stage: 'Round of 32', team1: 'Winner Group K', team2: '3rd Group D/E/I/J/L' },
+    { id: 88, stage: 'Round of 32', team1: 'Runner-up Group D', team2: 'Runner-up Group G' }
   ];
 
   const round16Matchups = [
-    { id: 89, stage: 'Round of 16', team1: 'Winner 73', team2: 'Winner 75' },
-    { id: 90, stage: 'Round of 16', team1: 'Winner 74', team2: 'Winner 76' },
-    { id: 91, stage: 'Round of 16', team1: 'Winner 77', team2: 'Winner 78' },
+    { id: 89, stage: 'Round of 16', team1: 'Winner 74', team2: 'Winner 77' },
+    { id: 90, stage: 'Round of 16', team1: 'Winner 73', team2: 'Winner 75' },
+    { id: 91, stage: 'Round of 16', team1: 'Winner 76', team2: 'Winner 78' },
     { id: 92, stage: 'Round of 16', team1: 'Winner 79', team2: 'Winner 80' },
-    { id: 93, stage: 'Round of 16', team1: 'Winner 81', team2: 'Winner 82' },
-    { id: 94, stage: 'Round of 16', team1: 'Winner 83', team2: 'Winner 84' },
-    { id: 95, stage: 'Round of 16', team1: 'Winner 85', team2: 'Winner 86' },
-    { id: 96, stage: 'Round of 16', team1: 'Winner 87', team2: 'Winner 88' },
+    { id: 93, stage: 'Round of 16', team1: 'Winner 83', team2: 'Winner 84' },
+    { id: 94, stage: 'Round of 16', team1: 'Winner 81', team2: 'Winner 82' },
+    { id: 95, stage: 'Round of 16', team1: 'Winner 86', team2: 'Winner 88' },
+    { id: 96, stage: 'Round of 16', team1: 'Winner 85', team2: 'Winner 87' },
   ];
 
   const quarterFinalsMatchups = [
     { id: 97, stage: 'Quarter-finals', team1: 'Winner 89', team2: 'Winner 90' },
-    { id: 98, stage: 'Quarter-finals', team1: 'Winner 91', team2: 'Winner 92' },
-    { id: 99, stage: 'Quarter-finals', team1: 'Winner 93', team2: 'Winner 94' },
+    { id: 98, stage: 'Quarter-finals', team1: 'Winner 93', team2: 'Winner 94' },
+    { id: 99, stage: 'Quarter-finals', team1: 'Winner 91', team2: 'Winner 92' },
     { id: 100, stage: 'Quarter-finals', team1: 'Winner 95', team2: 'Winner 96' },
   ];
 
