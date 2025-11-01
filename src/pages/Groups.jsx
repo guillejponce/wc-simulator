@@ -373,7 +373,7 @@ function Groups() {
                         </TableCell>
                         <TableCell className="text-[var(--text-primary)] text-xs sm:text-sm py-2">{team?.played || 0}</TableCell>
                         <TableCell className="py-2">
-                          <span className="inline-flex items-center justify-center min-w-[24px] h-6 bg-[var(--wc-blue)] text-[var(--text-on-color)] rounded text-xs sm:text-sm font-medium px-1.5">
+                          <span className="inline-flex items-center justify-center min-w-[24px] h-6 bg-wc-gold text-wc-black rounded text-xs sm:text-sm font-medium px-1.5">
                             {team?.points || 0}
                           </span>
                         </TableCell>
