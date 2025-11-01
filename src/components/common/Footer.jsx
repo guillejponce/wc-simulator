@@ -6,14 +6,14 @@ function Footer() {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-[#f5f5f5] border-t border-gray-200 pt-8 pb-6">
+    <footer className="bg-neutral-100 border-t border-neutral-200 pt-8 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo and tagline */}
           <div className="flex flex-col items-start">
             <div className="flex items-center space-x-2 mb-3">
-              <Trophy className="h-5 w-5 text-[#1a472a]" />
-              <span className="font-bold text-[#1a472a]">FIFA World Cup 2026</span>
+              <Trophy className="h-5 w-5 text-wc-gold" />
+              <span className="font-bebas text-lg tracking-wider text-wc-black">WC 2026 SIMULATOR</span>
             </div>
             <p className="text-sm text-gray-600 mb-4">
               Experience the excitement of the first-ever 48-team World Cup tournament
@@ -31,25 +31,25 @@ function Footer() {
           
           {/* Quick links */}
           <div>
-            <h3 className="font-semibold text-[#1a472a] mb-4">Quick Links</h3>
+            <h3 className="font-bebas text-xl tracking-wider text-wc-black mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/matches" className="text-sm text-gray-600 hover:text-[#1a472a] transition-colors">
+                <Link to="/matches" className="text-sm text-gray-600 hover:text-wc-gold transition-colors">
                   Matches
                 </Link>
               </li>
               <li>
-                <Link to="/groups" className="text-sm text-gray-600 hover:text-[#1a472a] transition-colors">
+                <Link to="/groups" className="text-sm text-gray-600 hover:text-wc-gold transition-colors">
                   Groups
                 </Link>
               </li>
               <li>
-                <Link to="/teams" className="text-sm text-gray-600 hover:text-[#1a472a] transition-colors">
+                <Link to="/teams" className="text-sm text-gray-600 hover:text-wc-gold transition-colors">
                   Teams
                 </Link>
               </li>
               <li>
-                <Link to="/stats" className="text-sm text-gray-600 hover:text-[#1a472a] transition-colors">
+                <Link to="/stats" className="text-sm text-gray-600 hover:text-wc-gold transition-colors">
                   Statistics
                 </Link>
               </li>
@@ -58,7 +58,7 @@ function Footer() {
           
           {/* About */}
           <div>
-            <h3 className="font-semibold text-[#1a472a] mb-4">About</h3>
+            <h3 className="font-bebas text-xl tracking-wider text-wc-black mb-4">About</h3>
             <p className="text-sm text-gray-600 mb-4">
               This simulator allows you to create and manage your own World Cup tournament,
               with realistic match simulations and comprehensive statistics.

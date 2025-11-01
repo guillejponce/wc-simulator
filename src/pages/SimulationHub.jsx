@@ -140,7 +140,7 @@ function SimulationHub() {
           <CardHeader className="card-header-metallic border-b">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <CardTitle className="flex items-center gap-2 text-[var(--text-heading)]">
-                <Trophy className="w-5 h-5 text-[var(--wc-blue)]" />
+                <Trophy className="w-5 h-5 text-wc-gold" />
                 FIFA World Cup 2026™
               </CardTitle>
               <Badge 
@@ -179,13 +179,13 @@ function SimulationHub() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between border-t bg-gray-50">
-            <Button variant="outline" className="w-full sm:w-auto" asChild>
+            <Button variant="outline" className="w-full sm:w-auto border-wc-dark-gray text-wc-black hover:bg-wc-dark-gray hover:text-white font-bebas tracking-wider" asChild>
               <Link to="/groups">
                 <Users className="w-4 h-4 mr-2" />
                 View Groups
               </Link>
             </Button>
-            <Button className="w-full sm:w-auto bg-[var(--wc-blue)] hover:bg-[var(--wc-light-blue)]" asChild>
+            <Button className="w-full sm:w-auto bg-wc-black hover:bg-wc-gold hover:text-wc-black text-white font-bebas tracking-wider" asChild>
               <Link to="/matches">
                 <Calendar className="w-4 h-4 mr-2" />
                 View All Matches
@@ -211,7 +211,7 @@ function SimulationHub() {
                 </CardTitle>
                 <Link 
                   to="/stats" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider"
                 >
                   View All
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -263,7 +263,7 @@ function SimulationHub() {
             <Card>
               <CardHeader className="card-header-metallic">
                 <CardTitle className="flex items-center gap-2 text-[var(--text-heading)]">
-                  <Calendar className="w-5 h-5 text-[var(--wc-accent-blue)]" />
+                  <Calendar className="w-5 h-5 text-wc-gold" />
                   Matches
                 </CardTitle>
               </CardHeader>
@@ -272,7 +272,7 @@ function SimulationHub() {
                 <div className="text-sm text-[var(--text-secondary)]">{tournamentStats.playedMatches} completed, {tournamentStats.upcomingMatches} upcoming</div>
                 <Link 
                   to="/matches" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center mt-2"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider mt-2"
                 >
                   View Schedule
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -283,7 +283,7 @@ function SimulationHub() {
             <Card>
               <CardHeader className="card-header-metallic">
                 <CardTitle className="flex items-center gap-2 text-[var(--text-heading)]">
-                  <Users className="w-5 h-5 text-[var(--wc-accent-blue)]" />
+                  <Users className="w-5 h-5 text-wc-gold" />
                   Teams
                 </CardTitle>
               </CardHeader>
@@ -292,7 +292,7 @@ function SimulationHub() {
                 <div className="text-sm text-[var(--text-secondary)]">Participating in the tournament</div>
                 <Link 
                   to="/teams" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center mt-2"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider mt-2"
                 >
                   View Teams
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -303,7 +303,7 @@ function SimulationHub() {
             <Card>
               <CardHeader className="card-header-metallic">
                 <CardTitle className="flex items-center gap-2 text-[var(--text-heading)]">
-                  <Flag className="w-5 h-5 text-[var(--wc-accent-blue)]" />
+                  <Flag className="w-5 h-5 text-wc-gold" />
                   Groups
                 </CardTitle>
               </CardHeader>
@@ -312,7 +312,7 @@ function SimulationHub() {
                 <div className="text-sm text-[var(--text-secondary)]">Current tournament phase</div>
                 <Link 
                   to="/groups" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center mt-2"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider mt-2"
                 >
                   View Standings
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -371,7 +371,7 @@ function SimulationHub() {
                       </div>
                       {match.group && (
                         <div className="mt-2">
-                          <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-2 py-1 rounded-full text-xs font-medium">
+                          <span className="inline-block bg-wc-gold bg-opacity-20 text-wc-black px-2 py-1 rounded-full text-xs font-medium">
                             Group {match.group.name}
                           </span>
                         </div>
@@ -440,7 +440,7 @@ function SimulationHub() {
                       </div>
                       {match.group && (
                         <div className="mt-2">
-                          <span className="inline-block bg-[var(--wc-silver-blue)] bg-opacity-20 text-[var(--wc-blue)] px-2 py-1 rounded-full text-xs font-medium">
+                          <span className="inline-block bg-wc-gold bg-opacity-20 text-wc-black px-2 py-1 rounded-full text-xs font-medium">
                             Group {match.group.name}
                           </span>
                         </div>

@@ -168,7 +168,7 @@ function Matches() {
         </div>
         <Button 
           onClick={handleCreateMatch} 
-          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-[var(--text-on-dark)] shadow-md border-0 backdrop-blur-sm w-full md:w-auto transition-all duration-200 hover:scale-105"
+          className="bg-wc-gold text-wc-black hover:bg-wc-gold/90 shadow-md border-0 w-full md:w-auto transition-all duration-200 hover:scale-105 font-bebas tracking-wider"
         >
           <Plus className="w-4 h-4 mr-2" />
           Create Match
@@ -203,7 +203,7 @@ function Matches() {
               <p className="text-[var(--text-primary)] mb-4 text-base md:text-lg">No matches found</p>
               <Button 
                 onClick={handleCreateMatch} 
-                className="bg-gradient-to-r from-[var(--wc-blue)] to-[var(--wc-light-blue)] hover:from-[var(--wc-light-blue)] hover:to-[var(--wc-blue)] text-[var(--text-on-color)] shadow-md border-0 transition-all duration-200 hover:scale-105"
+                className="bg-wc-black text-white hover:bg-wc-gold hover:text-wc-black shadow-md border-0 transition-all duration-200 hover:scale-105 font-bebas tracking-wider"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create your first match

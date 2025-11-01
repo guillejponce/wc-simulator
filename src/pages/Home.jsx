@@ -11,22 +11,22 @@ function Home() {
       {/* Hero section */}
       <div className="header-gradient rounded-xl shadow-lg overflow-hidden">
         <div className="py-10 md:py-16 px-6 md:px-8">
-          <h1 className="text-3xl md:text-5xl font-bold mb-4">
-            FIFA World Cup Simulator
+          <h1 className="text-3xl md:text-5xl font-bebas tracking-wider mb-4">
+            FIFA WORLD CUP 2026 SIMULATOR
           </h1>
           <p className="text-lg md:text-xl mb-8 max-w-2xl">
             Create your own World Cup tournament, manage teams, simulate matches, and track results all in one place.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white shadow-md border-0 backdrop-blur-sm w-full sm:w-auto"
+              className="bg-wc-gold text-wc-black hover:bg-wc-gold/90 shadow-md border-0 w-full sm:w-auto font-bebas tracking-wider"
               asChild
             >
               <Link to="/matches">Start Simulating</Link>
             </Button>
             <Button
               variant="outline"
-              className="bg-transparent border-white text-white hover:bg-white hover:bg-opacity-10 backdrop-blur-sm w-full sm:w-auto"
+              className="bg-transparent border-wc-gold text-white hover:bg-wc-gold hover:text-wc-black w-full sm:w-auto font-bebas tracking-wider"
               asChild
             >
               <Link to="/groups">View Groups</Link>
@@ -42,14 +42,14 @@ function Home() {
           <Card className="h-full">
             <CardHeader className="card-header-metallic flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">Teams</CardTitle>
-              <Users className="h-5 w-5 text-[var(--wc-accent-blue)]" />
+              <Users className="h-5 w-5 text-wc-gold" />
             </CardHeader>
             <CardContent>
               <p className="text-sm text-[var(--text-secondary)] mb-1">Manage national teams participating in the World Cup</p>
               <div className="mt-4">
                 <Link 
                   to="/teams" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider"
                 >
                   View Teams
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -61,14 +61,14 @@ function Home() {
           <Card className="h-full">
             <CardHeader className="card-header-metallic flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">Matches</CardTitle>
-              <Calendar className="h-5 w-5 text-[var(--wc-accent-blue)]" />
+              <Calendar className="h-5 w-5 text-wc-gold" />
             </CardHeader>
             <CardContent>
               <p className="text-sm text-[var(--text-secondary)] mb-1">Schedule and simulate World Cup matches</p>
               <div className="mt-4">
                 <Link 
                   to="/matches" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider"
                 >
                   View Matches
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -80,14 +80,14 @@ function Home() {
           <Card className="h-full">
             <CardHeader className="card-header-metallic flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">Groups</CardTitle>
-              <Users className="h-5 w-5 text-[var(--wc-accent-blue)]" />
+              <Users className="h-5 w-5 text-wc-gold" />
             </CardHeader>
             <CardContent>
               <p className="text-sm text-[var(--text-secondary)] mb-1">Track standings and results for each group</p>
               <div className="mt-4">
                 <Link 
                   to="/groups" 
-                  className="text-[var(--wc-blue)] hover:text-[var(--wc-dark-blue)] text-sm font-medium flex items-center"
+                  className="text-wc-black hover:text-wc-gold text-sm font-medium flex items-center font-bebas tracking-wider"
                 >
                   View Groups
                   <ArrowRight className="ml-1 h-3 w-3" />
@@ -104,52 +104,52 @@ function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link 
             to="/matches/new" 
-            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
+            className="bg-gradient-to-r from-neutral-50 to-neutral-100 hover:from-neutral-100 hover:to-neutral-200 p-4 rounded-lg border border-neutral-200 flex items-center gap-3 transition-colors"
           >
-            <div className="bg-[var(--wc-blue)] rounded-full p-2 text-white">
+            <div className="bg-wc-black rounded-full p-2 text-wc-gold">
               <Calendar className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-medium text-[var(--text-heading)]">Create Match</h3>
+              <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Create Match</h3>
               <p className="text-sm text-[var(--text-secondary)]">Add a new fixture</p>
             </div>
           </Link>
 
           <Link 
             to="/teams/new" 
-            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
+            className="bg-gradient-to-r from-neutral-50 to-neutral-100 hover:from-neutral-100 hover:to-neutral-200 p-4 rounded-lg border border-neutral-200 flex items-center gap-3 transition-colors"
           >
-            <div className="bg-[var(--wc-light-blue)] rounded-full p-2 text-white">
+            <div className="bg-wc-gold rounded-full p-2 text-wc-black">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-medium text-[var(--text-heading)]">Add Team</h3>
+              <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Add Team</h3>
               <p className="text-sm text-[var(--text-secondary)]">Register new team</p>
             </div>
           </Link>
 
           <Link 
             to="/qualification" 
-            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
+            className="bg-gradient-to-r from-neutral-50 to-neutral-100 hover:from-neutral-100 hover:to-neutral-200 p-4 rounded-lg border border-neutral-200 flex items-center gap-3 transition-colors"
           >
-            <div className="bg-[var(--wc-accent-blue)] rounded-full p-2 text-white">
+            <div className="bg-wc-dark-gray rounded-full p-2 text-wc-gold">
               <TrendingUp className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-medium text-[var(--text-heading)]">Qualification</h3>
+              <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Qualification</h3>
               <p className="text-sm text-[var(--text-secondary)]">Track progression</p>
             </div>
           </Link>
 
           <Link 
             to="/draw" 
-            className="bg-gradient-to-r from-[#eef2f7] to-[#e6edf5] hover:from-[#e6edf5] hover:to-[#d9e3ef] p-4 rounded-lg border border-[var(--wc-silver-blue)] flex items-center gap-3 transition-colors"
+            className="bg-gradient-to-r from-neutral-50 to-neutral-100 hover:from-neutral-100 hover:to-neutral-200 p-4 rounded-lg border border-neutral-200 flex items-center gap-3 transition-colors"
           >
-            <div className="bg-[var(--wc-metallic-blue)] rounded-full p-2 text-white">
+            <div className="bg-wc-black rounded-full p-2 text-wc-gold">
               <Trophy className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-medium text-[var(--text-heading)]">Draw</h3>
+              <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Draw</h3>
               <p className="text-sm text-[var(--text-secondary)]">Group allocation</p>
             </div>
           </Link>
@@ -166,11 +166,11 @@ function Home() {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex gap-4 items-start">
-                <div className="bg-[#e6edf5] rounded-full p-1.5">
-                  <Sparkles className="h-4 w-4 text-[var(--wc-accent-blue)]" />
+                <div className="bg-wc-gold rounded-full p-1.5">
+                  <Sparkles className="h-4 w-4 text-wc-black" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-[var(--text-heading)]">Enhanced UI</h3>
+                  <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Enhanced UI</h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Completely redesigned user interface with improved responsiveness for all devices
                   </p>
@@ -178,11 +178,11 @@ function Home() {
               </div>
               
               <div className="flex gap-4 items-start">
-                <div className="bg-[#e6edf5] rounded-full p-1.5">
-                  <Sparkles className="h-4 w-4 text-[var(--wc-accent-blue)]" />
+                <div className="bg-wc-gold rounded-full p-1.5">
+                  <Sparkles className="h-4 w-4 text-wc-black" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-[var(--text-heading)]">Match Simulation</h3>
+                  <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Match Simulation</h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     New match simulation engine with realistic outcomes based on team strengths
                   </p>
@@ -190,11 +190,11 @@ function Home() {
               </div>
               
               <div className="flex gap-4 items-start">
-                <div className="bg-[#e6edf5] rounded-full p-1.5">
-                  <Sparkles className="h-4 w-4 text-[var(--wc-accent-blue)]" />
+                <div className="bg-wc-gold rounded-full p-1.5">
+                  <Sparkles className="h-4 w-4 text-wc-black" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-[var(--text-heading)]">Venue Support</h3>
+                  <h3 className="font-bebas tracking-wider text-base text-[var(--text-heading)]">Venue Support</h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Added venue selection for matches with real-world stadium information
                   </p>

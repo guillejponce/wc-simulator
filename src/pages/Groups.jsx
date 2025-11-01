@@ -351,8 +351,8 @@ function Groups() {
                         }`}
                       >
                         <TableCell className="font-medium text-[var(--text-primary)] text-xs sm:text-sm py-2">
-                          <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full ${
-                            index < 2 ? 'bg-[var(--wc-blue)] text-white' : 'bg-gray-100'
+                          <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full font-bold text-xs ${
+                            index < 2 ? 'bg-wc-gold text-wc-black' : 'bg-gray-300 text-gray-900'
                           }`}>
                             {index + 1}
                           </span>
@@ -440,13 +440,13 @@ function Groups() {
                   >
                     <TableCell className="font-medium text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">
                       <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                        index < 8 ? 'bg-[var(--wc-blue)] text-white' : 'bg-gray-300 text-gray-600'
+                        index < 8 ? 'bg-wc-gold text-wc-black' : 'bg-gray-400 text-gray-900'
                       }`}>
                         {index + 1}
                       </span>
                     </TableCell>
                     <TableCell className="py-2 sm:py-3">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-[var(--wc-blue)] text-white rounded-full text-xs sm:text-sm font-bold">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-wc-black text-wc-gold rounded-full text-xs sm:text-sm font-bold">
                         {team.groupName}
                       </span>
                     </TableCell>
@@ -467,8 +467,8 @@ function Groups() {
                     </TableCell>
                     <TableCell className="text-[var(--text-primary)] text-xs sm:text-sm py-2 sm:py-3">{team.played}</TableCell>
                     <TableCell className="py-2 sm:py-3">
-                      <span className={`inline-flex items-center justify-center min-w-[28px] h-7 rounded text-xs sm:text-sm font-medium px-2 ${
-                        index < 8 ? 'bg-[var(--wc-blue)] text-white' : 'bg-gray-300 text-gray-700'
+                      <span className={`inline-flex items-center justify-center min-w-[28px] h-7 rounded text-xs sm:text-sm font-medium px-2 font-bold ${
+                        index < 8 ? 'bg-wc-gold text-wc-black' : 'bg-gray-400 text-gray-900'
                       }`}>
                         {team.points}
                       </span>

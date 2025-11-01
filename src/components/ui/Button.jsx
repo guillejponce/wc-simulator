@@ -2,19 +2,19 @@ import React from 'react';
 import { cn } from '../../utils/classNames';
 
 const variantStyles = {
-  primary: "bg-blue-600 text-white shadow hover:bg-blue-700 focus:ring-blue-500",
+  primary: "bg-wc-black text-white font-bebas tracking-wider uppercase shadow hover:bg-wc-gold hover:text-wc-black focus:ring-wc-gold",
   secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500",
   success: "bg-green-600 text-white shadow hover:bg-green-700 focus:ring-green-500",
   danger: "bg-red-600 text-white shadow hover:bg-red-700 focus:ring-red-500",
   warning: "bg-yellow-500 text-white shadow hover:bg-yellow-600 focus:ring-yellow-500",
-  outline: "bg-transparent border border-gray-300 hover:bg-gray-100 focus:ring-gray-500",
-  ghost: "bg-transparent hover:bg-gray-100 focus:ring-gray-500"
+  outline: "bg-transparent border border-wc-gold text-wc-black hover:bg-wc-gold hover:text-wc-black focus:ring-wc-gold font-bebas tracking-wider",
+  ghost: "bg-transparent text-wc-black hover:bg-wc-dark-gray hover:text-wc-gold focus:ring-wc-gold font-bebas tracking-wider"
 };
 
 const sizeStyles = {
-  sm: "text-xs px-2.5 py-1.5 rounded",
-  md: "text-sm px-4 py-2 rounded-md",
-  lg: "text-base px-6 py-3 rounded-md",
+  sm: "text-xs px-3 py-1.5 rounded-sm",
+  md: "text-sm px-5 py-2 rounded-sm",
+  lg: "text-base px-8 py-3 rounded-sm",
   icon: "p-2 rounded-full"
 };
 

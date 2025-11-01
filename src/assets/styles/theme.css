@@ -1,14 +1,11 @@
 :root {
-  /* World Cup 2026 Colors - Metallic Blue Palette */
-  --wc-dark-blue: #1a2f4b;
-  --wc-blue: #2c4c6e;
-  --wc-light-blue: #3b6491;
-  --wc-accent-blue: #4f85c2;
-  --wc-metallic-blue: #5b8ab6;
-  --wc-silver-blue: #a3b8cc;
-  --wc-warm-accent: #d9a566;
-  --wc-gold: #eabd45;
-  
+  /* WC 2026 Palette */
+  --wc-black: #1a1a1a;
+  --wc-white: #ffffff;
+  --wc-gold: #d4af37;
+  --wc-light-gray: #f2f2f2;
+  --wc-dark-gray: #333333;
+
   /* Neutral Palette */
   --neutral-50: #f9fafb;
   --neutral-100: #f3f4f6;
@@ -22,18 +19,18 @@
   --neutral-900: #111827;
   
   /* Background gradients */
-  --gradient-primary: linear-gradient(135deg, var(--wc-dark-blue) 0%, var(--wc-blue) 100%);
+  --gradient-primary: linear-gradient(135deg, var(--wc-black) 0%, var(--wc-dark-gray) 100%);
   --gradient-secondary: linear-gradient(45deg, var(--wc-metallic-blue) 0%, var(--wc-light-blue) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--wc-warm-accent) 0%, var(--wc-gold) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--wc-gold) 0%, #a88a2a 100%);
   
   /* Component Colors */
-  --background-primary: #ffffff;
-  --background-secondary: #f9fafb;
-  --text-primary: #1f2937;
+  --background-primary: var(--wc-white);
+  --background-secondary: var(--wc-light-gray);
+  --text-primary: var(--wc-black);
   --text-secondary: #6b7280;
   --text-on-color: #ffffff;
-  --text-on-dark: #ffffff;
-  --text-heading: #111827;
+  --text-on-dark: var(--wc-white);
+  --text-heading: var(--wc-black);
   --text-muted: #9ca3af;
   --border-color: var(--neutral-200);
   
@@ -59,12 +56,14 @@
 body {
   background: var(--background-secondary);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-heading);
-  font-weight: 600;
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400; /* Bebas Neue is a single-weight font */
+  letter-spacing: 1px;
 }
 
 /* Form Elements */
@@ -159,8 +158,8 @@ select option {
 }
 
 .badge-primary {
-  background: var(--wc-light-blue);
-  color: var(--text-on-color);
+  background: var(--wc-dark-gray);
+  color: var(--text-on-dark);
 }
 
 .badge-success {
@@ -170,20 +169,22 @@ select option {
 
 /* Button Styles */
 .button-primary {
-  background: var(--wc-blue);
-  color: var(--text-on-color);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  background: var(--wc-black);
+  color: var(--text-on-dark);
+  border: 1px solid var(--wc-black);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
   cursor: pointer;
   transition: all var(--transition-speed);
-  font-weight: 500;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 .button-primary:hover {
-  background: var(--wc-light-blue);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+  background: var(--wc-gold);
+  color: var(--wc-black);
+  border-color: var(--wc-gold);
 }
 
 /* Group Card Styles */
